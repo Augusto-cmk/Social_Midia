@@ -1,0 +1,3 @@
+Execute os comandos na ordem expressa para a primeira execução: 
+    - pip install -r requirements.txt
+    - python Main.py
