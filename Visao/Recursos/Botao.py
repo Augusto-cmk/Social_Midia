@@ -1,10 +1,12 @@
 from kivy.uix.button import Button
 from kivy.uix.label import Label
-from kivy.graphics import Ellipse, Color,RoundedRectangle,Rectangle
+from kivy.graphics import Ellipse, Color,RoundedRectangle,Rectangle,Line
 from kivy.animation import Animation
+from kivy.uix.widget import Widget
 
 # Fazer com que a cor do círculo seja personalizavel na classe
 # Fazer com que a cor do texto seja personalizavel na classe
+
 class PersonalButton(Button):
     """
     Ao instanciar a classe PersonalButton, é preciso passar a função "action" como parâmetro. Esse método,
@@ -20,9 +22,9 @@ class PersonalButton(Button):
         - Incluir uma fonte personalisada, passando um arquivo .ttf (font_text = minha_fonte.ttf)
     
     Segue um exemplo de uso da classe:
-         - Button = PersonalButton(action=self.acao,size_hint=(.09, .05),
+         Button = PersonalButton(action=self.acao,size_hint=(.09, .05),
                         pos_hint={'center_x': .5, 'center_y': .5},
-                        text="Teste",colorButton=(1,1,1,1),colorText=(0,0,0,1),textSize=20,format='circulo')
+                        text="Teste",colorButton=(1,1,1,1),colorText=(0,0,0,1),textSize=15,format='retangulo_arredondado',borderColor=(1,0,1,1),borderSize=2)
         
          - O parâmetro pos_hint é herdado da classe Button do kivy, e nele são passadas as coodenadas x e y
             onde o botão vai ficar na tela caso esteja utilizando um RelativeLayout
@@ -33,14 +35,19 @@ class PersonalButton(Button):
             - 'circulo' (Para efetivamente ser um circulo o size_hint deve ter o mesmo tamanho em altura e largura)
             - 'retangulo' (Para ser um quadrado o size_hint deve ter o mesmo tamanho em altura e largura)
             - 'retangulo_arredondado'
+        
+        - O parâmetro borderSize refere-se a largura da borda a ser desenhada. Por padrão ela vem 0, ou seja, não desenha nenhuma borda
+        - O parâmetro borderColor refere-se a cor da borda a ser desenhada. Por padrão ela vem com a cor preta.
+        
     
     O esquema de cores da classe possui os seguintes parâmetros (red, green, blue, alpha)
 
     """
-    def __init__(self,action,colorButton,colorText,textSize,format,font_text="Roboto",**kwargs):
+    def __init__(self,action,colorButton,colorText,textSize,format,font_text="Roboto",borderSize=0,borderColor=(1,1,1,1),**kwargs):
         super(PersonalButton, self).__init__(**kwargs)
         self.defaultSize = self.size_hint.copy()
         self.action = action
+        self.borderSize = borderSize
         # definir cor e tamanho do texto do botão
         self.color = colorText
         self.font_size = textSize
@@ -49,16 +56,28 @@ class PersonalButton(Button):
         
         # definir cor do círculo
         self.shape_color = Color(*colorButton)
+        self.border_color = Color(*borderColor)
+        
+        self.format = format
 
+        self.borda = Line()
         # desenhar figura
         if format == 'circulo':
-            self.shape = Ellipse(pos=self.pos, size=self.size)
+            self.shape = Ellipse()
         
         if format == 'retangulo':
-            self.shape = Rectangle(pos=self.pos, size=self.size)
+            self.shape = Rectangle()
         
         if format == 'retangulo_arredondado':
-            self.shape = RoundedRectangle(pos=self.pos, size=self.size)
+            self.shape = RoundedRectangle()
+
+        if self.borderSize > 0:
+            if format == 'retangulo_arredondado':
+                self.borda_round = RoundedBorder(1,borderColor)
+                self.add_widget(self.borda_round)
+            else:
+                self.canvas.add(self.border_color)
+                self.canvas.add(self.borda)
 
         self.canvas.add(self.shape_color)
         self.canvas.add(self.shape)
@@ -66,15 +85,31 @@ class PersonalButton(Button):
         # adicionar widget de texto
         self.label = Label(text=self.text, color=self.color, font_size=self.font_size, font_name=self.font_name,
                             pos_hint=self.pos_hint, halign='center', valign='middle')
-    
+
         self.add_widget(self.label)
 
     def on_size(self, *args):
         self.shape.size = self.size
         self.shape.pos = self.pos
         self.label.size = self.size
+        if self.borderSize > 0:
+            if self.format == 'retangulo_arredondado':
+                self.borda_round.set_size(self.size,self.borderSize)
+            else:
+                self.borda.width=self.borderSize
 
     def on_pos(self, *args):
+        if self.borderSize > 0:
+            if self.format == 'circulo':
+                self.borda.ellipse=(self.x, self.y, self.width, self.height)
+
+            if self.format == 'retangulo':
+                self.borda.rectangle=(self.x, self.y, self.width, self.height)
+            
+            if self.format == 'retangulo_arredondado':
+                self.borda_round.set_pos(self.pos)
+                self.borda_round.draw()
+
         self.shape.pos = self.pos
         self.label.pos = self.pos
     
@@ -88,3 +123,81 @@ class PersonalButton(Button):
     
     def restore_size_hint(self, *args):
         self.size_hint = self.defaultSize.copy()
+
+
+class RoundedBorder(Widget):
+    def __init__(self,radius, border_color,**kwargs):
+        super().__init__(**kwargs)
+        self.radius = radius
+        self.border_color = border_color
+
+    def set_size(self,size,border_width):
+        self.size = size
+        self.border_width = border_width
+    
+    def set_pos(self,pos):
+        self.pos = pos
+
+    def draw(self):
+        self.canvas.clear()
+        with self.canvas:
+            # Desenhar borda esquerda
+            Color(*self.border_color)
+            Line(
+                rounded_rectangle=(
+                    self.pos[0] + self.border_width / 2,
+                    self.pos[1] + self.border_width / 2,
+                    self.radius,
+                    self.size[1] - self.border_width,
+                    self.radius,
+                    0,
+                    self.radius,
+                    0
+                ),
+                width=self.border_width
+            )
+
+            # Desenhar borda direita
+            Line(
+                rounded_rectangle=(
+                    self.pos[0] + self.size[0] - self.radius - self.border_width / 2,
+                    self.pos[1] + self.border_width / 2,
+                    self.radius,
+                    self.size[1] - self.border_width,
+                    0,
+                    self.radius,
+                    0,
+                    self.radius
+                ),
+                width=self.border_width
+            )
+
+            # Desenhar borda superior
+            Line(
+                rounded_rectangle=(
+                    self.pos[0] + self.border_width / 2,
+                    self.pos[1] + self.size[1] - self.radius - self.border_width / 2,
+                    self.size[0] - self.border_width,
+                    self.radius,
+                    self.radius,
+                    self.radius,
+                    0,
+                    0
+                ),
+                width=self.border_width
+            )
+
+            # Desenhar borda inferior
+            Line(
+                rounded_rectangle=(
+                    self.pos[0] + self.border_width / 2,
+                    self.pos[1] + self.border_width / 2,
+                    self.size[0] - self.border_width,
+                    self.radius,
+                    0,
+                    0,
+                    self.radius,
+                    self.radius
+                ),
+                width=self.border_width
+            )

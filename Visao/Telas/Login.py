@@ -10,14 +10,14 @@ class TelaLogin(Screen):
 
         Button = PersonalButton(action=self.acao,size_hint=(.09, .05),
                         pos_hint={'center_x': .5, 'center_y': .5},
-                        text="Teste",colorButton=(1,1,1,1),colorText=(0,0,0,1),textSize=15,format='circulo')
+                        text="Teste",colorButton=(1,1,1,1),colorText=(0,0,0,1),textSize=15,format='retangulo_arredondado',borderColor=(1,0,1,1),borderSize=2)
                         
         self.rl.add_widget(Button)
         self.add_widget(self.rl)
     
 
     def acao(self):
-        print("PEDRO é um gostoso")
+        pass
     
 
         
