@@ -72,12 +72,8 @@ class PersonalButton(Button):
             self.shape = RoundedRectangle()
 
         if self.borderSize > 0:
-            if format == 'retangulo_arredondado':
-                self.borda_round = RoundedBorder(1,borderColor)
-                self.add_widget(self.borda_round)
-            else:
-                self.canvas.add(self.border_color)
-                self.canvas.add(self.borda)
+            self.canvas.add(self.border_color)
+            self.canvas.add(self.borda)
 
         self.canvas.add(self.shape_color)
         self.canvas.add(self.shape)
@@ -93,10 +89,7 @@ class PersonalButton(Button):
         self.shape.pos = self.pos
         self.label.size = self.size
         if self.borderSize > 0:
-            if self.format == 'retangulo_arredondado':
-                self.borda_round.set_size(self.size,self.borderSize)
-            else:
-                self.borda.width=self.borderSize
+            self.borda.width=self.borderSize
 
     def on_pos(self, *args):
         if self.borderSize > 0:
@@ -107,8 +100,7 @@ class PersonalButton(Button):
                 self.borda.rectangle=(self.x, self.y, self.width, self.height)
             
             if self.format == 'retangulo_arredondado':
-                self.borda_round.set_pos(self.pos)
-                self.borda_round.draw()
+                self.borda.rounded_rectangle=(self.pos[0],self.pos[1],self.size[0],self.size[1],10,10,10,10)
 
         self.shape.pos = self.pos
         self.label.pos = self.pos
@@ -124,34 +116,6 @@ class PersonalButton(Button):
     def restore_size_hint(self, *args):
         self.size_hint = self.defaultSize.copy()
 
-
-class RoundedBorder(Widget):
-    def __init__(self,radius, border_color,**kwargs):
-        super().__init__(**kwargs)
-        self.radius = radius
-        self.border_color = border_color
-
-    def set_size(self,size,border_width):
-        self.size = size
-        self.border_width = border_width
-    
-    def set_pos(self,pos):
-        self.pos = pos
-
-    def draw(self):
-        self.canvas.clear()
-        with self.canvas:
-            Color(*self.border_color)
-            Line(
-                rounded_rectangle=(
-                    self.pos[0],
-                    self.pos[1],
-                    self.size[0],
-                    self.size[1],
-                    10,
-                    10,
-                    10,
-                    10
-                ),
-                width=self.border_width
-            )
+class ImageButton(Button):
+    def __init__(self,**kw):
+        super().__init__(**kw)
