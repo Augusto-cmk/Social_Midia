@@ -4,8 +4,6 @@ from kivy.graphics import Ellipse, Color,RoundedRectangle,Rectangle,Line
 from kivy.animation import Animation
 from kivy.uix.widget import Widget
 
-# Fazer com que a cor do círculo seja personalizavel na classe
-# Fazer com que a cor do texto seja personalizavel na classe
 
 class PersonalButton(Button):
     """
@@ -117,5 +115,46 @@ class PersonalButton(Button):
         self.size_hint = self.defaultSize.copy()
 
 class ImageButton(Button):
-    def __init__(self,**kw):
+    """
+    Ao instanciar a classe ImageButton, é preciso passar a função "action" como parâmetro. Esse método,
+    é responsável por realizar a ação quando o botão é acionado.
+
+     - size_hint = tamanho do botao
+     - format = formato do botão (circulo, retangulo,retangulo_arredondado)
+     - pos_hint = posição do botão na tela
+     - pathImage = caminho da imagem do botão
+
+     Segue um exemplo de uso da classe:
+        Button = ImageButton(self.acao,"Imagens/mais.png","circulo",size_hint=(.09, .05),
+                        pos_hint={'center_x': .5, 'center_y': .5})
+    """
+    def __init__(self,action,pathImage,format,**kw):
         super().__init__(**kw)
+        self.action = action
+        self.defaultSize = self.size_hint.copy()
+        self.background_color = [0, 0, 0, 0]
+        if format == 'circulo':
+            self.shape = Ellipse(source=pathImage)
+        if format == 'retangulo':
+            self.shape = Rectangle(source=pathImage)
+        if format == 'retangulo_arredondado':
+            self.shape = RoundedRectangle(source=pathImage)
+        
+        self.canvas.add(self.shape)
+    
+    def on_size(self, *args):
+        self.shape.size = self.size
+
+    def on_pos(self, *args):
+        self.shape.pos = self.pos
+
+    def on_press(self):
+        self.action()
+        anim_size_hint = Animation(size_hint=[self.defaultSize[0]+0.02,self.defaultSize[1]+0.02], duration=0.1) + Animation(size_hint=[self.defaultSize[0]+0.01,self.defaultSize[1]+0.01], duration=0.1)
+        
+        anim_size_hint.start(self)
+
+        anim_size_hint.bind(on_complete=self.restore_size_hint)
+    
+    def restore_size_hint(self, *args):
+        self.size_hint = self.defaultSize.copy()
