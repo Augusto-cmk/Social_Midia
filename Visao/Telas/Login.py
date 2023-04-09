@@ -8,7 +8,7 @@ class TelaLogin(Screen):
 
         self.rl = RelativeLayout() # Layout relativo, cujas estruturas requerem que uma localização seja inserida para os objetos inseridos
 
-        Button = PersonalButton(action=self.acao,size_hint=(.09, .05),
+        Button = PersonalButton(action=self.acao,size_hint=(.2, .05),
                         pos_hint={'center_x': .5, 'center_y': .5},
                         text="Teste",colorButton=(1,1,1,1),colorText=(0,0,0,1),textSize=15,format='retangulo_arredondado',borderColor=(1,0,1,1),borderSize=2)
                         

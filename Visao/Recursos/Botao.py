@@ -141,63 +141,17 @@ class RoundedBorder(Widget):
     def draw(self):
         self.canvas.clear()
         with self.canvas:
-            # Desenhar borda esquerda
             Color(*self.border_color)
             Line(
                 rounded_rectangle=(
-                    self.pos[0] + self.border_width / 2,
-                    self.pos[1] + self.border_width / 2,
-                    self.radius,
-                    self.size[1] - self.border_width,
-                    self.radius,
-                    0,
-                    self.radius,
-                    0
-                ),
-                width=self.border_width
-            )
-
-            # Desenhar borda direita
-            Line(
-                rounded_rectangle=(
-                    self.pos[0] + self.size[0] - self.radius - self.border_width / 2,
-                    self.pos[1] + self.border_width / 2,
-                    self.radius,
-                    self.size[1] - self.border_width,
-                    0,
-                    self.radius,
-                    0,
-                    self.radius
-                ),
-                width=self.border_width
-            )
-
-            # Desenhar borda superior
-            Line(
-                rounded_rectangle=(
-                    self.pos[0] + self.border_width / 2,
-                    self.pos[1] + self.size[1] - self.radius - self.border_width / 2,
-                    self.size[0] - self.border_width,
-                    self.radius,
-                    self.radius,
-                    self.radius,
-                    0,
-                    0
-                ),
-                width=self.border_width
-            )
-
-            # Desenhar borda inferior
-            Line(
-                rounded_rectangle=(
-                    self.pos[0] + self.border_width / 2,
-                    self.pos[1] + self.border_width / 2,
-                    self.size[0] - self.border_width,
-                    self.radius,
-                    0,
-                    0,
-                    self.radius,
-                    self.radius
+                    self.pos[0],
+                    self.pos[1],
+                    self.size[0],
+                    self.size[1],
+                    10,
+                    10,
+                    10,
+                    10
                 ),
                 width=self.border_width
             )
