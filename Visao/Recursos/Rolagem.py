@@ -54,7 +54,11 @@ class caixaRolagem(RelativeLayout):
         for widget in listaWidgets:
             if i > 0:
                 widget.pos_hint['center_y'] += spacing*i
-                widget.reajuste(spacing)
+                try:
+                    widget.reajuste(spacing)
+                except Exception:
+                    print("O widget não possui o método 'reajuste',caso esteja inserindo um widget provindo do kivy faça a herança e a adaptação em uma nova classe e implemente o método")
+
             layout.add_widget(widget)
             i+=1
 
