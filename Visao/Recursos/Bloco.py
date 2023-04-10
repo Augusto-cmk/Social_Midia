@@ -1,6 +1,7 @@
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.widget import Widget
 from Visao.Recursos.Geometry import Geometry
+from kivy.graphics import Ellipse, Color,RoundedRectangle,Rectangle,Line
 
 class Bloco(RelativeLayout):
     """
@@ -88,3 +89,36 @@ class Bloco(RelativeLayout):
         dif_x = natural_center_x - center_x
         dif_y = natural_center_y - center_y
         return {'center_x':pos_hint_widget['center_x']-dif_x,'center_y':pos_hint_widget['center_y']-dif_y}
+    
+
+
+class BoxImage(Widget):
+    """
+        A classe BoxImage tem como foco, criar um box para inserir a imagem do formato que deseja
+
+        - size_hint = tamanho da figura
+        - format = formato da figura (circulo, retangulo,retangulo_arredondado)
+        - pos_hint = posição da figura na tela
+        - pathImage = caminho da imagem
+
+        Segue um exemplo de uso da classe:
+            image = BoxImage("circulo","Imagens/mais.png",size_hint=(.09, .05),
+                            pos_hint={'center_x': .5, 'center_y': .5})
+    """
+    def __init__(self,format,pathImage, **kw):
+        super().__init__(**kw)
+        self.background_color = [0, 0, 0, 0]
+        if format == 'circulo':
+            self.shape = Ellipse(source=pathImage)
+        if format == 'retangulo':
+            self.shape = Rectangle(source=pathImage)
+        if format == 'retangulo_arredondado':
+            self.shape = RoundedRectangle(source=pathImage)
+        
+        self.canvas.add(self.shape)
+
+    def on_size(self, *args):
+        self.shape.size = self.size
+
+    def on_pos(self, *args):
+        self.shape.pos = self.pos
