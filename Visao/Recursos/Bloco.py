@@ -14,6 +14,15 @@ class Bloco(RelativeLayout):
                 - Usa-se da serguinte forma:
                     - {'center_x':valor,'center_y':valor} 
         
+        Exemplo de uso da classe:
+            -   bloco = Bloco(.5,.5,{'center_x': .4, 'center_y': .6})
+                bloco.setFormat("retangulo_arredondado",(1,0,0,1))
+
+                Button = PersonalButton(action=self.acao,size_hint=(.09, .05),
+                                pos_hint={'center_x': .3, 'center_y': .5},
+                                text="Teste",colorButton=(1,1,1,1),colorText=(0,0,0,1),textSize=15,format='retangulo_arredondado',borderColor=(1,0,1,1),borderSize=2)
+
+                bloco.insertWidget(Button)
     """
     def __init__(self,altura,largura,pos_hint,**kw):
         super().__init__(**kw)
@@ -21,6 +30,7 @@ class Bloco(RelativeLayout):
         self.pos_hint = pos_hint
         self.height = altura
         self.width = largura
+        self.widgets = list()
     
     def setFormat(self,format,color,borderSize=0,borderColor=(1,1,1,1)):
         """
@@ -47,6 +57,7 @@ class Bloco(RelativeLayout):
         widget.pos_hint = self.__alinhar(center,pos_hint_widget)
 
         self.add_widget(widget)
+        self.widgets.append(widget)
     
     def removeWidget(self,widget:Widget):
         self.remove_widget(widget)
@@ -54,6 +65,14 @@ class Bloco(RelativeLayout):
     def clearWidgets(self):
         self.clear_widgets
 
+    def reajuste(self,spacing):
+        center = self.pos_hint.copy()
+        for widget in self.widgets:
+            result = widget.pos_hint['center_y'] - (0.5 + (0.5 - spacing))  - center['center_y']
+            if result < 0:
+                widget.pos_hint['center_y'] = result*(-1)
+            else:
+                widget.pos_hint['center_y'] = result
 
     def __alinhar(self,centro,pos_hint_widget)->dict:
         """
@@ -65,6 +84,7 @@ class Bloco(RelativeLayout):
         center_x = centro['center_x']
         center_y = centro['center_y']
 
+        
         dif_x = natural_center_x - center_x
         dif_y = natural_center_y - center_y
 
