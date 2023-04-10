@@ -18,7 +18,7 @@ class caixaRolagem(RelativeLayout):
             - listaWidgets = Lista de widgets que serão adicionados na caixa (Precisa ser uma lista, mesmo sendo apenas 1 elemento)
             - cols = número de colunas que serão inseridas no layout de rolagem
                 - Se forem duas colunas por exemplo, o layout vai organizar os widgets par a par
-            - spacing = espaçamento entre os widgets (Por padrão vem em 100%)
+            - spacing = espaçamento entre os widgets
             - row_default_height = altura que cada widget pode ter dentro da caixa 
             - padding = preenchimento do widget na caixa
             - col_default_width = Largura padrão para os widgets
