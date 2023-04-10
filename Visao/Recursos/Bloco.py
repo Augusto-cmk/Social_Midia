@@ -87,5 +87,4 @@ class Bloco(RelativeLayout):
         
         dif_x = natural_center_x - center_x
         dif_y = natural_center_y - center_y
-
         return {'center_x':pos_hint_widget['center_x']-dif_x,'center_y':pos_hint_widget['center_y']-dif_y}

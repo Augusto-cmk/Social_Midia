@@ -1,8 +1,6 @@
-from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.screenmanager import Screen
 
 class caixaRolagem(RelativeLayout):
     """
@@ -11,6 +9,8 @@ class caixaRolagem(RelativeLayout):
 
         O parâmetro que o reajuste recebe é o spacing, que é o valor de espaçamento entre os widgets dessa classe. Esse valor vai determinar
         qual o valor de reajuste necessário para obter a posição correta do widget. Vale resaltar que o mesmo realiza o reajuste apenas no eixo y
+
+        Caso tenha dúvida de como funciona o método de reajuste, consulte o método de reajuste da classe Bloco
 
         Esta classe permite que seja adicionado uma caixa para rolar os widgets adicionados.
         Para a configuração da mesma, é necessário entender os parâmetros.

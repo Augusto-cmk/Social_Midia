@@ -36,6 +36,10 @@ class TelaLogin(Screen):
                         pos_hint={'center_x': .3, 'center_y': .5},
                         text="Teste",colorButton=(1,1,1,1),colorText=(0,0,0,1),textSize=15,format='retangulo_arredondado',borderColor=(1,0,1,1),borderSize=2))
 
+        bloco3.insertWidget(Button(size_hint=(.12, .05),
+                        pos_hint={'center_x': .5, 'center_y': .5},
+                        text="Cadastrar"))
+
         rolagem = caixaRolagem([bloco,bloco2,bloco3])
 
         self.rl.add_widget(rolagem)
