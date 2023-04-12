@@ -6,7 +6,7 @@ class Text(TextInput):
         - colorText = Cor a ser definida para o texto
         - textSize = Tamanho da fonte do texto
         - font_text = Fonte do texto (Por padrão ela ja vem com a fonte Roboto)
-        - only_number = Se devem ser aceitos apenas números
+        - only_number = Se devem ser aceitos apenas números (Por padrão = False)
         - max_caracter = Quantidade máxima de caracteres permitidos
         - cursorColor = Cor do cursor da caixa de texto
 
