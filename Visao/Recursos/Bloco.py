@@ -62,9 +62,6 @@ class Bloco(RelativeLayout):
     
     def removeWidget(self,widget:Widget):
         self.remove_widget(widget)
-    
-    def clearWidgets(self):
-        self.clear_widgets
 
     def reajuste(self,spacing):
         center = self.pos_hint.copy()
@@ -115,6 +112,7 @@ class BoxImage(Widget):
         if format == 'retangulo_arredondado':
             self.shape = RoundedRectangle(source=pathImage)
         
+        self.canvas.add(Color((1,1,1,1)))
         self.canvas.add(self.shape)
 
     def on_size(self, *args):

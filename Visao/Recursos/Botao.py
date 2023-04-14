@@ -79,7 +79,7 @@ class PersonalButton(Button):
         # adicionar widget de texto
         self.label = Label(text=self.text, color=self.color, font_size=self.font_size, font_name=self.font_name,
                             pos_hint=self.pos_hint, halign='center', valign='middle')
-
+        
         self.add_widget(self.label)
 
     def on_size(self, *args):

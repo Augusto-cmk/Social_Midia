@@ -6,7 +6,11 @@ from Visao.Telas.Cadastro import TelaCadastro
 class GerenciadorTelas(ScreenManager):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
-        self.add_widget(TelaLogin())
+        self.telas = {'login':TelaLogin,'cadastro':TelaCadastro}
+        self.add_widget(TelaLogin(self))
+    
+    def go_to(self,nomeTela):
+        return self.telas[nomeTela]
 
 
 class BrainCase(App):
