@@ -6,6 +6,7 @@ from Visao.Recursos.checkbox import Interactive_Checkbox
 from Visao.Recursos.Text import Text
 from kivy.uix.label import Label
 from Visao.Recursos.Popup import Alerta
+from Controle.Envio_email import envioEmail
 
 
 class TelaLogin(Screen):
@@ -25,10 +26,10 @@ class TelaLogin(Screen):
         btnCadastro = PersonalButton(self.cadastro,(1,1,1,1),(0,0,0,1),15,'retangulo_arredondado',pos_hint={'center_x':0.565,'center_y':0.25},size_hint=(0.09,0.05),text="Cadastro",borderSize=1.5,borderColor=(0,0,0,1))
 
         label_email = Label(text='E-mail',color='black',pos_hint={'center_x':0.35,'center_y':0.6},size_hint=(.09,.05))
-        self.email = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,size_hint=(.37,.05),pos_hint={'center_x':0.5,'center_y':0.55})
+        self.email = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),40,size_hint=(.37,.05),pos_hint={'center_x':0.5,'center_y':0.55})
 
         label_senha = Label(text='Senha',color='black',pos_hint={'center_x':0.35,'center_y':0.49},size_hint=(.09,.05))
-        self.senha = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,size_hint=(.37,.05),pos_hint={'center_x':0.5,'center_y':0.44},password=True)
+        self.senha = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),40,size_hint=(.37,.05),pos_hint={'center_x':0.5,'center_y':0.44},password=True)
 
         btn_esqueci_senha = ImageButton(self.esqueci_senha,"Imagens/ForgotSenha.png",'retangulo',pos_hint={'center_x':0.5,'center_y':0.34},size_hint=(.25,.15))
 
@@ -58,7 +59,13 @@ class TelaLogin(Screen):
         pass
 
     def esqueci_senha(self):
-        self.alerta.start("teste","teste")
+        email = self.email.get_text()
+        # realizar uma consulta para obter a senha do usuário e determinar se o e-mail existe no banco de dados
+        send = envioEmail(email,"Recuperação de senha","Senha do usuário","senha")
+        if send:
+            self.alerta.start("Recuperação de senha",f"A senha foi enviada para {email}")
+        else:
+            self.alerta.start("Erro","Algo deu errado ao tentar recuperar a senha, favor tentar novamente mais tarde!")
     
     def cadastro(self):
         self.clear_widgets()

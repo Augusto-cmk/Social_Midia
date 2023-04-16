@@ -6,7 +6,8 @@ from Visao.Recursos.Bloco import Bloco,BoxImage
 from Visao.Recursos.Text import Text
 from Visao.Recursos.Geometry import Geometry
 from Visao.Recursos.checkbox import Interactive_Checkbox
-
+from Controle.Envio_email import envioEmail,gerarNumero
+from Visao.Recursos.Popup import Confirmar_Email,Alerta
 
 class TelaCadastro(Screen):
     def __init__(self,screenManager,**kw):
@@ -16,6 +17,8 @@ class TelaCadastro(Screen):
         
         fundo = BoxImage('retangulo','Imagens/Fundo2.jpg',size_hint=(1,1),pos_hint={'center_x':0.5,'center_y':0.5})
 
+        self.confirm_email = Confirmar_Email()
+        self.alerta = Alerta()
         # Bloco e imagem de perfil
         caixaCadastro = Bloco(0.96,0.9,{'center_x':0.5,'center_y':0.5})
         caixaCadastro.setFormat('retangulo_arredondado',(1,1,1,1))
@@ -200,10 +203,12 @@ class TelaCadastro(Screen):
 
 
         btnsalvar = PersonalButton(self.salvar,(1,1,1,1),(0,0,0,1),15,"retangulo_arredondado",pos_hint={'center_x':0.5,'center_y':0.057},size_hint=(0.15,0.05),borderSize=1.5,borderColor=(0,0,0,1),text='Salvar')
-        caixaCadastro.insertWidget(btnsalvar)
+        caixaCadastro.insertWidget(btnsalvar)  
 
         self.rl.add_widget(fundo)
         self.rl.add_widget(caixaCadastro)
+        self.rl.add_widget(self.alerta)
+        self.rl.add_widget(self.confirm_email)
         self.add_widget(self.rl)
     
     def exibirSenha(self,status):
@@ -213,7 +218,15 @@ class TelaCadastro(Screen):
         pass
 
     def salvar(self):
-        pass
+        # Código de confirmação de e-mail
+        codigo_email = gerarNumero()
+        email = self.email.get_text()
+        send = envioEmail(email,"Confirmação de e-mail",codigo_email,'confirmar')
+        if send:
+            self.confirm_email.start(codigo_email)
+        else:
+            self.alerta.start("Erro","Houve um erro ao tentar enviar o e-mail, favor tentar novamente!")
+        #_______________________________________________________________________________________________
     
     def voltar(self):
         self.clear_widgets()
