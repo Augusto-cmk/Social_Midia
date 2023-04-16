@@ -1,12 +1,11 @@
 from kivy.uix.screenmanager import Screen
 from kivy.uix.relativelayout import RelativeLayout
-from kivy.uix.button import Button
 from kivy.uix.label import Label
 from Visao.Recursos.Botao import PersonalButton,ImageButton
 from Visao.Recursos.Bloco import Bloco,BoxImage
-from Visao.Recursos.Rolagem import caixaRolagem
 from Visao.Recursos.Text import Text
 from Visao.Recursos.Geometry import Geometry
+from Visao.Recursos.checkbox import Interactive_Checkbox
 
 
 class TelaCadastro(Screen):
@@ -36,12 +35,12 @@ class TelaCadastro(Screen):
 
         # Nome
         asterisco_nome = Label(color='red',size_hint=(.2, .05),
-                            pos_hint={'center_x': .415, 'center_y': .87}, text='*')
+                            pos_hint={'center_x': .415, 'center_y': .9}, text='*')
 
         label_nome = Label(color='black',size_hint=(.2, .05),
-                            pos_hint={'center_x': .38, 'center_y': .87}, text='Nome')
+                            pos_hint={'center_x': .38, 'center_y': .9}, text='Nome')
         
-        self.nome = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),28,pos_hint={'center_x':.5,'center_y':.82},size_hint=(.3,.05))
+        self.nome = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),28,pos_hint={'center_x':.5,'center_y':.85},size_hint=(.3,.05))
         
         caixaCadastro.insertWidget(label_nome)
         caixaCadastro.insertWidget(self.nome)
@@ -51,11 +50,11 @@ class TelaCadastro(Screen):
 
         # E-mail
         asterisco_email = Label(color='red',size_hint=(.2, .05),
-                            pos_hint={'center_x': .415, 'center_y': .75}, text='*')
+                            pos_hint={'center_x': .415, 'center_y': .79}, text='*')
         label_email = Label(color='black',size_hint=(.2, .05),
-                            pos_hint={'center_x': .38, 'center_y': .75}, text='E-mail')
+                            pos_hint={'center_x': .38, 'center_y': .79}, text='E-mail')
         
-        self.email = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),40,pos_hint={'center_x':.618,'center_y':.7},size_hint=(.54,.05))
+        self.email = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),40,pos_hint={'center_x':.618,'center_y':.74},size_hint=(.54,.05))
         caixaCadastro.insertWidget(asterisco_email)
         caixaCadastro.insertWidget(label_email)
         caixaCadastro.insertWidget(self.email)
@@ -66,23 +65,23 @@ class TelaCadastro(Screen):
         # Input do aniversário
 
         asterisco_aniversario = Label(color='red',size_hint=(.2, .05),
-                            pos_hint={'center_x': .855, 'center_y': .87}, text='*')
+                            pos_hint={'center_x': .855, 'center_y': .9}, text='*')
         
         label_aniversário = Label(color='black',size_hint=(.2, .05),
-                            pos_hint={'center_x': .764, 'center_y': .87}, text='Data de nascimento')
+                            pos_hint={'center_x': .764, 'center_y': .9}, text='Data de nascimento')
         
 
-        self.dia_aniversario = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),2,pos_hint={'center_x':.7,'center_y':.82},size_hint=(.04,.05),only_number=True)
+        self.dia_aniversario = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),2,pos_hint={'center_x':.7,'center_y':.85},size_hint=(.04,.05),only_number=True)
         
         label_barra = Label(color='black',size_hint=(.2, .2),
-                            pos_hint={'center_x': .735, 'center_y': .82}, text='/',font_size=25)
+                            pos_hint={'center_x': .735, 'center_y': .85}, text='/',font_size=25)
         
-        self.mes_aniversario = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),2,pos_hint={'center_x':.77,'center_y':.82},size_hint=(.04,.05),only_number=True)
+        self.mes_aniversario = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),2,pos_hint={'center_x':.77,'center_y':.85},size_hint=(.04,.05),only_number=True)
 
         label_barra2 = Label(color='black',size_hint=(.2, .05),
-                            pos_hint={'center_x': .805, 'center_y': .82}, text='/',font_size=25)
+                            pos_hint={'center_x': .805, 'center_y': .85}, text='/',font_size=25)
         
-        self.ano_aniversario = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),4,pos_hint={'center_x':.855,'center_y':.82},size_hint=(.07,.05),only_number=True)
+        self.ano_aniversario = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),4,pos_hint={'center_x':.855,'center_y':.85},size_hint=(.07,.05),only_number=True)
 
         caixaCadastro.insertWidget(asterisco_aniversario)
         caixaCadastro.insertWidget(self.mes_aniversario)
@@ -92,6 +91,22 @@ class TelaCadastro(Screen):
         caixaCadastro.insertWidget(self.dia_aniversario)
         caixaCadastro.insertWidget(label_barra)
         #__________________________________
+
+        # Senha
+
+        check_box = Interactive_Checkbox(self.exibirSenha,"Imagens/OlhoFechado.png",'Imagens/olhoAberto.png',pos_hint={'center_x':.746,'center_y':.63},size_hint=(.03,.025))
+        asterisco_senha = Label(color='red',size_hint=(.2, .05),
+                            pos_hint={'center_x': .412, 'center_y': .68}, text='*')
+
+        label_senha = Label(text='Senha',color='black',pos_hint={'center_x':.377,'center_y':.68},size_hint=(.09,.05))
+        self.senha = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,size_hint=(.37,.05),pos_hint={'center_x':.532,'center_y':.63},password=True)
+        
+        caixaCadastro.insertWidget(check_box)
+        caixaCadastro.insertWidget(asterisco_senha)
+        caixaCadastro.insertWidget(label_senha)
+        caixaCadastro.insertWidget(self.senha)
+
+        #___________________________________
         
         #________________________________________________________________________________________________________________
 
@@ -101,7 +116,6 @@ class TelaCadastro(Screen):
 
         #________________________________________________________________________________________________________________
 
-        # Estado tava .11
 
         label_estado = Label(color='black',size_hint=(.2, .2),
                             pos_hint={'center_x': .14, 'center_y': .52}, text='Estado')
@@ -191,6 +205,9 @@ class TelaCadastro(Screen):
         self.rl.add_widget(fundo)
         self.rl.add_widget(caixaCadastro)
         self.add_widget(self.rl)
+    
+    def exibirSenha(self,status):
+        self.senha.password = not status
 
     def foto_perfil(self):# Provavelmente vai ter que utilizar uma lógica de backend para inserir isso ao banco de dados e carregar dinamicamente na tela ao fazer upload da imagem
         pass

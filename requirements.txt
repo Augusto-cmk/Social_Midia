@@ -1,1 +1,2 @@
 kivy
+google-api-python-client

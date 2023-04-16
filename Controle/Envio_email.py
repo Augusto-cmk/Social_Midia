@@ -1,6 +1,6 @@
 import random
-import smtplib
 import email.message
+import smtplib
 
 def gerarNumero():
     return random.randint(1,10000)
@@ -40,7 +40,7 @@ def envioEmail(destino,assunto,mensagem,tipo):
         msg['Subject'] = assunto
         msg['From'] = 'braincaseadm@gmail.com'
         msg['To'] = destino
-        password = 'pedrovicgab2023'
+        password = 'twnarciddeydzjur'
         msg.add_header('Content-Type','text/html')
         msg.set_payload(corpo_do_email)
 
