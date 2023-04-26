@@ -8,6 +8,7 @@ from Visao.Recursos.Geometry import Geometry
 from Visao.Recursos.checkbox import Interactive_Checkbox
 from Controle.Envio_email import envioEmail,gerarNumero
 from Visao.Recursos.Popup import Confirmar_Email,Alerta
+from Visao.Recursos.choose_file import Choose_file
 
 class TelaCadastro(Screen):
     def __init__(self,screenManager,**kw):
@@ -215,7 +216,7 @@ class TelaCadastro(Screen):
         self.senha.password = not status
 
     def foto_perfil(self):# Provavelmente vai ter que utilizar uma lógica de backend para inserir isso ao banco de dados e carregar dinamicamente na tela ao fazer upload da imagem
-        pass
+        dir = Choose_file().get_dir()
 
     def salvar(self):
         # Código de confirmação de e-mail
