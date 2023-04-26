@@ -27,12 +27,12 @@ class TelaCadastro(Screen):
         btnVoltar = ImageButton(self.voltar,"Imagens/Voltar.png","circulo",pos_hint={'center_x':0.1,'center_y':0.93},size_hint=(0.05,0.05))
         
         
-        carregar_img = BoxImage("circulo",'Imagens/foto_perfil.jpg',pos_hint={'center_x':0.2,'center_y':0.81},size_hint=(0.2,0.2))
+        self.carregar_img = BoxImage("circulo",'Imagens/foto_perfil.jpg',pos_hint={'center_x':0.2,'center_y':0.81},size_hint=(0.2,0.2))
         btnImage_perfil = PersonalButton(self.foto_perfil,(1,1,1,1),(0,0,0,1),15,"retangulo_arredondado",pos_hint={'center_x':0.2,'center_y':0.66},size_hint=(0.15,0.05),borderSize=1.5,borderColor=(0,0,0,1),text='Inserir imagem')
 
         caixaCadastro.insertWidget(btnImage_perfil)
         caixaCadastro.insertWidget(btnVoltar)
-        caixaCadastro.insertWidget(carregar_img)
+        caixaCadastro.insertWidget(self.carregar_img)
 
         #___________________________________________________________________________________________
 
@@ -217,6 +217,7 @@ class TelaCadastro(Screen):
 
     def foto_perfil(self):# Provavelmente vai ter que utilizar uma lógica de backend para inserir isso ao banco de dados e carregar dinamicamente na tela ao fazer upload da imagem
         dir = Choose_file().get_dir()
+        self.carregar_img.set_new_img(dir)
 
     def salvar(self):
         # Código de confirmação de e-mail
