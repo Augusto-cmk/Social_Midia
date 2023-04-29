@@ -56,7 +56,8 @@ class TelaLogin(Screen):
         self.senha.password = not status
 
     def login(self):
-        pass
+        self.clear_widgets()
+        self.add_widget(self.screenManager.go_to('chat')(self.screenManager))
 
     def esqueci_senha(self):
         email = self.email.get_text()

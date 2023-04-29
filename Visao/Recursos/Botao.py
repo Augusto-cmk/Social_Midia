@@ -2,7 +2,6 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.graphics import Ellipse, Color,RoundedRectangle,Rectangle,Line
 from kivy.animation import Animation
-from kivy.uix.widget import Widget
 
 
 class PersonalButton(Button):
