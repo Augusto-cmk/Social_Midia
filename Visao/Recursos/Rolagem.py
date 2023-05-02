@@ -2,8 +2,6 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
-from kivy.uix.widget import Widget
-from Visao.Recursos.Bloco import Bloco
 
 class caixaRolagem(RelativeLayout):
     """
@@ -39,7 +37,8 @@ class caixaRolagem(RelativeLayout):
 
                 bloco.insertWidget(Button)
 
-                rolagem = caixaRolagem([bloco])
+                rolagem = caixaRolagem()
+                rolagem.add(bloco)
 
         OBS: Somente os widgets que forem adicionados a essa caixa de rolagem, vão ter a capacidade de serem listados e movidos pela barra.
         Caso insira essa caixa de rolagem em um outro layout com widgets fixos, os mesmos não irão se mover
@@ -71,29 +70,75 @@ class caixaRolagem(RelativeLayout):
         self.i+=1
 
 
-class BlocoRolavel(ScrollView):
-    def __init__(self, altura, largura, pos_hint,spacing=0,**kw):
-        super().__init__(**kw)
-        self.do_scroll_x = False  # Desabilita a rolagem horizontal
-        self.bloco = Bloco(altura, largura, pos_hint)
-        self.pos_hint = pos_hint
+class BlocoRolavel(RelativeLayout):
+    """
+        Esta classe tem como finalidade de criar um bloco na tela, onde os recursos fiquem armazenados 
+        em uma forma geométrica, de maneira a organizar os dados e serem roláveis.
+
+        A classe possui os seguintes parâmetros:
+            - altura = altura da forma do bloco
+            - largura = largura da forma do bloco
+            - pos = posição na tela
+                - Usa-se da serguinte forma:
+                    - [x,y]
+        
+        Exemplo de uso da classe:
+            -   bloco = Bloco(.5,.5,[100,100])
+                bloco.setFormat("retangulo_arredondado",(1,0,0,1))
+
+                Button = PersonalButton(action=self.acao,size_hint=(.09, .05),
+                                pos=[100,100],
+                                text="Teste",colorButton=(1,1,1,1),colorText=(0,0,0,1),textSize=15,format='retangulo_arredondado',borderColor=(1,0,1,1),borderSize=2)
+
+                bloco.insertWidget(Button)
+    """
+    def __init__(self, width, height,pos_hint,spacing=10, **kwargs):
+        super().__init__(**kwargs)
+       
+        self.width = width
+        self.height = height
+       
+        # Adiciona um ScrollView à RelativeLayout
+        self.scroll_view = ScrollView(size_hint=(None, None), size=(width, height),pos_hint=pos_hint)
+        self.add_widget(self.scroll_view)
+       
+        # Cria um layout para armazenar os widgets dentro do ScrollView
+        self.scrollable_layout = RelativeLayout(size_hint=(None, None), size=(width, height),pos_hint=pos_hint)
+        self.scroll_view.add_widget(self.scrollable_layout)
+       
+        # Define o tamanho mínimo do ScrollView para mostrar a barra de rolagem
+        self.scroll_view.bar_width = '10dp'
+       
+        # Configura a barra de rolagem para ocultar quando não for necessária
+        self.scroll_view.bar_inactive_alpha = 0
+        self.scroll_view.bar_color = [1, 1, 1, 0.8]
+        self.scroll_view.effect_cls = 'ScrollEffect'
+        self.total_height = self.height*2 + spacing
         self.spacing = spacing
-        self.add_widget(self.bloco)
+        self.widgets = list()
+       
+    def add(self, widget):
+        # Adiciona o widget ao layout scrollable_layout
+        self.widgets.append(widget)
+        self.__redefine_pos()
+        self.total_height += widget.height + self.spacing
+        self.scrollable_layout.height = max(self.total_height, self.height)
+
+    def __redefine_pos(self):
+        self.scrollable_layout.clear_widgets()
+        total = self.total_height
+        for widget in self.widgets:
+            widget.pos[1] = total
+            self.scrollable_layout.add_widget(widget)
+            total -= widget.height + self.spacing
+       
+    def remove(self, widget):
+        # Remove o widget do layout scrollable_layout
+        self.total_height -= widget.height + self.spacing
+        self.scrollable_layout.remove_widget(widget)
+        self.scrollable_layout.height = max(self.total_height, self.height)
     
-    def setFormat(self,format,color,borderSize=0,borderColor=(1,1,1,1)):
-        """
-        Esse método é um método necessário na classe, pois vai definir a forma do bloco,
-        permitindo que configure a cor, forma e a sua borda
-
-        Os parâmetros do método são:
-            - format = formato da forma física (circulo, retangulo, retangulo_arredondado)
-            - color = cor do bloco (Passa-se uma tupla com os valores de (red, green, blue, alpha))
-            - borderSize = espessura da borda (caso queira) por padrão o tamanho é 0, ou seja, sem borda.
-            - borderColor = cor da borda a ser inserida. Funciona da mesma forma que a cor do bloco. 
-              Por padrão ela vem branca
-        """
-        self.bloco.setFormat(format,color,borderSize=borderSize,borderColor=borderColor)
-
-    def insertWidget(self, widget: Widget):
-        self.bloco.insertWidget(widget)
-        self.bloco.reajuste(self.spacing)
+    def clearWidgets(self):
+        self.total_height = 0
+        self.scrollable_layout.clear_widgets()
+        self.scrollable_layout.height = max(self.total_height, self.height)

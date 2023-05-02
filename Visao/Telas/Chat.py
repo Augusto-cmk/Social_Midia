@@ -7,6 +7,7 @@ from Visao.Recursos.Text import Text
 from Visao.Recursos.mensagemChat import Mensagem
 from kivy.uix.label import Label
 from Visao.Recursos.Rolagem import BlocoRolavel
+from random import randint
 
 class TelaChat(Screen):
     def __init__(self,screenManager, **kw):
@@ -38,22 +39,18 @@ class TelaChat(Screen):
         self.caixaChat.insertWidget(nome_contato)
         self.caixaChat.insertWidget(contato)
 
-        self.chat = BlocoRolavel(0.5,0.556,pos_hint={'center_x':0.585,'center_y':0.5})
-        self.chat.setFormat("retangulo",(1,1,1,1))
-        self.caixaChat.insertWidget(self.chat)
+        self.chat = BlocoRolavel(400,250,pos_hint={'center_x':0.67,'center_y':0.5})
 
         btn_send = ImageButton(self.enviarMSG,"Imagens/btn_send.png","circulo",size_hint=(.2,.2),pos_hint={"center_x":0.9,'center_y':0.2})
         self.caixaChat.insertWidget(btn_send)
 
-        self.mensagem = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),100,pos_hint={"center_x":0.63,'center_y':0.2},size_hint=(.467,.05))
+        self.mensagem = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),50,pos_hint={"center_x":0.63,'center_y':0.2},size_hint=(.467,.05))
         self.caixaChat.insertWidget(self.mensagem)
 
-        btn_ver_mais = ImageButton(self.verMais,"Imagens/btn_visualisar_mais.png","retangulo_arredondado",size_hint=(.56,.3),pos_hint={'center_x':0.22,'center_y':0.2})
-        self.caixaChat.insertWidget(btn_ver_mais)
-
         btnVoltar = PersonalButton(self.voltar,(1,1,1,1),(0,0,0,1),15,"retangulo_arredondado",borderSize=1.2,borderColor=(0,0,0,1),pos_hint={'center_x':0.2,'center_y':0.06},size_hint=(.3,.05),text='Voltar')
-        self.rl.add_widget(btnVoltar)
         self.rl.add_widget(self.caixaChat)
+        self.rl.add_widget(btnVoltar)
+        self.rl.add_widget(self.chat)
         self.add_widget(self.rl)
     
 
@@ -63,8 +60,7 @@ class TelaChat(Screen):
 
     def enviarMSG(self):
         texto = self.mensagem.get_text()
-        mensagem = Mensagem(texto,15,"retangulo_arredondado",True,borderColor=(0,0,0,1),borderSize=1,size_hint=(.09,.05))
-        self.chat.insertWidget(mensagem)
-    
-    def verMais(self):
-        pass
+        # label = Label(text=texto,color='black',size_hint=(.467,.05),pos=[50,50])
+        teste = [True,False]
+        mensagem = Mensagem(texto,15,teste[randint(0,1)],size_hint=(.2,.05))
+        self.chat.add(mensagem)
