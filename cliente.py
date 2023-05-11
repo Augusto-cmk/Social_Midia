@@ -12,24 +12,42 @@ class Cliente:
         self.thread_client_server = Thread(target=self.__server_to_client)
         self.thread_client_to_server = Thread(target=self.__client_to_server)
         self.cliente = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        self.cliente.connect(self.addr)
         self.mensagem = Mensagem()
     
     def __client_to_server(self):
         while True:
-            # input("Mandar classe: Press enter")
-            # self.mensagem.set()
-            mensagem = self.mensagem.get()
-            if mensagem:
-                self.cliente.send(mensagem)
+            try:
+                # input("Mandar classe: Press enter")
+                # self.mensagem.set()
+                # mensagem = self.mensagem.get()
+                mensagem = input("Entre com uma mensagem: ")
+                if mensagem:
+                    self.cliente.send(serialize(mensagem))
+            
+            except ConnectionResetError:
+                print("[INFO] O Servidor desconectou-se")
+                break
 
     def __server_to_client(self):
         while True:
-            msg = self.cliente.recv(4096)
-            if msg:
-                msg = deserialize(msg) # Recebe a classe enviada pelo servidor (É necessário que o cliente conheça a estrutura da classe)
+            try:
+                msg = self.cliente.recv(4096)
+                if msg:
+                    msg = deserialize(msg) # Recebe a classe enviada pelo servidor (É necessário que o cliente conheça a estrutura da classe)
+                    print("Mensagem recebida do servidor: ",msg)
+            
+            except ConnectionResetError:
+                print("[INFO] O Servidor desconectou-se")
+                break
 
     def start(self):
+        try:
+            self.cliente.connect(self.addr)
+
+        except ConnectionRefusedError:
+            print("[INFO] O servidor está desconectado")
+            return
+
         self.thread_client_server.start()
         self.thread_client_to_server.start()
 
