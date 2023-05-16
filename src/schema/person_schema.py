@@ -4,7 +4,7 @@ from src.common.constants import age_min
 
 class PersonSchema(Schema):
     name = fields.Str(
-        required=True,
+        required=True
     )
 
     age = fields.Int(

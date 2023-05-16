@@ -18,7 +18,7 @@ class Person(Base):
     city = Column(String)
 
     def __repr__(self) -> str:
-        return '<Person {}>'.format(self.nome)
+        return '<Person {}>'.format(self.name)
 
     def save(self) -> None:
         session = Connection().get_session()

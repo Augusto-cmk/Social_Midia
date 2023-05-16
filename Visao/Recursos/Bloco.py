@@ -1,7 +1,7 @@
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.widget import Widget
 from Visao.Recursos.Geometry import Geometry
-from kivy.graphics import Ellipse, Color,RoundedRectangle,Rectangle,Line
+from kivy.graphics import Ellipse, Color,RoundedRectangle,Rectangle
 
 class Bloco(RelativeLayout):
     """
