@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class PostRepository:
-    def __init__(self):
+    def __init__(self) -> None:
         self.__session = Connection().get_session()
 
     @staticmethod
@@ -19,4 +19,4 @@ class PostRepository:
     def search_post_all(self) -> None:
         posts = self.__session.query(Post).all()
         for post in posts:
-            print(f'id:{post.id}, text:{post.text}')
+            print(f'id:{post.id}, text:{post.text}, id_user:{post.author_id}')

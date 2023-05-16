@@ -1,3 +1,4 @@
 kivy~=2.1.0
 google-api-python-client
 SQLAlchemy~=2.0.13
+marshmallow~=3.19.0

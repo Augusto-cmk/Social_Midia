@@ -6,7 +6,7 @@ person_repo = PersonRepository()
 
 # Dicionário com dados de uma pessoa
 person_data = {
-    "name": "Gabriel",
+    "name": "Jao",
     "age": 23,
     "photo": "photo.jpg",
     "email": "gabriel@example.com",
@@ -32,7 +32,7 @@ post_repo = PostRepository()
 post_data = {
     "text": "Hello World!",
     "image": "image.jpg",
-    "person_id": 1
+    "person_id": person_id
 }
 
 # Cria um post no banco de dados
