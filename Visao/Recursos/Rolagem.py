@@ -50,7 +50,7 @@ class caixaRolagem(RelativeLayout):
 
         self.width = width
         self.height = height
-        
+        self.pos_hint = pos_hint
         scroll = ScrollView(size_hint=(None, None), size=(width, height),pos_hint=pos_hint)
         self.spacing = spacing
 
@@ -86,7 +86,7 @@ class BlocoRolavel(RelativeLayout):
     """
     def __init__(self, width, height,pos_hint,spacing=10, **kwargs):
         super().__init__(**kwargs)
-       
+        
         self.width = width
         self.height = height
        

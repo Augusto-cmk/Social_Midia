@@ -3,6 +3,7 @@ from kivy.uix.widget import Widget
 from Visao.Recursos.Geometry import Geometry
 from kivy.graphics import Ellipse, Color,RoundedRectangle,Rectangle
 
+
 class Bloco(RelativeLayout):
     """
         Esta classe tem como finalidade de criar um bloco na tela, onde os recursos fiquem armazenados 
@@ -107,7 +108,22 @@ class Bloco(RelativeLayout):
         dif_y = natural_center_y - center_y
         return {'center_x':pos_hint_widget['center_x']-dif_x,'center_y':pos_hint_widget['center_y']-dif_y}
     
-
+class Post(Bloco):
+    def __init__(self, altura, largura, pos_hint, **kw):
+        super().__init__(altura, largura, pos_hint, **kw)
+        self.i = 0
+        self.comentarios = list()
+    
+    def comment(self,BoxImagePerfil,LabelComentario):
+        if len(self.comentarios) < 6:
+            # Ajuste de altura
+            BoxImagePerfil.pos_hint['center_y'] -= self.i
+            LabelComentario.pos_hint['center_y'] -= self.i
+            # -----------------------------------------
+            self.comentarios.append((BoxImagePerfil,LabelComentario))
+            self.insertWidget(BoxImagePerfil)
+            self.insertWidget(LabelComentario)
+            self.i += 0.1
 
 class BoxImage(Widget):
     """
