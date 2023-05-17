@@ -14,5 +14,5 @@ class PersonStatusRepository:
                             linkedin = data_person_status.get("linkedin"))
         person_status.save()
     
-    def delete_person_status(self):
-        pass
+    def delete_person_status(self,id_person:int):
+        self.__session.query(PersonStatus).filter(PersonStatus.person_id == id_person).delete()
