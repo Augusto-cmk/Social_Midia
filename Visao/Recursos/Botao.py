@@ -40,10 +40,11 @@ class PersonalButton(Button):
     O esquema de cores da classe possui os seguintes parâmetros (red, green, blue, alpha)
 
     """
-    def __init__(self,action,colorButton,colorText,textSize,format,font_text="Roboto",borderSize=0,borderColor=(1,1,1,1),**kwargs):
+    def __init__(self,action,colorButton,colorText,textSize,format,font_text="Roboto",borderSize=0,borderColor=(1,1,1,1),argsAction=None,**kwargs):
         super(PersonalButton, self).__init__(**kwargs)
         self.defaultSize = self.size_hint.copy()
         self.action = action
+        self.argsAction = argsAction
         self.borderSize = borderSize
         # definir cor e tamanho do texto do botão
         self.color = colorText
@@ -103,7 +104,10 @@ class PersonalButton(Button):
         self.label.pos = self.pos
     
     def on_press(self):
-        self.action()
+        if self.argsAction != None:
+            self.action(*self.argsAction)
+        else:
+            self.action()
         anim_size_hint = Animation(size_hint=[self.defaultSize[0]+0.02,self.defaultSize[1]+0.02], duration=0.1) + Animation(size_hint=[self.defaultSize[0]+0.01,self.defaultSize[1]+0.01], duration=0.1)
         
         anim_size_hint.start(self)
@@ -127,9 +131,10 @@ class ImageButton(Button):
         Button = ImageButton(self.acao,"Imagens/mais.png","circulo",size_hint=(.09, .05),
                         pos_hint={'center_x': .5, 'center_y': .5})
     """
-    def __init__(self,action,pathImage,format,**kw):
+    def __init__(self,action,pathImage,format,argsAction=None,**kw):
         super().__init__(**kw)
         self.action = action
+        self.argsAction = argsAction
         self.defaultSize = self.size_hint.copy()
         self.background_color = [0, 0, 0, 0]
         if format == 'circulo':
@@ -148,7 +153,11 @@ class ImageButton(Button):
         self.shape.pos = self.pos
 
     def on_press(self):
-        self.action()
+        if self.argsAction != None:
+            self.action(*self.argsAction)
+        else:
+            self.action()
+            
         anim_size_hint = Animation(size_hint=[self.defaultSize[0]+0.02,self.defaultSize[1]+0.02], duration=0.1) + Animation(size_hint=[self.defaultSize[0]+0.01,self.defaultSize[1]+0.01], duration=0.1)
         
         anim_size_hint.start(self)

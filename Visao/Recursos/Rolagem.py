@@ -38,15 +38,20 @@ class caixaRolagem(RelativeLayout):
                 bloco.insertWidget(Button)
 
                 rolagem = caixaRolagem()
+
                 rolagem.add(bloco)
 
         OBS: Somente os widgets que forem adicionados a essa caixa de rolagem, vão ter a capacidade de serem listados e movidos pela barra.
         Caso insira essa caixa de rolagem em um outro layout com widgets fixos, os mesmos não irão se mover
     """
-    def __init__(self,cols=1,spacing=0.4,row_default_height=500,padding=100,col_default_width=100,**kwargs):
+    def __init__(self, width, height,pos_hint,cols=1,spacing=0.4,row_default_height=500,padding=100,col_default_width=100,**kwargs):
         super().__init__(**kwargs)
 
-        scroll = ScrollView()
+
+        self.width = width
+        self.height = height
+        
+        scroll = ScrollView(size_hint=(None, None), size=(width, height),pos_hint=pos_hint)
         self.spacing = spacing
 
         self.layout = GridLayout(cols=cols,size_hint_y=None,row_force_default=True,row_default_height=row_default_height,col_default_width=col_default_width,padding=padding)
@@ -62,7 +67,7 @@ class caixaRolagem(RelativeLayout):
         if self.i > 0:
             widget.pos_hint['center_y'] += self.spacing*self.i
             try:
-                widget.reajuste(self.spacing)
+                widget.reajuste()
             except Exception:
                 print("O widget não possui o método 'reajuste',caso esteja inserindo um widget provindo do kivy faça a herança e a adaptação em uma nova classe e implemente o método")
 
@@ -78,19 +83,6 @@ class BlocoRolavel(RelativeLayout):
         A classe possui os seguintes parâmetros:
             - altura = altura da forma do bloco
             - largura = largura da forma do bloco
-            - pos = posição na tela
-                - Usa-se da serguinte forma:
-                    - [x,y]
-        
-        Exemplo de uso da classe:
-            -   bloco = Bloco(.5,.5,[100,100])
-                bloco.setFormat("retangulo_arredondado",(1,0,0,1))
-
-                Button = PersonalButton(action=self.acao,size_hint=(.09, .05),
-                                pos=[100,100],
-                                text="Teste",colorButton=(1,1,1,1),colorText=(0,0,0,1),textSize=15,format='retangulo_arredondado',borderColor=(1,0,1,1),borderSize=2)
-
-                bloco.insertWidget(Button)
     """
     def __init__(self, width, height,pos_hint,spacing=10, **kwargs):
         super().__init__(**kwargs)

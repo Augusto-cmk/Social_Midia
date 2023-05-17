@@ -33,6 +33,15 @@ class Bloco(RelativeLayout):
         self.width = largura
         self.widgets = list()
     
+    def freeze_state(self):
+        self.freezed_state = self.widgets.copy()
+    
+    def go_to_freeze_state(self):
+        self.clearWidgets()
+        for widget in self.freezed_state: 
+            self.add_widget(widget)
+            self.widgets.append(widget)
+    
     def setFormat(self,format,color,borderSize=0,borderColor=(1,1,1,1)):
         """
         Esse método é um método necessário na classe, pois vai definir a forma do bloco,
@@ -45,6 +54,10 @@ class Bloco(RelativeLayout):
             - borderColor = cor da borda a ser inserida. Funciona da mesma forma que a cor do bloco. 
               Por padrão ela vem branca
         """
+        self.format = format
+        self.color = color
+        self.borderSize = borderSize
+        self.borderColor = borderColor
         self.add_widget(Geometry(format,color,borderSize,borderColor,size_hint=(self.width,self.height),pos_hint=self.pos_hint))
     
     def insertWidget(self,widget:Widget):
@@ -62,15 +75,22 @@ class Bloco(RelativeLayout):
     
     def removeWidget(self,widget:Widget):
         self.remove_widget(widget)
+        self.widgets.remove(widget)
+    
+    def clearWidgets(self):
+        for widget in self.widgets:
+            self.remove_widget(widget)
+        
+        self.widgets = list()
 
-    def reajuste(self,spacing):
+    def reajuste(self):
         center = self.pos_hint.copy()
         for widget in self.widgets:
-            result = widget.pos_hint['center_y'] - (0.5 + (0.5 - spacing))  - center['center_y']
-            if result < 0:
-                widget.pos_hint['center_y'] = result*(-1)
-            else:
-                widget.pos_hint['center_y'] = result
+            natural_center_y = 0.5
+            center_y = center['center_y']
+            dif_y = natural_center_y - center_y
+            result = mod(widget.pos_hint['center_y'] - dif_y - 0.29)
+            widget.pos_hint['center_y'] = result
 
     def __alinhar(self,centro,pos_hint_widget)->dict:
         """
@@ -136,3 +156,6 @@ class BoxImage(Widget):
 
     def on_pos(self, *args):
         self.shape.pos = self.pos
+
+def mod(value):
+    return value if value >0 else value*(-1)
