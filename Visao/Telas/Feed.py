@@ -40,12 +40,21 @@ class TelaFeed(Screen):
         self.add_widget(self.rl)
         self.postagem = None
         self.search_user = None
+        self.perfil_user = None
 
     def buscar_usuario(self): # Cria um bloco para buscar um novo usuário (Enquanto digita, vão aparecendo os botões de sujestão)
         self.rl.remove_widget(self.feed)
+        if self.search_user:
+            self.rl.remove_widget(self.search_user)
+            self.search_user = None
+        
         if self.postagem:
             self.rl.remove_widget(self.postagem)
             self.postagem = None
+        
+        if self.perfil_user:
+            self.rl.remove_widget(self.perfil_user)
+            self.perfil_user = None
         
         self.search_user = Bloco(0.75,0.75,pos_hint={"center_x":0.5,"center_y":0.5})
         self.search_user.setFormat("retangulo_arredondado",(1,1,1,1))
@@ -69,9 +78,18 @@ class TelaFeed(Screen):
 
     def criar_post(self): # Aqui vai dar um self.r.remove_widget(self.feed) e depois abrir um bloco para criar um post
         self.rl.remove_widget(self.feed)
+
         if self.search_user:
             self.rl.remove_widget(self.search_user)
             self.search_user = None
+        
+        if self.postagem:
+            self.rl.remove_widget(self.postagem)
+            self.postagem = None
+        
+        if self.perfil_user:
+            self.rl.remove_widget(self.perfil_user)
+            self.perfil_user = None
         
         self.postagem = Bloco(0.7,0.7,pos_hint={"center_x":0.5,"center_y":0.5})
         self.postagem.setFormat("retangulo_arredondado",(1,1,1,1))
@@ -111,6 +129,9 @@ class TelaFeed(Screen):
         if self.search_user:
             self.rl.remove_widget(self.search_user)
         
+        if self.perfil_user:
+            self.rl.remove_widget(self.perfil_user)
+        
         self.rl.remove_widget(self.post_btn)
         self.rl.remove_widget(self.sair_button)
         self.rl.remove_widget(self.search_btn)
@@ -124,7 +145,26 @@ class TelaFeed(Screen):
         self.add_widget(self.screenManager.go_to('login')(self.screenManager))
     
     def perfil(self): # Criar um bloco para visualizar o perfil
-        pass
+        self.rl.remove_widget(self.feed)
+        if self.search_user:
+            self.rl.remove_widget(self.search_user)
+            self.search_user = None
+        
+        if self.postagem:
+            self.rl.remove_widget(self.postagem)
+            self.postagem = None
+        
+        if self.perfil_user:
+            self.rl.remove_widget(self.perfil_user)
+            self.perfil_user = None
+        
+        self.perfil_user = Bloco(0.75,0.75,pos_hint={"center_x":0.5,"center_y":0.5})
+        self.perfil_user.setFormat("retangulo_arredondado",(1,1,1,1))
+        
+        btnVoltar = ImageButton(self.restore_to_feed,"Imagens/Voltar.png","circulo",pos_hint={'center_x':0.16,'center_y':0.84},size_hint=(0.05,0.05))
+        self.perfil_user.insertWidget(btnVoltar)
+
+        self.rl.add_widget(self.perfil_user)
 
     def inserir_post(self,path_foto_perfil,nome_autor,text_post:Text,path_image_post:dict):# Método chamado para inserir um post no feed do usuário
         do = True
