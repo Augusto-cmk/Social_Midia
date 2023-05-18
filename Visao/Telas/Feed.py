@@ -1,10 +1,12 @@
 from kivy.uix.screenmanager import Screen
 from kivy.uix.relativelayout import RelativeLayout
-from Visao.Recursos.Bloco import BoxImage,Post
+from Visao.Recursos.Bloco import BoxImage,Post,Bloco
 from Visao.Recursos.Botao import PersonalButton,ImageButton
+from Visao.Recursos.Geometry import Geometry
 from Visao.Recursos.Rolagem import caixaRolagem
 from kivy.uix.label import Label
 from Visao.Recursos.Text import Text
+from Visao.Recursos.choose_file import Choose_file
 
 class TelaFeed(Screen):
     def __init__(self,screenManager,**kw):
@@ -16,7 +18,7 @@ class TelaFeed(Screen):
         self.rl.add_widget(fundo)
 
         # rolagem do feed
-        self.feed = caixaRolagem(800,500,{"center_x":0.5,"center_y":0.5},spacing=0.15)
+        self.feed = caixaRolagem(800,500,{"center_x":0.5,"center_y":0.45},spacing=0.15)
         self.rl.add_widget(self.feed)
         #---------------------------------------------
 
@@ -26,49 +28,113 @@ class TelaFeed(Screen):
         perfil_button = ImageButton(self.perfil,"Imagens/foto_perfil.jpg","circulo",size_hint=(0.1,0.1),pos_hint={"center_x":0.94,"center_y":0.94})
         self.rl.add_widget(perfil_button)
 
-        sair_button = ImageButton(self.voltar,"Imagens/sair.png","retangulo",size_hint=(0.2,0.2),pos_hint={"center_x":0.05,"center_y":0.05})
-        self.rl.add_widget(sair_button)
+        self.sair_button = ImageButton(self.voltar,"Imagens/sair.png","retangulo",size_hint=(0.2,0.2),pos_hint={"center_x":0.05,"center_y":0.05})
+        self.rl.add_widget(self.sair_button)
 
-        post_btn = ImageButton(self.criar_post,"Imagens/CriarPost.png","circulo",size_hint=(0.27,0.25),pos_hint={"center_x":0.94,"center_y":0.70})
-        self.rl.add_widget(post_btn)
+        self.post_btn = ImageButton(self.criar_post,"Imagens/CriarPost.png","circulo",size_hint=(0.27,0.25),pos_hint={"center_x":0.94,"center_y":0.70})
+        self.rl.add_widget(self.post_btn)
+
+        self.search_btn = ImageButton(self.buscar_usuario,"Imagens/BuscarUsuario.png","circulo",size_hint=(0.27,0.27),pos_hint={"center_x":0.94,"center_y":0.46})
+        self.rl.add_widget(self.search_btn)
 
         self.add_widget(self.rl)
-    
+        self.postagem = None
+
+    def buscar_usuario(self): # Cria um bloco para buscar um novo usuário (Enquanto digita, vão aparecendo os botões de sujestão)
+        pass
+
     def criar_post(self): # Aqui vai dar um self.r.remove_widget(self.feed) e depois abrir um bloco para criar um post
-        self.inserir_post()
+        self.rl.remove_widget(self.feed)
+        self.postagem = Bloco(0.7,0.7,pos_hint={"center_x":0.5,"center_y":0.5})
+        self.postagem.setFormat("retangulo_arredondado",(1,1,1,1))
+        
+        path_foto_perfil = "Imagens/foto_perfil.jpg"
+        nome_autor = "Pedro Maia"
+        
+        label = Label(text="Insira aqui a descrição da postagem (40 caracteres)",color='black',pos_hint={'center_x':0.5,'center_y':0.82},size_hint=(.01,.01))
+        text_post = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),40,pos_hint={"center_x":0.5,'center_y':0.77},size_hint=(.6,.07))
+
+        path_image_post = dict()
+        self.insert_image = ImageButton(self.inserir_image_post,"Imagens/search_image.png","retangulo",argsAction=[path_image_post],pos_hint={'center_x':0.5,'center_y':0.5},size_hint=(0.3,0.3))
+
+        publicar = PersonalButton(self.inserir_post,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',
+                                  argsAction=[path_foto_perfil,nome_autor,text_post,path_image_post],pos_hint={'center_x':0.68,'center_y':0.2},size_hint=(0.3,0.05),text="Publicar",borderSize=1.5,borderColor=(0,0,0,1))
+        
+        cancelar = PersonalButton(self.cancelar_postagem,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',pos_hint={'center_x':0.32,'center_y':0.2},size_hint=(0.3,0.05),text="Cancelar",borderSize=1.5,borderColor=(0,0,0,1))
+        
+        self.postagem.insertWidget(label)
+        self.postagem.insertWidget(text_post)
+        self.postagem.insertWidget(publicar)
+        self.postagem.insertWidget(cancelar)
+        self.postagem.insertWidget(self.insert_image)
+        self.rl.add_widget(self.postagem)
+    
+    def inserir_image_post(self,path:dict):
+        path['path'] = Choose_file().get_dir()
+        self.postagem.removeWidget(self.insert_image)
+        image = BoxImage('retangulo',path['path'],size_hint=(.6,.35),pos_hint={'center_x':0.5,'center_y':0.5})
+        self.postagem.insertWidget(image)
+
+
+    def cancelar_postagem(self):
+        self.rl.remove_widget(self.postagem)
+        self.rl.remove_widget(self.post_btn)
+        self.rl.remove_widget(self.sair_button)
+        self.rl.remove_widget(self.search_btn)
+        self.rl.add_widget(self.feed)
+        self.rl.add_widget(self.post_btn)
+        self.rl.add_widget(self.sair_button)
+        self.rl.add_widget(self.search_btn)
 
     def voltar(self):
         self.clear_widgets()
         self.add_widget(self.screenManager.go_to('login')(self.screenManager))
     
-    def perfil(self): # Ir para a tela de visualizar perfil
+    def perfil(self): # Criar um bloco para visualizar o perfil
         pass
 
-    def inserir_post(self):# Método chamado para inserir um post no feed do usuário
-        post = Post(0.8,0.8,pos_hint={"center_x":0.5,"center_y":0.79})
-        post.setFormat("retangulo_arredondado",(1,1,1,1))
+    def inserir_post(self,path_foto_perfil,nome_autor,text_post:Text,path_image_post:dict):# Método chamado para inserir um post no feed do usuário
+        do = True
+        if self.postagem:
+            try:
+                path_image_post['path']
+                self.cancelar_postagem()
+                self.postagem = None
+            except Exception:
+                do = False
+        
+        if do:
+            post = Post(0.8,0.8,pos_hint={"center_x":0.5,"center_y":0.79})
+            post.setFormat("retangulo_arredondado",(1,1,1,1))
 
-        # inserir informações do post
-        foto_perfil = BoxImage('circulo','Imagens/foto_perfil.jpg',size_hint=(.1,.1),pos_hint={'center_x':0.22,'center_y':0.82})
-        post.insertWidget(foto_perfil)
+            # inserir informações do post
+            foto_perfil = BoxImage('circulo',path_foto_perfil,size_hint=(.1,.1),pos_hint={'center_x':0.22,'center_y':0.82})
+            post.insertWidget(foto_perfil)
 
-        arroba = Label(text=f'@{"Nome do contato"}',color='black',pos_hint={'center_x':0.4,'center_y':0.84},size_hint=(.01,.01))
-        post.insertWidget(arroba)
+            arroba = Label(text=f'@{nome_autor}',color='black',pos_hint={'center_x':0.4,'center_y':0.82},size_hint=(.01,.01))
+            post.insertWidget(arroba)
 
-        info_perfil = Label(text=f'{"Profissão"} | {"Universidade"} | {"Curso"}',color='black',pos_hint={'center_x':0.475,'center_y':0.8},size_hint=(.01,.01))
-        post.insertWidget(info_perfil)
+            separador = Geometry('retangulo',(0,0,0,0.2),pos_hint={'center_x':0.5,'center_y':0.75},size_hint=(.8,.003))
 
-        curtir_button = PersonalButton(self.post_curtido,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',pos_hint={'center_x':0.32,'center_y':0.2},size_hint=(0.3,0.05),text="Curtir",borderSize=1.5,borderColor=(0,0,0,1))
-        post.insertWidget(curtir_button)
+            post.insertWidget(separador)
 
-        comentar_button = PersonalButton(self.comentar_post,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[post],pos_hint={'center_x':0.68,'center_y':0.2},size_hint=(0.3,0.05),text="Comentar",borderSize=1.5,borderColor=(0,0,0,1))
-        post.insertWidget(comentar_button)
+            text_post = Label(text=text_post.get_text(),color='black',pos_hint={'center_x':0.5,'center_y':0.7},size_hint=(.01,.01))
+            post.insertWidget(text_post)
 
-        post.freeze_state()
-        #-------------------------
+            img_post = BoxImage('retangulo',path_image_post['path'],size_hint=(.6,.35),pos_hint={'center_x':0.5,'center_y':0.45})
+            post.insertWidget(img_post)
 
-        self.feed.add(post)
-    
+            curtir_button = PersonalButton(self.post_curtido,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',pos_hint={'center_x':0.32,'center_y':0.2},size_hint=(0.3,0.05),text="Curtir",borderSize=1.5,borderColor=(0,0,0,1))
+            post.insertWidget(curtir_button)
+
+            comentar_button = PersonalButton(self.comentar_post,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[post],pos_hint={'center_x':0.68,'center_y':0.2},size_hint=(0.3,0.05),text="Comentar",borderSize=1.5,borderColor=(0,0,0,1))
+            post.insertWidget(comentar_button)
+
+            post.freeze_state()
+            #-------------------------
+
+            self.feed.add(post)
+        
     def post_curtido(self):
         pass
 
