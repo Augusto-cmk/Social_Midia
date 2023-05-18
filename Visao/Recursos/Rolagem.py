@@ -64,12 +64,11 @@ class caixaRolagem(RelativeLayout):
         self.add_widget(scroll)
 
     def add(self,widget):
-        if self.i > 0:
-            widget.pos_hint['center_y'] += self.spacing*self.i
-            try:
-                widget.reajuste()
-            except Exception:
-                print("O widget não possui o método 'reajuste',caso esteja inserindo um widget provindo do kivy faça a herança e a adaptação em uma nova classe e implemente o método")
+        widget.pos_hint['center_y'] += self.spacing*self.i
+        try:
+            widget.reajuste()
+        except Exception:
+            print("O widget não possui o método 'reajuste',caso esteja inserindo um widget provindo do kivy faça a herança e a adaptação em uma nova classe e implemente o método")
 
         self.layout.add_widget(widget)
         self.i+=1

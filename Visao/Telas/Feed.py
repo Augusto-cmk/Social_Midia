@@ -56,13 +56,16 @@ class TelaFeed(Screen):
         btns_search = caixaRolagem(500,200,{"center_x":0.5,"center_y":0.45},spacing=0.91)
         self.search_user.insertWidget(btns_search)
 
-        busca = TextToSearch((1,1,1,1),(0,0,0,1),15,(0,0,0,1),["Pedro","Patrick","Pietro","Victoria","Ganriel"],btns_search,self.action_name_search,pos_hint={"center_x":0.5,'center_y':0.7},size_hint=(.6,.07))
+        label = Label(text="Pesquise por um usuário para colaboração",color='black',pos_hint={'center_x':0.5,'center_y':0.82},size_hint=(.01,.01))
+        self.search_user.insertWidget(label)
+
+        busca = TextToSearch((1,1,1,1),(0,0,0,1),15,(0,0,0,1),["Pedro","Patrick","Pietro","Victoria","Gabriel"],btns_search,self.action_name_search,pos_hint={"center_x":0.5,'center_y':0.7},size_hint=(.5,.05))
         self.search_user.insertWidget(busca)
 
         self.rl.add_widget(self.search_user)
 
-    def action_name_search(self,nome):
-        print(nome)
+    def action_name_search(self,nome):# O nome vai ser a chave de um dicionário que contém as informações do usuário selecionado,ao entrar nesse método, o nome selecionado vai ser obtido e podemos acessar as informações pelo dicionario e ir para o perfil desse usuário
+        print(nome) 
 
     def criar_post(self): # Aqui vai dar um self.r.remove_widget(self.feed) e depois abrir um bloco para criar um post
         self.rl.remove_widget(self.feed)
