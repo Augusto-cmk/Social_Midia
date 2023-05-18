@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
 from src.connection.connection import Connection
@@ -16,6 +16,7 @@ class Person(Base):
     password = Column(String)
     state = Column(String)
     city = Column(String)
+    birthday = Column(String)
 
     def __repr__(self) -> str:
         return '<Person {}>'.format(self.name)

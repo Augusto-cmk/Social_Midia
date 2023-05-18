@@ -176,9 +176,11 @@ class BoxImage(Widget):
         
         self.canvas.add(Color((1,1,1,1)))
         self.canvas.add(self.shape)
+        self.image_ = None
 
     def set_new_img(self,pathImage):
         if len(pathImage) > 0:
+            self.image_ = pathImage
             self.canvas.remove(self.shape)
             if self.format == 'circulo':
                 self.shape = Ellipse(source=pathImage)
@@ -197,6 +199,9 @@ class BoxImage(Widget):
 
     def on_pos(self, *args):
         self.shape.pos = self.pos
+    
+    def get_image(self):
+        return self.image_
 
 def mod(value):
     return value if value >0 else value*(-1)

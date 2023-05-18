@@ -9,6 +9,8 @@ from Visao.Recursos.checkbox import Interactive_Checkbox
 from Controle.Envio_email import envioEmail,gerarNumero
 from Visao.Recursos.Popup import Confirmar_Email,Alerta
 from Visao.Recursos.choose_file import Choose_file
+import cv2
+from mensagem import serialize
 
 class TelaCadastro(Screen):
     def __init__(self,screenManager,**kw):
@@ -229,6 +231,24 @@ class TelaCadastro(Screen):
         else:
             self.alerta.start("Erro","Houve um erro ao tentar enviar o e-mail, favor tentar novamente!")
         #_______________________________________________________________________________________________
+        imagem = cv2.imread(self.carregar_img.get_image())
+        cadastro = {
+            "name":self.nome.get_text(),
+            "birthday":f"{self.dia_aniversario.get_text()}/{self.mes_aniversario.get_text()}/{self.ano_aniversario.get_text()}",
+            "email":self.email.get_text(),
+            "password": self.senha.get_text(),
+            "photo": serialize(imagem),
+            "status":{
+                "state": self.estado.get_text(),
+                "city": self.cidade.get_text(),
+                "profession": self.profissao.get_text(),
+                "university": self.universidade.get_text(),
+                "course": self.curso.get_text(),
+                "web_site": self.website.get_text(),
+                "linkedin": self.linkedin.get_text()
+            },
+            "route":"Cadastro"
+        }
     
     def voltar(self):
         self.clear_widgets()

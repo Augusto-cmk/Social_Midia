@@ -13,7 +13,9 @@ class PersonRepository:
                         email=data_person.get('email'),
                         password=data_person.get('password'),
                         state=data_person.get('state'),
-                        city=data_person.get('city'))
+                        city=data_person.get('city'),
+                        birthday= data_person.get('birthday')
+                        )
         person.save()
 
     def search_person_all(self) -> None:

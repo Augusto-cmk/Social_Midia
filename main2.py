@@ -12,7 +12,8 @@ person_data = {
     "email": "gabriel@example.com",
     "password": "123456",
     "state": "MG",
-    "city": "Florestal"
+    "city": "Florestal",
+    "birthday": "12/10/2021"
 }
 
 # Insere uma pessoa no banco de dados

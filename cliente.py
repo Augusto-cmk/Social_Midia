@@ -2,8 +2,6 @@ import socket
 from threading import Thread
 from mensagem import *
 
-
-
 class Cliente:
     def __init__(self) -> None:
         self.porta = 8080

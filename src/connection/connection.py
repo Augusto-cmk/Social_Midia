@@ -10,7 +10,7 @@ class Connection:
         self.db_session = scoped_session(sessionmaker(autocommit=False, bind=self.engine))
         self.create_tables()
 
-    def get_session(self) -> scoped_session[Session | Any]:
+    def get_session(self) -> scoped_session[Session]:
         return self.db_session
 
     def create_tables(self) -> None:
@@ -25,6 +25,7 @@ class Connection:
                     email VARCHAR,
                     password VARCHAR,
                     state VARCHAR,
+                    birthday VARCHAR,
                     city VARCHAR
                 )
                 """
