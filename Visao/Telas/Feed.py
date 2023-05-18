@@ -5,7 +5,7 @@ from Visao.Recursos.Botao import PersonalButton,ImageButton
 from Visao.Recursos.Geometry import Geometry
 from Visao.Recursos.Rolagem import caixaRolagem
 from kivy.uix.label import Label
-from Visao.Recursos.Text import Text
+from Visao.Recursos.Text import Text,TextToSearch
 from Visao.Recursos.choose_file import Choose_file
 
 class TelaFeed(Screen):
@@ -39,12 +39,37 @@ class TelaFeed(Screen):
 
         self.add_widget(self.rl)
         self.postagem = None
+        self.search_user = None
 
     def buscar_usuario(self): # Cria um bloco para buscar um novo usuário (Enquanto digita, vão aparecendo os botões de sujestão)
-        pass
+        self.rl.remove_widget(self.feed)
+        if self.postagem:
+            self.rl.remove_widget(self.postagem)
+            self.postagem = None
+        
+        self.search_user = Bloco(0.75,0.75,pos_hint={"center_x":0.5,"center_y":0.5})
+        self.search_user.setFormat("retangulo_arredondado",(1,1,1,1))
+
+        cancelar = PersonalButton(self.restore_to_feed,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',pos_hint={'center_x':0.5,'center_y':0.2},size_hint=(0.3,0.05),text="Cancelar",borderSize=1.5,borderColor=(0,0,0,1))
+        self.search_user.insertWidget(cancelar)
+
+        btns_search = caixaRolagem(500,200,{"center_x":0.5,"center_y":0.45},spacing=0.91)
+        self.search_user.insertWidget(btns_search)
+
+        busca = TextToSearch((1,1,1,1),(0,0,0,1),15,(0,0,0,1),["Pedro","Patrick","Pietro","Victoria","Ganriel"],btns_search,self.action_name_search,pos_hint={"center_x":0.5,'center_y':0.7},size_hint=(.6,.07))
+        self.search_user.insertWidget(busca)
+
+        self.rl.add_widget(self.search_user)
+
+    def action_name_search(self,nome):
+        print(nome)
 
     def criar_post(self): # Aqui vai dar um self.r.remove_widget(self.feed) e depois abrir um bloco para criar um post
         self.rl.remove_widget(self.feed)
+        if self.search_user:
+            self.rl.remove_widget(self.search_user)
+            self.search_user = None
+        
         self.postagem = Bloco(0.7,0.7,pos_hint={"center_x":0.5,"center_y":0.5})
         self.postagem.setFormat("retangulo_arredondado",(1,1,1,1))
         
@@ -60,7 +85,7 @@ class TelaFeed(Screen):
         publicar = PersonalButton(self.inserir_post,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',
                                   argsAction=[path_foto_perfil,nome_autor,text_post,path_image_post],pos_hint={'center_x':0.68,'center_y':0.2},size_hint=(0.3,0.05),text="Publicar",borderSize=1.5,borderColor=(0,0,0,1))
         
-        cancelar = PersonalButton(self.cancelar_postagem,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',pos_hint={'center_x':0.32,'center_y':0.2},size_hint=(0.3,0.05),text="Cancelar",borderSize=1.5,borderColor=(0,0,0,1))
+        cancelar = PersonalButton(self.restore_to_feed,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',pos_hint={'center_x':0.32,'center_y':0.2},size_hint=(0.3,0.05),text="Cancelar",borderSize=1.5,borderColor=(0,0,0,1))
         
         self.postagem.insertWidget(label)
         self.postagem.insertWidget(text_post)
@@ -76,8 +101,13 @@ class TelaFeed(Screen):
         self.postagem.insertWidget(image)
 
 
-    def cancelar_postagem(self):
-        self.rl.remove_widget(self.postagem)
+    def restore_to_feed(self):
+        if self.postagem:
+            self.rl.remove_widget(self.postagem)
+        
+        if self.search_user:
+            self.rl.remove_widget(self.search_user)
+        
         self.rl.remove_widget(self.post_btn)
         self.rl.remove_widget(self.sair_button)
         self.rl.remove_widget(self.search_btn)
@@ -98,7 +128,7 @@ class TelaFeed(Screen):
         if self.postagem:
             try:
                 path_image_post['path']
-                self.cancelar_postagem()
+                self.restore_to_feed()
                 self.postagem = None
             except Exception:
                 do = False

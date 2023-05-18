@@ -73,6 +73,10 @@ class caixaRolagem(RelativeLayout):
 
         self.layout.add_widget(widget)
         self.i+=1
+    
+    def clear(self):
+        self.layout.clear_widgets()
+        self.i = 0
 
 
 class BlocoRolavel(RelativeLayout):
