@@ -1,6 +1,6 @@
 from kivy.uix.screenmanager import Screen
 from kivy.uix.relativelayout import RelativeLayout
-from Visao.Recursos.Bloco import BoxImage,Post,Bloco
+from Visao.Recursos.Bloco import BoxImage,Post,Bloco,Projeto
 from Visao.Recursos.Botao import PersonalButton,ImageButton
 from Visao.Recursos.Geometry import Geometry
 from Visao.Recursos.Rolagem import caixaRolagem
@@ -25,7 +25,11 @@ class TelaFeed(Screen):
         logo = BoxImage('retangulo',"Imagens/Logo.png",size_hint=(.25,.2),pos_hint={'center_x':0.12,'center_y':0.94})
         self.rl.add_widget(logo)
 
-        perfil_button = ImageButton(self.perfil,"Imagens/foto_perfil.jpg","circulo",size_hint=(0.1,0.1),pos_hint={"center_x":0.94,"center_y":0.94})
+        path_foto_perfil = "Imagens/foto_perfil.jpg"
+        nome = "Pedro Maia"
+        colaboradores = 192
+        colaborando = 53
+        perfil_button = ImageButton(self.perfil,"Imagens/foto_perfil.jpg","circulo",argsAction=[path_foto_perfil,nome,colaboradores,colaborando],size_hint=(0.1,0.1),pos_hint={"center_x":0.94,"center_y":0.94})
         self.rl.add_widget(perfil_button)
 
         self.sair_button = ImageButton(self.voltar,"Imagens/sair.png","retangulo",size_hint=(0.2,0.2),pos_hint={"center_x":0.05,"center_y":0.05})
@@ -144,7 +148,7 @@ class TelaFeed(Screen):
         self.clear_widgets()
         self.add_widget(self.screenManager.go_to('login')(self.screenManager))
     
-    def perfil(self): # Criar um bloco para visualizar o perfil
+    def perfil(self,path_foto_perfil,nome,colabs,colab): # Criar um bloco para visualizar o perfil
         self.rl.remove_widget(self.feed)
         if self.search_user:
             self.rl.remove_widget(self.search_user)
@@ -164,7 +168,40 @@ class TelaFeed(Screen):
         btnVoltar = ImageButton(self.restore_to_feed,"Imagens/Voltar.png","circulo",pos_hint={'center_x':0.16,'center_y':0.84},size_hint=(0.05,0.05))
         self.perfil_user.insertWidget(btnVoltar)
 
+        foto_perfil = BoxImage('circulo',path_foto_perfil,size_hint=(.1,.1),pos_hint={'center_x':0.22,'center_y':0.78})
+        self.perfil_user.insertWidget(foto_perfil)
+
+        colaboradores = Label(text="colaboradores",color='black',pos_hint={'center_x':0.44,'center_y':0.75},size_hint=(.01,.01))
+        self.perfil_user.insertWidget(colaboradores)
+
+        colaborando = Label(text="colaborando",color='black',pos_hint={'center_x':0.7,'center_y':0.75},size_hint=(.01,.01))
+        self.perfil_user.insertWidget(colaborando)
+
+        colaboradoresSize = Label(text=f"{colabs}",color='black',pos_hint={'center_x':0.44,'center_y':0.78},size_hint=(.01,.01))
+        self.perfil_user.insertWidget(colaboradoresSize)
+
+        colaborandoSize = Label(text=f"{colab}",color='black',pos_hint={'center_x':0.7,'center_y':0.78},size_hint=(.01,.01))
+        self.perfil_user.insertWidget(colaborandoSize)
+
+        nomePerfil = Label(text=nome,color='black',pos_hint={'center_x':0.22,'center_y':0.7},size_hint=(.01,.01))
+        self.perfil_user.insertWidget(nomePerfil)
+
+        editar_btn = PersonalButton(self.editar_perfil,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',pos_hint={'center_x':0.5,'center_y':0.65},size_hint=(0.4,0.05),text="Editar Perfil",borderSize=1.5,borderColor=(0,0,0,1))
+        self.perfil_user.insertWidget(editar_btn)
+        
+        projetos = caixaRolagem(600,250,{"center_x":0.5,"center_y":0.45},spacing=0.2)
+        self.perfil_user.insertWidget(projetos)
+
+        paths = ["Imagens/ForgotSenha.png","Imagens/Fundo_chat.png","Imagens/OlhoFechado.png"]
+        for path in paths:
+            project = Projeto(0.7,0.7,{"center_x":0.5,"center_y":0.8},path,153,20)
+            project.show()
+            projetos.add(project)
+
         self.rl.add_widget(self.perfil_user)
+    
+    def editar_perfil(self):
+        pass
 
     def inserir_post(self,path_foto_perfil,nome_autor,text_post:Text,path_image_post:dict):# Método chamado para inserir um post no feed do usuário
         do = True

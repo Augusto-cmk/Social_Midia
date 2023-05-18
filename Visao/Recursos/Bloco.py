@@ -2,6 +2,7 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.widget import Widget
 from Visao.Recursos.Geometry import Geometry
 from kivy.graphics import Ellipse, Color,RoundedRectangle,Rectangle
+from kivy.uix.label import Label
 
 
 class Bloco(RelativeLayout):
@@ -124,6 +125,30 @@ class Post(Bloco):
             self.insertWidget(BoxImagePerfil)
             self.insertWidget(LabelComentario)
             self.i += 0.1
+
+class Projeto(Bloco):
+    def __init__(self, altura, largura, pos_hint,image_project,sizelikes,sizefeedbacks, **kw):
+        super().__init__(altura, largura, pos_hint, **kw)
+        self.image_project = image_project
+        self.sizelikes = sizelikes
+        self.sizefeedbacks = sizefeedbacks
+    
+    def show(self):
+        self.setFormat("retangulo_arredondado",(1,1,1,1),borderSize=5,borderColor=(0,0,0,1))
+        image = BoxImage("retangulo",self.image_project,size_hint=(.4,.4),pos_hint={'center_x':0.5,'center_y':0.6})
+
+        like = BoxImage("retangulo","Imagens/like_image.png",size_hint=(.2,.2),pos_hint={'center_x':0.25,'center_y':0.25})
+        labelLike = Label(text=f"{self.sizelikes}",color='black',pos_hint={'center_x':0.25,'center_y':0.17},size_hint=(.01,.01))
+        self.insertWidget(like)
+        self.insertWidget(labelLike)
+
+        feedback = BoxImage("retangulo","Imagens/comentario.png",size_hint=(.2,.2),pos_hint={'center_x':0.75,'center_y':0.25})
+        labelFeedback = Label(text=f"{self.sizefeedbacks}",color='black',pos_hint={'center_x':0.75,'center_y':0.17},size_hint=(.01,.01))
+        self.insertWidget(feedback)
+        self.insertWidget(labelFeedback)
+
+        self.insertWidget(image)
+        
 
 class BoxImage(Widget):
     """
