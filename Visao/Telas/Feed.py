@@ -29,7 +29,11 @@ class TelaFeed(Screen):
         nome = "Pedro Maia"
         colaboradores = 192
         colaborando = 53
-        perfil_button = ImageButton(self.perfil,"Imagens/foto_perfil.jpg","circulo",argsAction=[path_foto_perfil,nome,colaboradores,colaborando],size_hint=(0.1,0.1),pos_hint={"center_x":0.94,"center_y":0.94})
+        linkedin = "tadnjasndjasdns"
+        email = "adjiosajidjasda"
+        github = "sfhbsdhufbsdhyufbusdb123"
+
+        perfil_button = ImageButton(self.perfil,"Imagens/foto_perfil.jpg","circulo",argsAction=[path_foto_perfil,nome,colaboradores,colaborando,linkedin,email,github],size_hint=(0.1,0.1),pos_hint={"center_x":0.94,"center_y":0.94})
         self.rl.add_widget(perfil_button)
 
         self.sair_button = ImageButton(self.voltar,"Imagens/sair.png","retangulo",size_hint=(0.2,0.2),pos_hint={"center_x":0.05,"center_y":0.05})
@@ -148,7 +152,7 @@ class TelaFeed(Screen):
         self.clear_widgets()
         self.add_widget(self.screenManager.go_to('login')(self.screenManager))
     
-    def perfil(self,path_foto_perfil,nome,colabs,colab): # Criar um bloco para visualizar o perfil
+    def perfil(self,path_foto_perfil,nome,colabs,colab,linkedin,email,github): # Criar um bloco para visualizar o perfil
         self.rl.remove_widget(self.feed)
         if self.search_user:
             self.rl.remove_widget(self.search_user)
@@ -162,34 +166,43 @@ class TelaFeed(Screen):
             self.rl.remove_widget(self.perfil_user)
             self.perfil_user = None
         
-        self.perfil_user = Bloco(0.75,0.75,pos_hint={"center_x":0.5,"center_y":0.5})
+        self.perfil_user = Bloco(0.85,0.75,pos_hint={"center_x":0.5,"center_y":0.47})
         self.perfil_user.setFormat("retangulo_arredondado",(1,1,1,1))
         
-        btnVoltar = ImageButton(self.restore_to_feed,"Imagens/Voltar.png","circulo",pos_hint={'center_x':0.16,'center_y':0.84},size_hint=(0.05,0.05))
+        btnVoltar = ImageButton(self.restore_to_feed,"Imagens/Voltar.png","circulo",pos_hint={'center_x':0.16,'center_y':0.88},size_hint=(0.05,0.05))
         self.perfil_user.insertWidget(btnVoltar)
 
-        foto_perfil = BoxImage('circulo',path_foto_perfil,size_hint=(.1,.1),pos_hint={'center_x':0.22,'center_y':0.78})
+        foto_perfil = BoxImage('circulo',path_foto_perfil,size_hint=(.1,.1),pos_hint={'center_x':0.22,'center_y':0.82})
         self.perfil_user.insertWidget(foto_perfil)
 
-        colaboradores = Label(text="colaboradores",color='black',pos_hint={'center_x':0.44,'center_y':0.75},size_hint=(.01,.01))
+        colaboradores = Label(text="colaboradores",color='black',pos_hint={'center_x':0.44,'center_y':0.79},size_hint=(.01,.01))
         self.perfil_user.insertWidget(colaboradores)
 
-        colaborando = Label(text="colaborando",color='black',pos_hint={'center_x':0.7,'center_y':0.75},size_hint=(.01,.01))
+        colaborando = Label(text="colaborando",color='black',pos_hint={'center_x':0.7,'center_y':0.79},size_hint=(.01,.01))
         self.perfil_user.insertWidget(colaborando)
 
-        colaboradoresSize = Label(text=f"{colabs}",color='black',pos_hint={'center_x':0.44,'center_y':0.78},size_hint=(.01,.01))
+        colaboradoresSize = Label(text=f"{colabs}",color='black',pos_hint={'center_x':0.44,'center_y':0.82},size_hint=(.01,.01))
         self.perfil_user.insertWidget(colaboradoresSize)
 
-        colaborandoSize = Label(text=f"{colab}",color='black',pos_hint={'center_x':0.7,'center_y':0.78},size_hint=(.01,.01))
+        colaborandoSize = Label(text=f"{colab}",color='black',pos_hint={'center_x':0.7,'center_y':0.82},size_hint=(.01,.01))
         self.perfil_user.insertWidget(colaborandoSize)
 
-        nomePerfil = Label(text=nome,color='black',pos_hint={'center_x':0.22,'center_y':0.7},size_hint=(.01,.01))
+        nomePerfil = Label(text=nome,color='black',pos_hint={'center_x':0.22,'center_y':0.74},size_hint=(.01,.01))
         self.perfil_user.insertWidget(nomePerfil)
 
-        editar_btn = PersonalButton(self.editar_perfil,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',pos_hint={'center_x':0.5,'center_y':0.65},size_hint=(0.4,0.05),text="Editar Perfil",borderSize=1.5,borderColor=(0,0,0,1))
+        editar_btn = PersonalButton(self.editar_perfil,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',pos_hint={'center_x':0.5,'center_y':0.69},size_hint=(0.4,0.05),text="Editar Perfil",borderSize=1.5,borderColor=(0,0,0,1))
         self.perfil_user.insertWidget(editar_btn)
+
+        linkedinLabel = Label(text=f"Linkedin: {linkedin}",color='black',pos_hint={'center_x':0.5,'center_y':0.17},size_hint=(.01,.01))
+        emailLabel = Label(text=f"Email: {email}",color='black',pos_hint={'center_x':0.5,'center_y':0.14},size_hint=(.01,.01))
+        githubLabel = Label(text=f"GitHub: {github}",color='black',pos_hint={'center_x':0.5,'center_y':0.11},size_hint=(.01,.01))
+
+        self.perfil_user.insertWidget(linkedinLabel)
+        self.perfil_user.insertWidget(emailLabel)
+        self.perfil_user.insertWidget(githubLabel)
         
-        projetos = caixaRolagem(600,250,{"center_x":0.5,"center_y":0.45},spacing=0.2)
+
+        projetos = caixaRolagem(600,250,{"center_x":0.5,"center_y":0.46},spacing=0.2)
         self.perfil_user.insertWidget(projetos)
 
         paths = ["Imagens/ForgotSenha.png","Imagens/Fundo_chat.png","Imagens/OlhoFechado.png"]
