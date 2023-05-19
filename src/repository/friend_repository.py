@@ -19,3 +19,4 @@ class FriendRepository:
         friendship.save()
 
         return True
+
