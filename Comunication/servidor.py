@@ -2,7 +2,7 @@ import socket
 from threading import Thread
 from mensagem import *
 import queue
-import cv2
+import sys
 
 class Server:
     def __init__(self) -> None:
@@ -14,6 +14,7 @@ class Server:
         self.conexoes = {}
         self.server_client = Thread(target=self.__server_to_client)
         self.mensagens = queue.Queue()
+        self.size_buffer = 4096
     
     def start(self):
         print("[INFO] Servidor Iniciado")
@@ -28,7 +29,10 @@ class Server:
         while True:
             addr,msg = self.mensagens.get()
             # Realizar o tratamento da mensagem
-            
+            size_buffer = 6096*sys.getsizeof(serialize(msg))
+            self.conexoes[addr].send(serialize({"size":size_buffer}))
+
+
             #------------------------------
             # Depois, mandar a mensagem para o cliente
             self.conexoes[addr].send(serialize(msg))
@@ -37,16 +41,18 @@ class Server:
         print(f"Um novo usuário se conectou pelo endereço = {addr}")
         while True:
             try:
-                msg = conn.recv(100000)
+                msg = conn.recv(self.size_buffer)
                 if msg:
                     msg = deserialize(msg) # Recebe a classe enviada pelo cliente (Obs: O servidor deve conhecer a estrutura da classe)
-                    foto = deserialize(msg['photo'])
-                    foto.resize((800,600))
-                    cv2.imshow("teste",foto)
-                    cv2.waitKey(0)
-                    print(f"Mensagem recebida no servidor: {msg}")
-                    self.conexoes[addr] = conn
-                    self.mensagens.put((addr,msg))
+                    try:
+                        self.size_buffer = msg['size']
+                        print("OPA")
+                    except Exception:
+                        print("Entrou no rolê")
+                        self.size_buffer = 4096
+                        foto = deserialize(msg['photo'])
+                        self.conexoes[addr] = conn
+                        self.mensagens.put((addr,msg))
             
             except ConnectionResetError:
                 print(f"[INFO] Cliente {addr} desconectou")

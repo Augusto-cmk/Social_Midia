@@ -6,6 +6,7 @@ from Visao.Recursos.Geometry import Geometry
 from Visao.Recursos.Rolagem import caixaRolagem
 from kivy.uix.label import Label
 from Visao.Recursos.Text import Text,TextToSearch
+from Visao.Recursos.checkbox import Interactive_Checkbox
 from Visao.Recursos.choose_file import Choose_file
 
 class TelaFeed(Screen):
@@ -49,6 +50,7 @@ class TelaFeed(Screen):
         self.postagem = None
         self.search_user = None
         self.perfil_user = None
+        self.editarPerfil = None
 
     def buscar_usuario(self): # Cria um bloco para buscar um novo usuário (Enquanto digita, vão aparecendo os botões de sujestão)
         self.rl.remove_widget(self.feed)
@@ -63,6 +65,10 @@ class TelaFeed(Screen):
         if self.perfil_user:
             self.rl.remove_widget(self.perfil_user)
             self.perfil_user = None
+        
+        if self.editarPerfil:
+            self.rl.remove_widget(self.editarPerfil)
+            self.editarPerfil = None
         
         self.search_user = Bloco(0.75,0.75,pos_hint={"center_x":0.5,"center_y":0.5})
         self.search_user.setFormat("retangulo_arredondado",(1,1,1,1))
@@ -98,6 +104,10 @@ class TelaFeed(Screen):
         if self.perfil_user:
             self.rl.remove_widget(self.perfil_user)
             self.perfil_user = None
+
+        if self.editarPerfil:
+            self.rl.remove_widget(self.editarPerfil)
+            self.editarPerfil = None
         
         self.postagem = Bloco(0.7,0.7,pos_hint={"center_x":0.5,"center_y":0.5})
         self.postagem.setFormat("retangulo_arredondado",(1,1,1,1))
@@ -140,6 +150,7 @@ class TelaFeed(Screen):
         if self.perfil_user:
             self.rl.remove_widget(self.perfil_user)
         
+        
         self.rl.remove_widget(self.post_btn)
         self.rl.remove_widget(self.sair_button)
         self.rl.remove_widget(self.search_btn)
@@ -165,6 +176,10 @@ class TelaFeed(Screen):
         if self.perfil_user:
             self.rl.remove_widget(self.perfil_user)
             self.perfil_user = None
+        
+        if self.editarPerfil:
+            self.rl.remove_widget(self.editarPerfil)
+            self.editarPerfil = None
         
         self.perfil_user = Bloco(0.85,0.75,pos_hint={"center_x":0.5,"center_y":0.47})
         self.perfil_user.setFormat("retangulo_arredondado",(1,1,1,1))
@@ -214,7 +229,182 @@ class TelaFeed(Screen):
         self.rl.add_widget(self.perfil_user)
     
     def editar_perfil(self):
+        self.rl.remove_widget(self.perfil_user)
+
+        self.editarPerfil = Bloco(0.85,0.75,pos_hint={"center_x":0.5,"center_y":0.47})
+        self.editarPerfil.setFormat("retangulo_arredondado",(1,1,1,1))
+
+        btnVoltar = ImageButton(self.return_to_perfil,"Imagens/Voltar.png","circulo",pos_hint={'center_x':0.16,'center_y':0.88},size_hint=(0.05,0.05))
+        self.editarPerfil.insertWidget(btnVoltar)
+
+        self.carregar_img = BoxImage("circulo",'Imagens/foto_perfil.jpg',pos_hint={'center_x':0.22,'center_y':0.81},size_hint=(0.1,0.1))
+        btnImage_perfil = PersonalButton(self.foto_perfil,(1,1,1,1),(0,0,0,1),15,"retangulo_arredondado",pos_hint={'center_x':0.22,'center_y':0.72},size_hint=(0.15,0.05),borderSize=1.5,borderColor=(0,0,0,1),text='Alterar imagem')
+        
+        self.editarPerfil.insertWidget(self.carregar_img)
+        self.editarPerfil.insertWidget(btnImage_perfil)
+
+        # Nome
+        label_nome = Label(color='black',size_hint=(.2, .05),
+                            pos_hint={'center_x': .38, 'center_y': .85}, text='Nome')
+        
+        self.nome = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),28,pos_hint={'center_x':.475,'center_y':.8},size_hint=(.25,.05))
+        self.editarPerfil.insertWidget(label_nome)
+        self.editarPerfil.insertWidget(self.nome)
+        #-----------------------------------------------------------------------------------------
+
+        # Email
+        label_email = Label(color='black',size_hint=(.2, .05),
+                            pos_hint={'center_x': .38, 'center_y': .76}, text='E-mail')
+        
+        self.email = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),40,pos_hint={'center_x':.6,'center_y':.71},size_hint=(.5,.05))
+        self.editarPerfil.insertWidget(label_email)
+        self.editarPerfil.insertWidget(self.email)
+        #----------------------------------------------------------------------------------------------------------------------
+
+        # Aniversario
+        label_aniversário = Label(color='black',size_hint=(.2, .05),
+                            pos_hint={'center_x': .714, 'center_y': .85}, text='Data de nascimento')
+        
+
+        self.dia_aniversario = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),2,pos_hint={'center_x':.65,'center_y':.8},size_hint=(.04,.05),only_number=True)
+        
+        label_barra = Label(color='black',size_hint=(.2, .2),
+                            pos_hint={'center_x': .685, 'center_y': .8}, text='/',font_size=25)
+        
+        self.mes_aniversario = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),2,pos_hint={'center_x':.72,'center_y':.8},size_hint=(.04,.05),only_number=True)
+
+        label_barra2 = Label(color='black',size_hint=(.2, .05),
+                            pos_hint={'center_x': .755, 'center_y': .8}, text='/',font_size=25)
+        
+        self.ano_aniversario = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),4,pos_hint={'center_x':.805,'center_y':.8},size_hint=(.07,.05),only_number=True)
+
+        self.editarPerfil.insertWidget(label_aniversário)
+        self.editarPerfil.insertWidget(self.dia_aniversario)
+        self.editarPerfil.insertWidget(label_barra)
+        self.editarPerfil.insertWidget(self.mes_aniversario)
+        self.editarPerfil.insertWidget(label_barra2)
+        self.editarPerfil.insertWidget(self.ano_aniversario)
+        #----------------------------------------------------------------------------------------------------------------------
+
+        # Senha
+        check_box = Interactive_Checkbox(self.exibirSenha,"Imagens/OlhoFechado.png",'Imagens/olhoAberto.png',pos_hint={'center_x':.746,'center_y':.62},size_hint=(.03,.025))
+        label_senha = Label(text='Senha',color='black',pos_hint={'center_x':.377,'center_y':.67},size_hint=(.09,.05))
+        self.senha = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,size_hint=(.37,.05),pos_hint={'center_x':.532,'center_y':.62},password=True)
+        self.editarPerfil.insertWidget(check_box)
+        self.editarPerfil.insertWidget(label_senha)
+        self.editarPerfil.insertWidget(self.senha)
+        #----------------------------------------------------------------------------------------------------------------------
+
+        # Separador
+        separador = Geometry('retangulo',(0,0,0,0.2),pos_hint={'center_x':0.5,'center_y':0.57},size_hint=(.75,.003))
+        self.editarPerfil.insertWidget(separador)
+        #--------------------------------------------------------------------------------------
+
+            
+        label_estado = Label(color='black',size_hint=(.2, .2),
+                            pos_hint={'center_x': .167, 'center_y': .54}, text='Estado')
+        
+        self.estado = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,pos_hint={'center_x':.232,'center_y':.5},size_hint=(.2,.05))
+        self.editarPerfil.insertWidget(label_estado)
+        self.editarPerfil.insertWidget(self.estado)
+
+        #________________________________
+
+
+        # Cidade
+
+        label_cidade = Label(color='black',size_hint=(.2, .2),
+                            pos_hint={'center_x': .383, 'center_y': .54}, text='Cidade')
+        
+        self.cidade = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,pos_hint={'center_x':.473,'center_y':.5},size_hint=(.25,.05))
+        self.editarPerfil.insertWidget(label_cidade)
+        self.editarPerfil.insertWidget(self.cidade)
+
+        #________________________________
+
+
+        # Profissão
+
+        label_profissao = Label(color='black',size_hint=(.2, .2),
+                            pos_hint={'center_x': .66, 'center_y': .54}, text='Profissão')
+        
+        self.profissao = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,pos_hint={'center_x':.74,'center_y':.5},size_hint=(.25,.05))
+        self.editarPerfil.insertWidget(label_profissao)
+        self.editarPerfil.insertWidget(self.profissao)
+
+        #________________________________
+
+
+        # Universidade
+
+        label_universidade = Label(color='black',size_hint=(.2, .2),
+                            pos_hint={'center_x': .1875, 'center_y': .45}, text='Universidade')
+        
+        self.universidade = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,pos_hint={'center_x':.306,'center_y':.41},size_hint=(.35,.05))
+        self.editarPerfil.insertWidget(label_universidade)
+        self.editarPerfil.insertWidget(self.universidade)
+
+        #________________________________
+
+
+        # Curso
+
+        label_curso = Label(color='black',size_hint=(.2, .2),
+                            pos_hint={'center_x': .542, 'center_y': .45}, text='Curso')
+        
+        self.curso = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,pos_hint={'center_x':.69,'center_y':.41},size_hint=(.35,.05))
+        self.editarPerfil.insertWidget(label_curso)
+        self.editarPerfil.insertWidget(self.curso)
+
+        #________________________________
+
+        
+        # Web Site
+
+        label_website = Label(color='black',size_hint=(.2, .2),
+                            pos_hint={'center_x': .171, 'center_y': .36}, text='Web Site')
+        
+        self.website = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),100,pos_hint={'center_x':.5,'center_y':.315},size_hint=(.735,.05))
+        self.editarPerfil.insertWidget(label_website)
+        self.editarPerfil.insertWidget(self.website)
+
+        #________________________________
+
+
+        # Linkedin
+
+        label_linkedin = Label(color='black',size_hint=(.2, .2),
+                            pos_hint={'center_x': .171, 'center_y': .265}, text='Linkedin')
+        
+        self.linkedin = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),100,pos_hint={'center_x':.5,'center_y':.22},size_hint=(.735,.05))
+        self.editarPerfil.insertWidget(label_linkedin)
+        self.editarPerfil.insertWidget(self.linkedin)
+
+        #________________________________
+
+
+        btnsalvar = PersonalButton(self.salvar_alteracao,(1,1,1,1),(0,0,0,1),15,"retangulo_arredondado",pos_hint={'center_x':0.5,'center_y':0.15},size_hint=(0.15,0.05),borderSize=1.5,borderColor=(0,0,0,1),text='Salvar')
+        self.editarPerfil.insertWidget(btnsalvar)
+
+        self.rl.add_widget(self.editarPerfil)
+
+    def salvar_alteracao(self):
         pass
+
+    def exibirSenha(self,status):
+        self.senha.password = not status
+    
+    def return_to_perfil(self):
+        self.rl.remove_widget(self.editarPerfil)
+        self.rl.add_widget(self.perfil_user)
+    
+    def foto_perfil(self):
+        dir_img = Choose_file().get_dir()
+        self.carregar_img.set_new_img(dir_img)
+
+        # Mandar aqui a nova foto para o banco de dados
+
+        #--------------------------------------------
 
     def inserir_post(self,path_foto_perfil,nome_autor,text_post:Text,path_image_post:dict):# Método chamado para inserir um post no feed do usuário
         do = True

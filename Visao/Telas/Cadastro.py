@@ -12,7 +12,7 @@ from Visao.Recursos.choose_file import Choose_file
 import cv2
 from Comunication.mensagem import serialize
 from Comunication.cliente import Cliente
-import urllib.parse
+import sys
 
 class TelaCadastro(Screen):
     def __init__(self,screenManager,**kw):
@@ -222,7 +222,7 @@ class TelaCadastro(Screen):
         self.senha.password = not status
 
     def foto_perfil(self):# Provavelmente vai ter que utilizar uma lógica de backend para inserir isso ao banco de dados e carregar dinamicamente na tela ao fazer upload da imagem
-        self.dir_img = urllib.parse.unquote(Choose_file().get_dir())
+        self.dir_img = Choose_file().get_dir()
         self.carregar_img.set_new_img(self.dir_img)
 
     def salvar(self):
@@ -236,7 +236,6 @@ class TelaCadastro(Screen):
             self.alerta.start("Erro","Houve um erro ao tentar enviar o e-mail, favor tentar novamente!")
         #_______________________________________________________________________________________________
         imagem = cv2.imread(self.dir_img)
-        imagem.resize((300,300))
         cadastro = {
             "name":self.nome.get_text(),
             "birthday":f"{self.dia_aniversario.get_text()}/{self.mes_aniversario.get_text()}/{self.ano_aniversario.get_text()}",

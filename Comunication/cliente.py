@@ -2,6 +2,7 @@ import socket
 from threading import Thread
 from Comunication.mensagem import serialize, deserialize
 import queue
+import sys
 
 class Cliente:
     def __init__(self) -> None:
@@ -14,8 +15,11 @@ class Cliente:
         self.mensagem_to_send = queue.Queue()
         self.mensagem_recived = queue.Queue()
         self.is_running = False
+        self.size_buffer = 4096
 
     def input_mensage(self, mensagem):
+        size_buffer = 6096*sys.getsizeof(serialize(mensagem))
+        self.mensagem_to_send.put({"size":size_buffer})
         self.mensagem_to_send.put(mensagem)
 
     def __client_to_server(self):
@@ -29,11 +33,15 @@ class Cliente:
     def __server_to_client(self):
         while self.is_running:
             try:
-                msg = self.cliente.recv(100000)
+                msg = self.cliente.recv(self.size_buffer)
                 if msg:
                     msg = deserialize(msg)  # Recebe a classe enviada pelo servidor (É necessário que o cliente conheça a estrutura da classe)
-                    # Recebe a mensagem do servidor e realiza a operacao desejada
-                    self.mensagem_recived.put(msg)
+                    try:
+                        self.size_buffer = msg["size"]
+                    except Exception:
+                        self.size_buffer = 4096
+                        # Recebe a mensagem do servidor e realiza a operacao desejada
+                        self.mensagem_recived.put(msg)
 
             except ConnectionResetError:
                 print("[INFO] O Servidor desconectou-se")
