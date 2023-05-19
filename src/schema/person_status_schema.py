@@ -1,7 +1,6 @@
 from marshmallow import Schema, fields, validate
 
 
-
 class PersonStatusSchema(Schema):
     status_text = fields.Str(
          required=True
