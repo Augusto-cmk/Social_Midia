@@ -1,3 +1,5 @@
+from typing import Set, Any
+
 from src.connection.connection import Connection
 from src.models.post import Post
 from src.models.person import Person
@@ -20,3 +22,8 @@ class CommentRepository:
         comment.save()
 
         return True
+
+    def show_comment(self, id_comment: int):
+        result = self.__session.query(Comment.id).filter(Comment.id == id_comment)
+        return result
+
