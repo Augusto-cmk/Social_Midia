@@ -1,8 +1,9 @@
 import socket
 from threading import Thread
-from Comunication.mensagem import serialize, deserialize
+from Comunication.mensagem import serialize, deserialize,fragment_msg
 import queue
 import sys
+import cv2
 
 class Cliente:
     def __init__(self) -> None:
@@ -15,33 +16,38 @@ class Cliente:
         self.mensagem_to_send = queue.Queue()
         self.mensagem_recived = queue.Queue()
         self.is_running = False
-        self.size_buffer = 4096
 
     def input_mensage(self, mensagem):
-        size_buffer = 6096*sys.getsizeof(serialize(mensagem))
-        self.mensagem_to_send.put({"size":size_buffer})
-        self.mensagem_to_send.put(mensagem)
+        msg_serialized = serialize(mensagem)
+        self.mensagem_to_send.put(serialize({"size_buffer":sys.getsizeof(msg_serialized)}))
+        fragmentos = fragment_msg(msg_serialized,4096)
+        for fragmento in fragmentos:
+            self.mensagem_to_send.put(fragmento)
 
     def __client_to_server(self):
         while self.is_running:
             try:
-                self.cliente.send(serialize(self.mensagem_to_send.get()))
+                self.cliente.send(self.mensagem_to_send.get())
             except ConnectionResetError:
                 print("[INFO] O Servidor desconectou-se")
                 break
 
     def __server_to_client(self):
+        buffer = b""
+        expected_size = sys.maxsize
         while self.is_running:
             try:
-                msg = self.cliente.recv(self.size_buffer)
-                if msg:
-                    msg = deserialize(msg)  # Recebe a classe enviada pelo servidor (É necessário que o cliente conheça a estrutura da classe)
-                    try:
-                        self.size_buffer = msg["size"]
-                    except Exception:
-                        self.size_buffer = 4096
-                        # Recebe a mensagem do servidor e realiza a operacao desejada
-                        self.mensagem_recived.put(msg)
+                data = self.cliente.recv(4096)
+                if data:
+                    if expected_size == sys.maxsize:
+                        expected_size = deserialize(data)['size_buffer']
+                    else:
+                        buffer += data
+                        if sys.getsizeof(buffer) == expected_size:
+                            msg = deserialize(buffer)
+                            self.mensagem_recived.put(msg)
+                            expected_size = sys.maxsize
+                            buffer = b""
 
             except ConnectionResetError:
                 print("[INFO] O Servidor desconectou-se")

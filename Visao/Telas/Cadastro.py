@@ -236,6 +236,7 @@ class TelaCadastro(Screen):
             self.alerta.start("Erro","Houve um erro ao tentar enviar o e-mail, favor tentar novamente!")
         #_______________________________________________________________________________________________
         imagem = cv2.imread(self.dir_img)
+        # imagem.resize((1024,720))
         cadastro = {
             "name":self.nome.get_text(),
             "birthday":f"{self.dia_aniversario.get_text()}/{self.mes_aniversario.get_text()}/{self.ano_aniversario.get_text()}",

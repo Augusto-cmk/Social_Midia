@@ -14,7 +14,6 @@ class Server:
         self.conexoes = {}
         self.server_client = Thread(target=self.__server_to_client)
         self.mensagens = queue.Queue()
-        self.size_buffer = 4096
     
     def start(self):
         print("[INFO] Servidor Iniciado")
@@ -29,30 +28,35 @@ class Server:
         while True:
             addr,msg = self.mensagens.get()
             # Realizar o tratamento da mensagem
-            size_buffer = 6096*sys.getsizeof(serialize(msg))
-            self.conexoes[addr].send(serialize({"size":size_buffer}))
-
 
             #------------------------------
             # Depois, mandar a mensagem para o cliente
-            self.conexoes[addr].send(serialize(msg))
+            msg_serialized = serialize(msg)
+            self.conexoes[addr].send(serialize({"size_buffer":sys.getsizeof(msg_serialized)}))
+
+            fragmentos = fragment_msg(msg_serialized,4096)
+            for fragmento in fragmentos:
+                self.conexoes[addr].send(fragmento)
 
     def __clients_to_server(self,conn,addr):
         print(f"Um novo usuário se conectou pelo endereço = {addr}")
+        buffer = b""
+        expected_size = sys.maxsize  # Inicialmente, não há um tamanho esperado
         while True:
             try:
-                msg = conn.recv(self.size_buffer)
-                if msg:
-                    msg = deserialize(msg) # Recebe a classe enviada pelo cliente (Obs: O servidor deve conhecer a estrutura da classe)
-                    try:
-                        self.size_buffer = msg['size']
-                        print("OPA")
-                    except Exception:
-                        print("Entrou no rolê")
-                        self.size_buffer = 4096
-                        foto = deserialize(msg['photo'])
-                        self.conexoes[addr] = conn
-                        self.mensagens.put((addr,msg))
+                data = conn.recv(4096)
+                if data:
+                    if expected_size == sys.maxsize:
+                        expected_size = deserialize(data)['size_buffer']
+                    else:
+                        buffer += data
+                        if sys.getsizeof(buffer) == expected_size:
+                            msg = deserialize(buffer) # Recebe a classe enviada pelo cliente (Obs: O servidor deve conhecer a estrutura da classe)
+                            foto = deserialize(msg['photo'])
+                            self.conexoes[addr] = conn
+                            self.mensagens.put((addr,msg))
+                            expected_size = sys.maxsize
+                            buffer = b""
             
             except ConnectionResetError:
                 print(f"[INFO] Cliente {addr} desconectou")
