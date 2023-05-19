@@ -10,12 +10,16 @@ from Controle.Envio_email import envioEmail,gerarNumero
 from Visao.Recursos.Popup import Confirmar_Email,Alerta
 from Visao.Recursos.choose_file import Choose_file
 import cv2
-from mensagem import serialize
+from Comunication.mensagem import serialize
+from Comunication.cliente import Cliente
+import urllib.parse
 
 class TelaCadastro(Screen):
     def __init__(self,screenManager,**kw):
         super().__init__(**kw)
         self.screenManager = screenManager
+        self.cliente:Cliente = self.screenManager.get_client()
+
         self.rl = RelativeLayout() # Layout relativo, cujas estruturas requerem que uma localização seja inserida para os objetos inseridos
         
         fundo = BoxImage('retangulo','Imagens/Fundo2.jpg',size_hint=(1,1),pos_hint={'center_x':0.5,'center_y':0.5})
@@ -218,8 +222,8 @@ class TelaCadastro(Screen):
         self.senha.password = not status
 
     def foto_perfil(self):# Provavelmente vai ter que utilizar uma lógica de backend para inserir isso ao banco de dados e carregar dinamicamente na tela ao fazer upload da imagem
-        dir = Choose_file().get_dir()
-        self.carregar_img.set_new_img(dir)
+        self.dir_img = urllib.parse.unquote(Choose_file().get_dir())
+        self.carregar_img.set_new_img(self.dir_img)
 
     def salvar(self):
         # Código de confirmação de e-mail
@@ -231,7 +235,8 @@ class TelaCadastro(Screen):
         else:
             self.alerta.start("Erro","Houve um erro ao tentar enviar o e-mail, favor tentar novamente!")
         #_______________________________________________________________________________________________
-        imagem = cv2.imread(self.carregar_img.get_image())
+        imagem = cv2.imread(self.dir_img)
+        imagem.resize((300,300))
         cadastro = {
             "name":self.nome.get_text(),
             "birthday":f"{self.dia_aniversario.get_text()}/{self.mes_aniversario.get_text()}/{self.ano_aniversario.get_text()}",
@@ -249,6 +254,7 @@ class TelaCadastro(Screen):
             },
             "route":"Cadastro"
         }
+        self.cliente.input_mensage(cadastro)
     
     def voltar(self):
         self.clear_widgets()

@@ -2,6 +2,7 @@ import socket
 from threading import Thread
 from mensagem import *
 import queue
+import cv2
 
 class Server:
     def __init__(self) -> None:
@@ -25,29 +26,30 @@ class Server:
     
     def __server_to_client(self):
         while True:
-            try:
-                addr,msg = self.mensagens.get()
-                self.conexoes[addr].send(serialize(msg))
-                
-            except ConnectionResetError:
-                print(f"[INFO] Cliente {addr} desconectou")
-                del self.conexoes[addr]
-                break
+            addr,msg = self.mensagens.get()
+            # Realizar o tratamento da mensagem
+            
+            #------------------------------
+            # Depois, mandar a mensagem para o cliente
+            self.conexoes[addr].send(serialize(msg))
 
     def __clients_to_server(self,conn,addr):
         print(f"Um novo usuário se conectou pelo endereço = {addr}")
         while True:
             try:
-                msg = conn.recv(4096)
+                msg = conn.recv(100000)
                 if msg:
                     msg = deserialize(msg) # Recebe a classe enviada pelo cliente (Obs: O servidor deve conhecer a estrutura da classe)
+                    foto = deserialize(msg['photo'])
+                    foto.resize((800,600))
+                    cv2.imshow("teste",foto)
+                    cv2.waitKey(0)
                     print(f"Mensagem recebida no servidor: {msg}")
                     self.conexoes[addr] = conn
                     self.mensagens.put((addr,msg))
             
             except ConnectionResetError:
                 print(f"[INFO] Cliente {addr} desconectou")
-                del self.conexoes[addr]
                 break
 
 servidor = Server()
