@@ -6,7 +6,8 @@ class PersonStatusRepository:
     def __init__(self) -> None:
         self.__session = Connection().get_session()
 
-    def insert_person_status(self, data_person_status: dict):
+    @staticmethod
+    def insert_person_status(data_person_status: dict) -> None:
         person_status = PersonStatus(status_text=data_person_status.get("status_text"),
                                      profession=data_person_status.get("profession"),
                                      university=data_person_status.get("university"),
@@ -15,7 +16,8 @@ class PersonStatusRepository:
                                      linkedin=data_person_status.get("linkedin"))
         person_status.save()
 
-    def update_person_status(self, person_status_id: str, updated_data: dict):
+    @staticmethod
+    def update_person_status(self, person_status_id: str, updated_data: dict) -> None:
         try:
             person_status = PersonStatus.get(id=person_status_id)
         except Exception:

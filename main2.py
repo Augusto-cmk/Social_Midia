@@ -5,51 +5,11 @@ from src.repository.comment_repository import CommentRepository
 from src.repository.post_repository import Post
 from src.repository.person_status_repository import PersonStatusRepository
 
-# Cria uma instância do PersonRepository
-person_repo = PersonRepository()
-
-# Dicionário com dados de uma pessoa
-person_data = {
-    "name": "Jao",
-    "age": 23,
-    "photo": "photo.jpg",
-    "email": "gabriel@example.com",
-    "password": "123456",
-    "state": "MG",
-    "city": "Florestal",
-    "birthday": "12/10/2021"
-}
-
-# Insere uma pessoa no banco de dados
-person_repo.insert_person(person_data)
-
-# Lista todas as pessoas no banco de dados
-person_repo.search_person_all()
-
-# Obtém o ID de uma pessoa pelo nome
-person_id = person_repo.get_person_id()
-print(f"Person ID: {person_id}")
-
-# Cria uma instância do PostRepository
-post_repo = PostRepository()
-
-# Dicionário com dados de um post
-post_data = {
-    "text": "Hello World!",
-    "image": "image.jpg",
-    "person_id": person_id
-}
-
-# Cria um post no banco de dados
-post_repo.create_post(post_data)
-
-# Lista todos os posts no banco de dados
-post_repo.search_post_all()
 
 # Criando uma nova pessoa
 person_data1 = {
     'name': 'John Doe',
-    'age': 25,
+    'age': 21,
     'photo': 'john.jpg',
     'email': 'john@example.com',
     'password': 'password123',
@@ -69,6 +29,7 @@ person_data2 = {
 person = PersonRepository()
 person.insert_person(person_data1)
 person.insert_person(person_data2)
+person.search_person_all()
 
 # Criando uma nova amizade
 friendship_data = {
@@ -77,6 +38,9 @@ friendship_data = {
 }
 friend = FriendRepository()
 friend.create_friendship(1, 2)
+
+print("printando amigos do 1:")
+person.print_friends(1)
 
 # Criando um novo status de pessoa
 person_status_data = {
@@ -97,6 +61,10 @@ post_data = {
 post = PostRepository()
 post.create_post(post_data)
 
+post = person.get_person_posts(1)
+for p in post:
+    print(p.text, p.image)
+
 # Criando um novo comentário em um post
 comment_data = {
     'post_id': 1,
@@ -105,4 +73,6 @@ comment_data = {
 }
 
 comment = CommentRepository()
-comment.create_comment(1, 2, 'Glad to hear you\'re doing well!')
+comment.create_comment(1, 1, 'Glad to hear you\'re doing well!')
+
+print(comment.show_comment(1))

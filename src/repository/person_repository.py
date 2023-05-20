@@ -11,7 +11,8 @@ class PersonRepository:
     def __init__(self):
         self.__session = Connection().get_session()
 
-    def insert_person(self, data_person: dict) -> None:
+    @staticmethod
+    def insert_person(data_person: dict) -> None:
         person = Person(name=data_person.get('name'),
                         age=data_person.get('age'),
                         photo=data_person.get('photo'),
@@ -82,3 +83,28 @@ class PersonRepository:
         comment.save()
 
         return True
+
+    def print_friends(self, person_id: int):
+        person = self.__session.query(Person).get(person_id)
+
+        if person is None:
+            print("Person not found.")
+            return
+
+        friends = self.__session.query(Person).join(Friend, Friend.friend_id == Person.id).filter(
+            Friend.person_id == person_id).all()
+
+        print(f"Friends of {person.name}:")
+        for friend in friends:
+            print(friend.name)
+
+    def get_person_posts(self, person_id: int) -> Post:
+        person = self.__session.query(Person).get(person_id)
+
+        if person is None:
+            return []
+
+        posts = self.__session.query(Post).filter_by(author_id=person_id).all()
+        return posts
+
+
