@@ -8,11 +8,13 @@ from kivy.uix.label import Label
 from Visao.Recursos.Text import Text,TextToSearch
 from Visao.Recursos.checkbox import Interactive_Checkbox
 from Visao.Recursos.choose_file import Choose_file
+from Modelo.user import User
 
 class TelaFeed(Screen):
-    def __init__(self,screenManager,**kw):
+    def __init__(self,screenManager,user:User,**kw):
         super().__init__(**kw)
         self.screenManager = screenManager
+        self.user = user
         self.rl = RelativeLayout()
 
         fundo = BoxImage('retangulo','Imagens/Fundo2.jpg',size_hint=(1,1),pos_hint={'center_x':0.5,'center_y':0.5})
@@ -26,15 +28,7 @@ class TelaFeed(Screen):
         logo = BoxImage('retangulo',"Imagens/Logo.png",size_hint=(.25,.2),pos_hint={'center_x':0.12,'center_y':0.94})
         self.rl.add_widget(logo)
 
-        path_foto_perfil = "Imagens/foto_perfil.jpg"
-        nome = "Pedro Maia"
-        colaboradores = 192
-        colaborando = 53
-        linkedin = "tadnjasndjasdns"
-        email = "adjiosajidjasda"
-        github = "sfhbsdhufbsdhyufbusdb123"
-
-        perfil_button = ImageButton(self.perfil,"Imagens/foto_perfil.jpg","circulo",argsAction=[path_foto_perfil,nome,colaboradores,colaborando,linkedin,email,github],size_hint=(0.1,0.1),pos_hint={"center_x":0.94,"center_y":0.94})
+        perfil_button = ImageButton(self.perfil,self.user.get_path_image(),"circulo",argsAction=[self.user.get_path_image(),self.user.get_nome(),self.user.get_colaboradores(),self.user.get_colaborando(),self.user.get_linkedin(),self.user.get_email(),self.user.get_web_site()],size_hint=(0.1,0.1),pos_hint={"center_x":0.94,"center_y":0.94})
         self.rl.add_widget(perfil_button)
 
         self.sair_button = ImageButton(self.voltar,"Imagens/sair.png","retangulo",size_hint=(0.2,0.2),pos_hint={"center_x":0.05,"center_y":0.05})
@@ -210,7 +204,7 @@ class TelaFeed(Screen):
 
         linkedinLabel = Label(text=f"Linkedin: {linkedin}",color='black',pos_hint={'center_x':0.5,'center_y':0.17},size_hint=(.01,.01))
         emailLabel = Label(text=f"Email: {email}",color='black',pos_hint={'center_x':0.5,'center_y':0.14},size_hint=(.01,.01))
-        githubLabel = Label(text=f"GitHub: {github}",color='black',pos_hint={'center_x':0.5,'center_y':0.11},size_hint=(.01,.01))
+        githubLabel = Label(text=f"Web_site: {github}",color='black',pos_hint={'center_x':0.5,'center_y':0.11},size_hint=(.01,.01))
 
         self.perfil_user.insertWidget(linkedinLabel)
         self.perfil_user.insertWidget(emailLabel)

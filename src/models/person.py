@@ -10,7 +10,6 @@ class Person(Base):
     __tablename__ = 'person'
     id = Column(Integer, primary_key=True)
     name = Column(String(40), index=True)
-    age = Column(Integer)
     photo = Column(String)
     email = Column(String)
     password = Column(String)

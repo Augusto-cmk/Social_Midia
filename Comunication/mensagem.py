@@ -1,5 +1,4 @@
 import pickle
-import sys
 
 def serialize(classe:object):
     serialized_data = pickle.dumps(classe)
@@ -19,3 +18,4 @@ def fragment_msg(mensagem,size_required):
         fragmentos.append(fragmento)
     
     return fragmentos
+

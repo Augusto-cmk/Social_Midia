@@ -24,8 +24,6 @@ class TelaCadastro(Screen):
         
         fundo = BoxImage('retangulo','Imagens/Fundo2.jpg',size_hint=(1,1),pos_hint={'center_x':0.5,'center_y':0.5})
 
-        self.confirm_email = Confirmar_Email()
-        self.alerta = Alerta()
         # Bloco e imagem de perfil
         caixaCadastro = Bloco(0.96,0.9,{'center_x':0.5,'center_y':0.5})
         caixaCadastro.setFormat('retangulo_arredondado',(1,1,1,1))
@@ -214,8 +212,6 @@ class TelaCadastro(Screen):
 
         self.rl.add_widget(fundo)
         self.rl.add_widget(caixaCadastro)
-        self.rl.add_widget(self.alerta)
-        self.rl.add_widget(self.confirm_email)
         self.add_widget(self.rl)
     
     def exibirSenha(self,status):
@@ -227,34 +223,64 @@ class TelaCadastro(Screen):
 
     def salvar(self):
         # Código de confirmação de e-mail
+        atributos_necessarios = [self.email.get_text(),self.senha.get_text(),self.nome.get_text(),self.dia_aniversario.get_text(),self.mes_aniversario.get_text(),self.ano_aniversario.get_text()]
+        erros = ["O campo de email é obrigatorio","O campo de senha é obrigatorio","O campo do nome é obrigatorio","O campo dia do aniversário é obrigatorio","O campo mes do aniversário é obrigatorio","O campo ano do aniversário é obrigatorio"]
+        for i,atributo in enumerate(atributos_necessarios):
+            if atributo == '':
+                alerta = Alerta()
+                alerta.start("Erro",erros[i])
+                self.rl.add_widget(alerta)
+
         codigo_email = gerarNumero()
         email = self.email.get_text()
         send = envioEmail(email,"Confirmação de e-mail",codigo_email,'confirmar')
         if send:
-            self.confirm_email.start(codigo_email)
+            confirm = Confirmar_Email()
+            confirm.start(codigo_email)
+            self.rl.add_widget(confirm)
         else:
-            self.alerta.start("Erro","Houve um erro ao tentar enviar o e-mail, favor tentar novamente!")
+            alerta = Alerta()
+            alerta.start("Erro","Houve um erro ao tentar enviar o e-mail, favor tentar novamente!")
+            self.rl.add_widget(alerta)
         #_______________________________________________________________________________________________
-        imagem = cv2.imread(self.dir_img)
-        # imagem.resize((1024,720))
+        try:
+            imagem = cv2.imread(self.dir_img)
+        except Exception:
+            alerta = Alerta()
+            alerta.start("Erro","A imagem enviada não é válida")
+            self.rl.add_widget(alerta)
+            imagem = None
+        
         cadastro = {
+            "person":
+            {
             "name":self.nome.get_text(),
             "birthday":f"{self.dia_aniversario.get_text()}/{self.mes_aniversario.get_text()}/{self.ano_aniversario.get_text()}",
             "email":self.email.get_text(),
             "password": self.senha.get_text(),
-            "photo": serialize(imagem),
+            "photo": str(serialize(imagem)),
+            "state": self.estado.get_text(),
+            "city": self.cidade.get_text()
+            },
             "status":{
-                "state": self.estado.get_text(),
-                "city": self.cidade.get_text(),
                 "profession": self.profissao.get_text(),
                 "university": self.universidade.get_text(),
                 "course": self.curso.get_text(),
                 "web_site": self.website.get_text(),
                 "linkedin": self.linkedin.get_text()
             },
-            "route":"Cadastro"
+            "route":"cadastro"
         }
         self.cliente.input_mensage(cadastro)
+        resposta = self.cliente.get_msg_server()
+        if resposta == True:
+            alerta = Alerta()
+            alerta.start("Sucesso","Cadastro efetuado com sucesso!")
+            self.rl.add_widget(alerta)
+        else:
+            alerta = Alerta()
+            alerta.start("Erro","Houve um erro ao efetuar o cadastro, favor verificar os campos novamente!")
+            self.rl.add_widget(alerta)
     
     def voltar(self):
         self.clear_widgets()

@@ -11,6 +11,10 @@ class CommentService(CommentRepository):
         self._data_comment = data_comment
         self._validation = CommentSchema()
 
-    def insert_comment(self) -> None:
+    def insert_comment(self, post_id: int, person_id: int, text: str) -> bool:
         self._data_comment = ValidationSchema.validation(self._data_comment,
                                                          self._validation)
+        return self._create_comment(post_id, person_id, text)
+    
+    def get_comment(self, id_comment: int) -> bool:
+        return self._get_comment(id_comment)

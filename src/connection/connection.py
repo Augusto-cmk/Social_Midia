@@ -20,7 +20,6 @@ class Connection:
                 CREATE TABLE IF NOT EXISTS person (
                     id INTEGER PRIMARY KEY,
                     name VARCHAR(40),
-                    age INTEGER,
                     photo VARCHAR,
                     email VARCHAR,
                     password VARCHAR,

@@ -1,5 +1,4 @@
 from marshmallow import Schema, fields, validate
-from src.common.constants import age_min
 
 
 class PersonSchema(Schema):
@@ -7,11 +6,8 @@ class PersonSchema(Schema):
         required=True
     )
 
-    age = fields.Int(
-        required=True,
-        validate=[validate.Range(
-            min=age_min
-        )]
+    birthday = fields.Str(
+        required=True
     )
 
     photo = fields.Str(

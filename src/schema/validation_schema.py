@@ -9,7 +9,6 @@ class ValidationSchema:
         is_valid = False
         while not is_valid:
             try:
-                print('ou')
                 validate_data = validation_schema.load(data_person)
                 data_person = validate_data
                 is_valid = True

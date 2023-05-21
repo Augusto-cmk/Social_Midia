@@ -3,7 +3,6 @@ from threading import Thread
 from Comunication.mensagem import serialize, deserialize,fragment_msg
 import queue
 import sys
-import cv2
 
 class Cliente:
     def __init__(self) -> None:
@@ -43,7 +42,7 @@ class Cliente:
                         expected_size = deserialize(data)['size_buffer']
                     else:
                         buffer += data
-                        if sys.getsizeof(buffer) == expected_size:
+                        if sys.getsizeof(buffer) >= expected_size:
                             msg = deserialize(buffer)
                             self.mensagem_recived.put(msg)
                             expected_size = sys.maxsize

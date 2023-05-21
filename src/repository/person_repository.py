@@ -14,7 +14,6 @@ class PersonRepository:
     @staticmethod
     def insert_person(data_person: dict) -> None:
         person = Person(name=data_person.get('name'),
-                        age=data_person.get('age'),
                         photo=data_person.get('photo'),
                         email=data_person.get('email'),
                         password=data_person.get('password'),
@@ -23,19 +22,32 @@ class PersonRepository:
                         birthday=data_person.get('birthday')
                         )
         person.save()
+        #return person.id
 
-    def search_person_all(self) -> None:
+    def get_person_all(self) -> None:
         persons = self.__session.query(Person).all()
+        list_persons = []
         for person in persons:
-            print(f"ID: {person.id}, Nome: {person.name}, Idade: {person.age}")
+            list_persons.append(person.__dict__)
+        
+        return list_persons
 
-    def get_person_id(self) -> int:
-        result = self.__session.query(Person.id).filter(Person.name == "Jao").first()
-        if result:
-            person_id = result.id
-            return person_id
+    def _get_person_id(self, email: str, password: str) -> int:
+        person = self.__session.query(Person).filter_by(email=email).first()
 
-    def get_friends_posts(self, person_id: int) -> str | None:
+        if person is None:
+            return False
+        
+        if person.password == password:
+            return {person.id}
+
+        return False
+    
+    def get_person(self, person_id):
+        person = self.__session.query(Person).filter_by(id=person_id).first()
+        return person.__dict__
+    
+    def get_friends_posts(self, person_id: int) -> str:
         person = self.__session.query(Person).get(person_id)
 
         if person is None:
@@ -84,27 +96,32 @@ class PersonRepository:
 
         return True
 
-    def print_friends(self, person_id: int):
+    def get_friends(self, person_id: int):
         person = self.__session.query(Person).get(person_id)
 
         if person is None:
             print("Person not found.")
-            return
+            return False
 
         friends = self.__session.query(Person).join(Friend, Friend.friend_id == Person.id).filter(
             Friend.person_id == person_id).all()
-
-        print(f"Friends of {person.name}:")
+        
+        person_friends = []
         for friend in friends:
-            print(friend.name)
+            person_friends.append(friend.__dict__)
+        
+        return person_friends
 
     def get_person_posts(self, person_id: int) -> Post:
         person = self.__session.query(Person).get(person_id)
 
         if person is None:
-            return []
+            return False
 
         posts = self.__session.query(Post).filter_by(author_id=person_id).all()
-        return posts
+        list_posts = []
+        for p in posts:
+            list_posts.append(p.__dict__)
+        return list_posts
 
 

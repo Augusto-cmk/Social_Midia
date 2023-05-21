@@ -1,23 +1,28 @@
 from src.connection.connection import Connection
 from src.models.person_status import PersonStatus
-
+import sqlite3
 
 class PersonStatusRepository:
     def __init__(self) -> None:
         self.__session = Connection().get_session()
 
     @staticmethod
-    def insert_person_status(data_person_status: dict) -> None:
-        person_status = PersonStatus(status_text=data_person_status.get("status_text"),
-                                     profession=data_person_status.get("profession"),
-                                     university=data_person_status.get("university"),
-                                     course=data_person_status.get("course"),
-                                     web_site=data_person_status.get("web_site"),
-                                     linkedin=data_person_status.get("linkedin"))
-        person_status.save()
+    def _insert_person_status(data_person_status: dict, person_id: int) -> bool:
+        try:
+            person_status = PersonStatus(person_id=person_id,
+                                        status_text=data_person_status.get("status_text"),
+                                        profession=data_person_status.get("profession"),
+                                        university=data_person_status.get("university"),
+                                        course=data_person_status.get("course"),
+                                        web_site=data_person_status.get("web_site"),
+                                        linkedin=data_person_status.get("linkedin"))
+            person_status.save()
+            return True
+        except sqlite3.OperationalError as e:
+            return False
 
     @staticmethod
-    def update_person_status(self, person_status_id: str, updated_data: dict) -> None:
+    def _update_person_status(person_status_id: str, updated_data: dict) -> bool:
         try:
             person_status = PersonStatus.get(id=person_status_id)
         except Exception:
@@ -32,9 +37,17 @@ class PersonStatusRepository:
 
         person_status.save()
 
-    def delete_person_status(self, id_person: int):
+    def _get_status_person(self, person_id: int) -> bool:
+        person_status = self.__session.query(PersonStatus).filter_by(person_id=person_id).first()
+        
+        if person_status is None:
+            return False
+
+        return person_status.__dict__
+
+    def _delete_person_status(self, id_person: int) -> bool:
         try:
             self.__session.query(PersonStatus).filter(PersonStatus.person_id == id_person).delete()
-            return {"mensagem": "Sucesso"}
+            return True
         except Exception:
-            return {"mensagem": "PersonStatus não encotrado"}
+            return False
