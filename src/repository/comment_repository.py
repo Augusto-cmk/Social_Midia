@@ -16,7 +16,6 @@ class CommentRepository:
             return True
         except sqlite3.DataError:
             return False
-        
 
     def _get_comment(self, id_comment: int) -> str:
         try:

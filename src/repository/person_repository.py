@@ -22,31 +22,27 @@ class PersonRepository:
                         birthday=data_person.get('birthday')
                         )
         person.save()
-        #return person.id
 
     def get_person_all(self) -> None:
         persons = self.__session.query(Person).all()
         list_persons = []
         for person in persons:
             list_persons.append(person.__dict__)
-        
+
         return list_persons
 
     def _get_person_id(self, email: str, password: str) -> int:
-        person = self.__session.query(Person).filter_by(email=email).first()
+        person = self.__session.query(Person).filter_by(email=email, password=password).first()
 
         if person is None:
-            return False
-        
-        if person.password == password:
-            return {person.id}
+            return None
 
-        return False
-    
+        return person.id
+
     def get_person(self, person_id):
         person = self.__session.query(Person).filter_by(id=person_id).first()
         return person.__dict__
-    
+
     def get_friends_posts(self, person_id: int) -> str:
         person = self.__session.query(Person).get(person_id)
 
@@ -105,11 +101,11 @@ class PersonRepository:
 
         friends = self.__session.query(Person).join(Friend, Friend.friend_id == Person.id).filter(
             Friend.person_id == person_id).all()
-        
+
         person_friends = []
         for friend in friends:
             person_friends.append(friend.__dict__)
-        
+
         return person_friends
 
     def get_person_posts(self, person_id: int) -> Post:
@@ -123,5 +119,3 @@ class PersonRepository:
         for p in posts:
             list_posts.append(p.__dict__)
         return list_posts
-
-
