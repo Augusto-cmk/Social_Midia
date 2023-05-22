@@ -9,11 +9,16 @@ from Visao.Recursos.Text import Text,TextToSearch
 from Visao.Recursos.checkbox import Interactive_Checkbox
 from Visao.Recursos.choose_file import Choose_file
 from Modelo.user import User
+from cv2 import imread
+from Comunication.mensagem import serialize
+from Visao.Recursos.Popup import Alerta
+from Comunication.cliente import Cliente
 
 class TelaFeed(Screen):
     def __init__(self,screenManager,user:User,**kw):
         super().__init__(**kw)
         self.screenManager = screenManager
+        self.cliente:Cliente = self.screenManager.get_client()
         self.user = user
         self.rl = RelativeLayout()
 
@@ -28,8 +33,8 @@ class TelaFeed(Screen):
         logo = BoxImage('retangulo',"Imagens/Logo.png",size_hint=(.25,.2),pos_hint={'center_x':0.12,'center_y':0.94})
         self.rl.add_widget(logo)
 
-        perfil_button = ImageButton(self.perfil,self.user.get_path_image(),"circulo",argsAction=[self.user.get_path_image(),self.user.get_nome(),self.user.get_colaboradores(),self.user.get_colaborando(),self.user.get_linkedin(),self.user.get_email(),self.user.get_web_site()],size_hint=(0.1,0.1),pos_hint={"center_x":0.94,"center_y":0.94})
-        self.rl.add_widget(perfil_button)
+        self.perfil_button = ImageButton(self.perfil,self.user.get_path_image(),"circulo",size_hint=(0.1,0.1),pos_hint={"center_x":0.94,"center_y":0.94})
+        self.rl.add_widget(self.perfil_button)
 
         self.sair_button = ImageButton(self.voltar,"Imagens/sair.png","retangulo",size_hint=(0.2,0.2),pos_hint={"center_x":0.05,"center_y":0.05})
         self.rl.add_widget(self.sair_button)
@@ -105,9 +110,7 @@ class TelaFeed(Screen):
         
         self.postagem = Bloco(0.7,0.7,pos_hint={"center_x":0.5,"center_y":0.5})
         self.postagem.setFormat("retangulo_arredondado",(1,1,1,1))
-        
-        path_foto_perfil = "Imagens/foto_perfil.jpg"
-        nome_autor = "Pedro Maia"
+    
         
         label = Label(text="Insira aqui a descrição da postagem (40 caracteres)",color='black',pos_hint={'center_x':0.5,'center_y':0.82},size_hint=(.01,.01))
         text_post = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),40,pos_hint={"center_x":0.5,'center_y':0.77},size_hint=(.6,.07))
@@ -116,7 +119,7 @@ class TelaFeed(Screen):
         self.insert_image = ImageButton(self.inserir_image_post,"Imagens/search_image.png","retangulo",argsAction=[path_image_post],pos_hint={'center_x':0.5,'center_y':0.5},size_hint=(0.3,0.3))
 
         publicar = PersonalButton(self.inserir_post,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',
-                                  argsAction=[path_foto_perfil,nome_autor,text_post,path_image_post],pos_hint={'center_x':0.68,'center_y':0.2},size_hint=(0.3,0.05),text="Publicar",borderSize=1.5,borderColor=(0,0,0,1))
+                                  argsAction=[text_post,path_image_post],pos_hint={'center_x':0.68,'center_y':0.2},size_hint=(0.3,0.05),text="Publicar",borderSize=1.5,borderColor=(0,0,0,1))
         
         cancelar = PersonalButton(self.restore_to_feed,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',pos_hint={'center_x':0.32,'center_y':0.2},size_hint=(0.3,0.05),text="Cancelar",borderSize=1.5,borderColor=(0,0,0,1))
         
@@ -157,7 +160,7 @@ class TelaFeed(Screen):
         self.clear_widgets()
         self.add_widget(self.screenManager.go_to('login')(self.screenManager))
     
-    def perfil(self,path_foto_perfil,nome,colabs,colab,linkedin,email,github): # Criar um bloco para visualizar o perfil
+    def perfil(self): # Criar um bloco para visualizar o perfil
         self.rl.remove_widget(self.feed)
         if self.search_user:
             self.rl.remove_widget(self.search_user)
@@ -181,7 +184,7 @@ class TelaFeed(Screen):
         btnVoltar = ImageButton(self.restore_to_feed,"Imagens/Voltar.png","circulo",pos_hint={'center_x':0.16,'center_y':0.88},size_hint=(0.05,0.05))
         self.perfil_user.insertWidget(btnVoltar)
 
-        foto_perfil = BoxImage('circulo',path_foto_perfil,size_hint=(.1,.1),pos_hint={'center_x':0.22,'center_y':0.82})
+        foto_perfil = BoxImage('circulo',self.user.get_path_image(),size_hint=(.1,.1),pos_hint={'center_x':0.22,'center_y':0.82})
         self.perfil_user.insertWidget(foto_perfil)
 
         colaboradores = Label(text="colaboradores",color='black',pos_hint={'center_x':0.44,'center_y':0.79},size_hint=(.01,.01))
@@ -190,21 +193,21 @@ class TelaFeed(Screen):
         colaborando = Label(text="colaborando",color='black',pos_hint={'center_x':0.7,'center_y':0.79},size_hint=(.01,.01))
         self.perfil_user.insertWidget(colaborando)
 
-        colaboradoresSize = Label(text=f"{colabs}",color='black',pos_hint={'center_x':0.44,'center_y':0.82},size_hint=(.01,.01))
+        colaboradoresSize = Label(text=f"{self.user.get_colaboradores()}",color='black',pos_hint={'center_x':0.44,'center_y':0.82},size_hint=(.01,.01))
         self.perfil_user.insertWidget(colaboradoresSize)
 
-        colaborandoSize = Label(text=f"{colab}",color='black',pos_hint={'center_x':0.7,'center_y':0.82},size_hint=(.01,.01))
+        colaborandoSize = Label(text=f"{self.user.get_colaborando()}",color='black',pos_hint={'center_x':0.7,'center_y':0.82},size_hint=(.01,.01))
         self.perfil_user.insertWidget(colaborandoSize)
 
-        nomePerfil = Label(text=nome,color='black',pos_hint={'center_x':0.22,'center_y':0.74},size_hint=(.01,.01))
+        nomePerfil = Label(text=self.user.get_nome(),color='black',pos_hint={'center_x':0.22,'center_y':0.74},size_hint=(.01,.01))
         self.perfil_user.insertWidget(nomePerfil)
 
         editar_btn = PersonalButton(self.editar_perfil,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',pos_hint={'center_x':0.5,'center_y':0.69},size_hint=(0.4,0.05),text="Editar Perfil",borderSize=1.5,borderColor=(0,0,0,1))
         self.perfil_user.insertWidget(editar_btn)
 
-        linkedinLabel = Label(text=f"Linkedin: {linkedin}",color='black',pos_hint={'center_x':0.5,'center_y':0.17},size_hint=(.01,.01))
-        emailLabel = Label(text=f"Email: {email}",color='black',pos_hint={'center_x':0.5,'center_y':0.14},size_hint=(.01,.01))
-        githubLabel = Label(text=f"Web_site: {github}",color='black',pos_hint={'center_x':0.5,'center_y':0.11},size_hint=(.01,.01))
+        linkedinLabel = Label(text=f"Linkedin: {self.user.get_linkedin()}",color='black',pos_hint={'center_x':0.5,'center_y':0.17},size_hint=(.01,.01))
+        emailLabel = Label(text=f"Email: {self.user.get_email()}",color='black',pos_hint={'center_x':0.5,'center_y':0.14},size_hint=(.01,.01))
+        githubLabel = Label(text=f"Web_site: {self.user.get_web_site()}",color='black',pos_hint={'center_x':0.5,'center_y':0.11},size_hint=(.01,.01))
 
         self.perfil_user.insertWidget(linkedinLabel)
         self.perfil_user.insertWidget(emailLabel)
@@ -231,7 +234,7 @@ class TelaFeed(Screen):
         btnVoltar = ImageButton(self.return_to_perfil,"Imagens/Voltar.png","circulo",pos_hint={'center_x':0.16,'center_y':0.88},size_hint=(0.05,0.05))
         self.editarPerfil.insertWidget(btnVoltar)
 
-        self.carregar_img = BoxImage("circulo",'Imagens/foto_perfil.jpg',pos_hint={'center_x':0.22,'center_y':0.81},size_hint=(0.1,0.1))
+        self.carregar_img = BoxImage("circulo",self.user.get_path_image(),pos_hint={'center_x':0.22,'center_y':0.81},size_hint=(0.1,0.1))
         btnImage_perfil = PersonalButton(self.foto_perfil,(1,1,1,1),(0,0,0,1),15,"retangulo_arredondado",pos_hint={'center_x':0.22,'center_y':0.72},size_hint=(0.15,0.05),borderSize=1.5,borderColor=(0,0,0,1),text='Alterar imagem')
         
         self.editarPerfil.insertWidget(self.carregar_img)
@@ -241,7 +244,7 @@ class TelaFeed(Screen):
         label_nome = Label(color='black',size_hint=(.2, .05),
                             pos_hint={'center_x': .38, 'center_y': .85}, text='Nome')
         
-        self.nome = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),28,pos_hint={'center_x':.475,'center_y':.8},size_hint=(.25,.05))
+        self.nome = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),28,pos_hint={'center_x':.475,'center_y':.8},size_hint=(.25,.05),text=self.user.get_nome())
         self.editarPerfil.insertWidget(label_nome)
         self.editarPerfil.insertWidget(self.nome)
         #-----------------------------------------------------------------------------------------
@@ -250,7 +253,7 @@ class TelaFeed(Screen):
         label_email = Label(color='black',size_hint=(.2, .05),
                             pos_hint={'center_x': .38, 'center_y': .76}, text='E-mail')
         
-        self.email = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),40,pos_hint={'center_x':.6,'center_y':.71},size_hint=(.5,.05))
+        self.email = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),40,pos_hint={'center_x':.6,'center_y':.71},size_hint=(.5,.05),text=self.user.get_email())
         self.editarPerfil.insertWidget(label_email)
         self.editarPerfil.insertWidget(self.email)
         #----------------------------------------------------------------------------------------------------------------------
@@ -260,17 +263,17 @@ class TelaFeed(Screen):
                             pos_hint={'center_x': .714, 'center_y': .85}, text='Data de nascimento')
         
 
-        self.dia_aniversario = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),2,pos_hint={'center_x':.65,'center_y':.8},size_hint=(.04,.05),only_number=True)
+        self.dia_aniversario = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),2,pos_hint={'center_x':.65,'center_y':.8},size_hint=(.04,.05),only_number=True,text=self.user.get_dia())
         
         label_barra = Label(color='black',size_hint=(.2, .2),
                             pos_hint={'center_x': .685, 'center_y': .8}, text='/',font_size=25)
         
-        self.mes_aniversario = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),2,pos_hint={'center_x':.72,'center_y':.8},size_hint=(.04,.05),only_number=True)
+        self.mes_aniversario = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),2,pos_hint={'center_x':.72,'center_y':.8},size_hint=(.04,.05),only_number=True,text=self.user.get_mes())
 
         label_barra2 = Label(color='black',size_hint=(.2, .05),
                             pos_hint={'center_x': .755, 'center_y': .8}, text='/',font_size=25)
         
-        self.ano_aniversario = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),4,pos_hint={'center_x':.805,'center_y':.8},size_hint=(.07,.05),only_number=True)
+        self.ano_aniversario = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),4,pos_hint={'center_x':.805,'center_y':.8},size_hint=(.07,.05),only_number=True,text=self.user.get_ano())
 
         self.editarPerfil.insertWidget(label_aniversário)
         self.editarPerfil.insertWidget(self.dia_aniversario)
@@ -283,7 +286,7 @@ class TelaFeed(Screen):
         # Senha
         check_box = Interactive_Checkbox(self.exibirSenha,"Imagens/OlhoFechado.png",'Imagens/olhoAberto.png',pos_hint={'center_x':.746,'center_y':.62},size_hint=(.03,.025))
         label_senha = Label(text='Senha',color='black',pos_hint={'center_x':.377,'center_y':.67},size_hint=(.09,.05))
-        self.senha = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,size_hint=(.37,.05),pos_hint={'center_x':.532,'center_y':.62},password=True)
+        self.senha = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,size_hint=(.37,.05),pos_hint={'center_x':.532,'center_y':.62},password=True,text=self.user.get_senha())
         self.editarPerfil.insertWidget(check_box)
         self.editarPerfil.insertWidget(label_senha)
         self.editarPerfil.insertWidget(self.senha)
@@ -298,7 +301,7 @@ class TelaFeed(Screen):
         label_estado = Label(color='black',size_hint=(.2, .2),
                             pos_hint={'center_x': .167, 'center_y': .54}, text='Estado')
         
-        self.estado = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,pos_hint={'center_x':.232,'center_y':.5},size_hint=(.2,.05))
+        self.estado = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,pos_hint={'center_x':.232,'center_y':.5},size_hint=(.2,.05),text=self.user.get_estado())
         self.editarPerfil.insertWidget(label_estado)
         self.editarPerfil.insertWidget(self.estado)
 
@@ -310,7 +313,7 @@ class TelaFeed(Screen):
         label_cidade = Label(color='black',size_hint=(.2, .2),
                             pos_hint={'center_x': .383, 'center_y': .54}, text='Cidade')
         
-        self.cidade = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,pos_hint={'center_x':.473,'center_y':.5},size_hint=(.25,.05))
+        self.cidade = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,pos_hint={'center_x':.473,'center_y':.5},size_hint=(.25,.05),text=self.user.get_cidade())
         self.editarPerfil.insertWidget(label_cidade)
         self.editarPerfil.insertWidget(self.cidade)
 
@@ -322,7 +325,7 @@ class TelaFeed(Screen):
         label_profissao = Label(color='black',size_hint=(.2, .2),
                             pos_hint={'center_x': .66, 'center_y': .54}, text='Profissão')
         
-        self.profissao = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,pos_hint={'center_x':.74,'center_y':.5},size_hint=(.25,.05))
+        self.profissao = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,pos_hint={'center_x':.74,'center_y':.5},size_hint=(.25,.05),text=self.user.get_profissao())
         self.editarPerfil.insertWidget(label_profissao)
         self.editarPerfil.insertWidget(self.profissao)
 
@@ -334,7 +337,7 @@ class TelaFeed(Screen):
         label_universidade = Label(color='black',size_hint=(.2, .2),
                             pos_hint={'center_x': .1875, 'center_y': .45}, text='Universidade')
         
-        self.universidade = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,pos_hint={'center_x':.306,'center_y':.41},size_hint=(.35,.05))
+        self.universidade = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,pos_hint={'center_x':.306,'center_y':.41},size_hint=(.35,.05),text=self.user.get_universidade())
         self.editarPerfil.insertWidget(label_universidade)
         self.editarPerfil.insertWidget(self.universidade)
 
@@ -346,7 +349,7 @@ class TelaFeed(Screen):
         label_curso = Label(color='black',size_hint=(.2, .2),
                             pos_hint={'center_x': .542, 'center_y': .45}, text='Curso')
         
-        self.curso = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,pos_hint={'center_x':.69,'center_y':.41},size_hint=(.35,.05))
+        self.curso = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),25,pos_hint={'center_x':.69,'center_y':.41},size_hint=(.35,.05),text=self.user.get_curso())
         self.editarPerfil.insertWidget(label_curso)
         self.editarPerfil.insertWidget(self.curso)
 
@@ -358,7 +361,7 @@ class TelaFeed(Screen):
         label_website = Label(color='black',size_hint=(.2, .2),
                             pos_hint={'center_x': .171, 'center_y': .36}, text='Web Site')
         
-        self.website = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),100,pos_hint={'center_x':.5,'center_y':.315},size_hint=(.735,.05))
+        self.website = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),100,pos_hint={'center_x':.5,'center_y':.315},size_hint=(.735,.05),text=self.user.get_web_site())
         self.editarPerfil.insertWidget(label_website)
         self.editarPerfil.insertWidget(self.website)
 
@@ -370,7 +373,7 @@ class TelaFeed(Screen):
         label_linkedin = Label(color='black',size_hint=(.2, .2),
                             pos_hint={'center_x': .171, 'center_y': .265}, text='Linkedin')
         
-        self.linkedin = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),100,pos_hint={'center_x':.5,'center_y':.22},size_hint=(.735,.05))
+        self.linkedin = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),100,pos_hint={'center_x':.5,'center_y':.22},size_hint=(.735,.05),text=self.user.get_linkedin())
         self.editarPerfil.insertWidget(label_linkedin)
         self.editarPerfil.insertWidget(self.linkedin)
 
@@ -383,24 +386,71 @@ class TelaFeed(Screen):
         self.rl.add_widget(self.editarPerfil)
 
     def salvar_alteracao(self):
-        pass
+        self.user.set_new_path(self.dir_img)
+        self.perfil_button.set_new_img(self.dir_img)
+        # Salvar alteração das informações do usuário
+        try:
+            foto = imread(self.dir_img)
+        except Exception:
+            alerta = Alerta()
+            alerta.start("Erro","Houve um erro ao ler a imagem!")
+            foto = None
+        atributos_necessarios = [self.email.get_text(),self.senha.get_text(),self.nome.get_text(),self.dia_aniversario.get_text(),self.mes_aniversario.get_text(),self.ano_aniversario.get_text()]
+        erros = ["O campo de email é obrigatorio","O campo de senha é obrigatorio","O campo do nome é obrigatorio","O campo dia do aniversário é obrigatorio","O campo mes do aniversário é obrigatorio","O campo ano do aniversário é obrigatorio"]
+        for i,atributo in enumerate(atributos_necessarios):
+            if atributo == '':
+                alerta = Alerta()
+                alerta.start("Erro",erros[i])
+                self.rl.add_widget(alerta)
+        new_data = {
+            "person":
+            {
+            "name":self.nome.get_text(),
+            "birthday":f"{self.dia_aniversario.get_text()}/{self.mes_aniversario.get_text()}/{self.ano_aniversario.get_text()}",
+            "email":self.email.get_text(),
+            "password": self.senha.get_text(),
+            "photo": str(serialize(foto)),
+            "state": self.estado.get_text(),
+            "city": self.cidade.get_text()
+            },
+            "status":{
+                "profession": self.profissao.get_text(),
+                "university": self.universidade.get_text(),
+                "course": self.curso.get_text(),
+                "web_site": self.website.get_text(),
+                "linkedin": self.linkedin.get_text()
+            },
+            "route":"alterar dados usuário"
+        }
+        self.cliente.input_mensage(new_data)
+        resposta = self.cliente.get_msg_server()
+        if resposta == True:
+            alerta = Alerta()
+            alerta.start("Sucesso","Alterações efetuadas com sucesso!")
+            self.rl.add_widget(alerta)
+        else:
+            alerta = Alerta()
+            alerta.start("Erro","Houve um erro ao efetuar as altarações, favor verificar os campos novamente!")
+            self.rl.add_widget(alerta)
+
+
 
     def exibirSenha(self,status):
         self.senha.password = not status
     
     def return_to_perfil(self):
         self.rl.remove_widget(self.editarPerfil)
-        self.rl.add_widget(self.perfil_user)
+        self.perfil()
     
     def foto_perfil(self):
-        dir_img = Choose_file().get_dir()
-        self.carregar_img.set_new_img(dir_img)
+        self.dir_img = Choose_file().get_dir()
+        self.carregar_img.set_new_img(self.dir_img)
 
         # Mandar aqui a nova foto para o banco de dados
 
         #--------------------------------------------
 
-    def inserir_post(self,path_foto_perfil,nome_autor,text_post:Text,path_image_post:dict):# Método chamado para inserir um post no feed do usuário
+    def inserir_post(self,text_post:Text,path_image_post:dict):# Método chamado para inserir um post no feed do usuário
         do = True
         if self.postagem:
             try:
@@ -415,10 +465,10 @@ class TelaFeed(Screen):
             post.setFormat("retangulo_arredondado",(1,1,1,1))
 
             # inserir informações do post
-            foto_perfil = BoxImage('circulo',path_foto_perfil,size_hint=(.1,.1),pos_hint={'center_x':0.22,'center_y':0.82})
+            foto_perfil = BoxImage('circulo',self.user.get_path_image(),size_hint=(.1,.1),pos_hint={'center_x':0.22,'center_y':0.82})
             post.insertWidget(foto_perfil)
 
-            arroba = Label(text=f'@{nome_autor}',color='black',pos_hint={'center_x':0.4,'center_y':0.82},size_hint=(.01,.01))
+            arroba = Label(text=f'@{self.user.get_nome()}',color='black',pos_hint={'center_x':0.4,'center_y':0.82},size_hint=(.01,.01))
             post.insertWidget(arroba)
 
             separador = Geometry('retangulo',(0,0,0,0.2),pos_hint={'center_x':0.5,'center_y':0.75},size_hint=(.8,.003))
@@ -459,6 +509,6 @@ class TelaFeed(Screen):
     
     def enviar_comentario_post(self,post:Post,comentario:Text):# Tem que receber as informações do post para poder enviar o comentario, assim como quem fez o comentario
         if len(comentario.get_text()) > 0:
-            foto_perfil = BoxImage('circulo','Imagens/foto_perfil.jpg',size_hint=(.05,.05),pos_hint={'center_x':0.22,'center_y':0.82})
+            foto_perfil = BoxImage('circulo',self.user.get_path_image(),size_hint=(.05,.05),pos_hint={'center_x':0.22,'center_y':0.82})
             comentLabel = Label(text=f'{comentario.get_text()}',color='black',pos_hint={'center_x':0.5,'center_y':0.82},size_hint=(.01,.01))
             post.comment(foto_perfil,comentLabel)

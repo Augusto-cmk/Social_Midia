@@ -137,6 +137,7 @@ class ImageButton(Button):
         self.argsAction = argsAction
         self.defaultSize = self.size_hint.copy()
         self.background_color = [0, 0, 0, 0]
+        self.format = format
         if format == 'circulo':
             self.shape = Ellipse(source=pathImage)
         if format == 'retangulo':
@@ -166,3 +167,18 @@ class ImageButton(Button):
     
     def restore_size_hint(self, *args):
         self.size_hint = self.defaultSize.copy()
+    
+    def set_new_img(self,pathImage):
+        if len(pathImage) > 0:
+            self.canvas.remove(self.shape)
+            if self.format == 'circulo':
+                self.shape = Ellipse(source=pathImage)
+            if self.format == 'retangulo':
+                self.shape = Rectangle(source=pathImage)
+            if self.format == 'retangulo_arredondado':
+                self.shape = RoundedRectangle(source=pathImage)
+            
+            self.canvas.add(Color((1,1,1,1)))
+            self.canvas.add(self.shape)
+            self.on_size()
+            self.on_pos()

@@ -2,23 +2,26 @@ from Comunication.mensagem import deserialize
 from cv2 import imwrite
 class User:
     def __init__(self) -> None:
-        self.id = None
-        self.foto = None
-        self.nome = None
-        self.dia = None
-        self.mes = None
-        self.ano = None
-        self.email = None
-        self.senha = None
-        self.cidade = None
-        self.estado = None
-        self.universidade = None
-        self.curso = None
-        self.profissao = None
-        self.web_site = None
-        self.linkedin = None
-        self.colaboradores = None
-        self.colaborando = None
+        self.id = ''
+        self.foto = ''
+        self.nome = ''
+        self.dia = ''
+        self.mes = ''
+        self.ano = ''
+        self.email = ''
+        self.senha = ''
+        self.cidade = ''
+        self.estado = ''
+        self.universidade = ''
+        self.curso = ''
+        self.profissao = ''
+        self.web_site = ''
+        self.linkedin = ''
+        self.colaboradores = ''
+        self.colaborando = ''
+
+    def set_id(self,id):
+        self.id = id
         
     def get_id(self):
         return self.id
@@ -108,9 +111,12 @@ class User:
     
     def get_colaborando(self):
         return self.colaborando
+    
+    def set_new_path(self,path):
+        self.foto = path
 
     def set_image_perfil(self,image_bd:str):
-        image_bytes = bytes(image_bd)
+        image_bytes = image_bd.encode('latin1')
         image = deserialize(image_bytes)
         self.foto = "temp/img_perfil_user.png"
         imwrite(self.foto,image)

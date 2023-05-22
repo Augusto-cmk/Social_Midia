@@ -8,6 +8,7 @@ from kivy.uix.label import Label
 from Visao.Recursos.Popup import Alerta
 from Controle.Envio_email import envioEmail
 from Comunication.cliente import Cliente
+from Modelo.user import User
 
 
 class TelaLogin(Screen):
@@ -61,8 +62,22 @@ class TelaLogin(Screen):
             "route":"login"
         }
         self.cliente.input_mensage(login)
-        user = self.cliente.get_msg_server()
-        if user:
+        person = self.cliente.get_msg_server()
+        if person:
+            user = User()
+            user.set_image_perfil(person['photo'])
+            # user.set_cidade(person[])
+            # user.set_estado(person[])
+            user.set_colaboradores(200)
+            user.set_colaborando(20)
+            # user.set_curso(person[])
+            user.set_data_nascimento(person['birthday'])
+            user.set_nome(person['name'])
+            user.set_email(person['email'])
+            # user.set_universidade(person[])
+            # user.set_web_site(person[])
+            user.set_senha(person['password'])
+            # user.set_linkedin(person[])
             self.clear_widgets()
             self.add_widget(self.screenManager.go_to('feed')(self.screenManager,user))
         else:

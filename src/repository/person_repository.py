@@ -39,7 +39,7 @@ class PersonRepository:
 
         return person.id
 
-    def get_person(self, person_id):
+    def _get_person(self, person_id):
         person = self.__session.query(Person).filter_by(id=person_id).first()
         return person.__dict__
 

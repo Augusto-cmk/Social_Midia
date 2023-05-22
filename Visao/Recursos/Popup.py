@@ -13,15 +13,21 @@ class Alerta(RelativeLayout):
         box.add_widget(self.msg)
         box.add_widget(ok)
         self.pop = Popup(size_hint=(.7,.3),pos_hint={'center_x':0.5,'center_y':0.5},content=box)
+        self.aberto = False
     
     def start(self,title,mensagem):
         self.pop.title = title
         self.msg.text = mensagem
         self.add_widget(self.pop)
+        self.aberto = True
 
     def action(self):
         self.remove_widget(self.pop)
-
+        self.aberto = False
+    
+    def is_open(self):
+        return self.aberto
+    
 
 
 class Confirmar_Email(RelativeLayout):

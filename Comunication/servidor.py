@@ -35,10 +35,10 @@ class Server:
             path = msg['route']
             if path == "cadastro":
                 try:
-                    person_service = PersonService(msg["person"])
-                    id = person_service.register_person()
-                    person_status_service = PersonStatusService(msg['status'])
-                    person_status_service.create_status_person(id)
+                    person_service = PersonService()
+                    person_service.register_person(msg["person"])
+                    # person_status_service = PersonStatusService(msg['status'])
+                    # person_status_service.create_status_person(id)
                     retorno_servidor = True
                 except Exception:
                     retorno_servidor = False
@@ -48,14 +48,15 @@ class Server:
                 senha = msg['password']
                 id = PersonService().login(email,senha)
                 person = PersonService().get_person(id)
-                status = PersonStatusService().get_person_status(id)
-                print(person)
-                print(status)
+                
+                # status = PersonStatusService().get_person_status(id)
+                # print(status)
 
+                retorno_servidor = person
             #------------------------------
             # Depois, mandar a mensagem para o cliente
             msg_serialized = serialize(retorno_servidor)
-            self.conexoes[addr].send(serialize({"size_buffer":sys.getsizeof(retorno_servidor)}))
+            self.conexoes[addr].send(serialize({"size_buffer":sys.getsizeof(msg_serialized)}))
 
             fragmentos = fragment_msg(msg_serialized,4096)
             for fragmento in fragmentos:
