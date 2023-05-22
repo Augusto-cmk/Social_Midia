@@ -34,6 +34,7 @@ class BrainCase(App):
         return self.gerenciador
 
     def on_request_close(self, *args):
+        self.gerenciador.close_cliet()
         sys.exit(0)
 
 BrainCase().run()

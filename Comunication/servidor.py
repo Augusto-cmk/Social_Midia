@@ -16,6 +16,7 @@ class Server:
         self.conexoes = {}
         self.server_client = Thread(target=self.__server_to_client)
         self.mensagens = queue.Queue()
+        self.threads = {}
 
     
     def start(self):
@@ -26,6 +27,7 @@ class Server:
             conn,addr = self.servidor.accept()
             thread = Thread(target=self.__clients_to_server,args=(conn,addr))
             thread.start()
+            self.threads[addr] = thread
 
     def __server_to_client(self):
         while True:
