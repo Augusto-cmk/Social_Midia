@@ -7,16 +7,12 @@ class PersonStatusService(PersonStatusRepository):
 
     def __init__(self) -> None:
         super().__init__()
-        self._validation_schema = PersonStatusSchema()
-
-    def __init__(self):
-        super().__init__()
+    
     
     def create_status_person(self,person_id,data_person_status: dict) -> dict:
-        self._data_person_status = ValidationSchema.validation(data_person_status,
-                                                               self._validation_schema)
-
-        return self._insert_person_status(self._data_person_status,person_id)
+        _data_person_status = ValidationSchema.validation(data_person_status,
+                                                         PersonStatusSchema())
+        return self._insert_person_status(_data_person_status,person_id)
 
     def get_person_status(self,id_person):
-        return self._get_status_person(id_person)
+        return self.get_status_person(id_person)

@@ -41,7 +41,10 @@ class PersonRepository:
 
     def _get_person(self, person_id):
         person = self.__session.query(Person).filter_by(id=person_id).first()
-        return person.__dict__
+        try:
+            return person.__dict__
+        except Exception:
+            return None
 
     def get_friends_posts(self, person_id: int) -> str:
         person = self.__session.query(Person).get(person_id)
@@ -119,3 +122,11 @@ class PersonRepository:
         for p in posts:
             list_posts.append(p.__dict__)
         return list_posts
+
+    def get_friends_count(self, person_id: int) -> int:
+        person = self.__session.query(Person).get(person_id)
+
+        if person is None:
+            return 0
+        
+        return len(person.friends)

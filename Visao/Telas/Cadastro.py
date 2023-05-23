@@ -13,6 +13,7 @@ import cv2
 from Comunication.mensagem import serialize
 from Comunication.cliente import Cliente
 import sys
+from Controle.entrada import controleEntrada
 
 class TelaCadastro(Screen):
     def __init__(self,screenManager,**kw):

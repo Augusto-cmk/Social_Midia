@@ -11,7 +11,6 @@ class PersonStatus(Base):
     __tablename__ = 'person_status'
 
     id = Column(Integer, primary_key=True)
-    status_text = Column(String(255))
     profession = Column(String(50))
     university = Column(String(50))
     course = Column(String(50))

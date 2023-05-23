@@ -39,8 +39,9 @@ class Server:
                 try:
                     person_service = PersonService()
                     person_service.register_person(msg["person"])
-                    # person_status_service = PersonStatusService(msg['status'])
-                    # person_status_service.create_status_person(id)
+                    person_id = person_service.id_person(msg["person"]["email"], msg["person"]["password"])
+                    person_status_service = PersonStatusService()
+                    person_status_service.create_status_person(person_id,msg['status'])
                     retorno_servidor = True
                 except Exception:
                     retorno_servidor = False
@@ -48,13 +49,10 @@ class Server:
             elif path == "login":
                 email = msg['email']
                 senha = msg['password']
-                id = PersonService().login(email,senha)
+                id = PersonService().id_person(email,senha)
                 person = PersonService().get_person(id)
-                
-                # status = PersonStatusService().get_person_status(id)
-                # print(status)
-
-                retorno_servidor = person
+                status = PersonStatusService().get_person_status(id)
+                retorno_servidor = {'person':person,'status':status}
             #------------------------------
             # Depois, mandar a mensagem para o cliente
             msg_serialized = serialize(retorno_servidor)

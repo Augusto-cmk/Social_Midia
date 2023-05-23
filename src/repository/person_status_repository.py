@@ -10,7 +10,6 @@ class PersonStatusRepository:
     def _insert_person_status(data_person_status: dict, person_id: int) -> bool:
         try:
             person_status = PersonStatus(person_id=person_id,
-                                        status_text=data_person_status.get("status_text"),
                                         profession=data_person_status.get("profession"),
                                         university=data_person_status.get("university"),
                                         course=data_person_status.get("course"),
@@ -28,7 +27,6 @@ class PersonStatusRepository:
         except Exception:
             raise Exception("PersonStatus não encontrado")
 
-        person_status.status_text = updated_data.get("status_text", person_status.status_text)
         person_status.profession = updated_data.get("profession", person_status.profession)
         person_status.university = updated_data.get("university", person_status.university)
         person_status.course = updated_data.get("course", person_status.course)
@@ -37,7 +35,7 @@ class PersonStatusRepository:
 
         person_status.save()
 
-    def _get_status_person(self, person_id: int) -> bool:
+    def get_status_person(self, person_id: int) -> bool:
         person_status = self.__session.query(PersonStatus).filter_by(person_id=person_id).first()
         
         if person_status is None:

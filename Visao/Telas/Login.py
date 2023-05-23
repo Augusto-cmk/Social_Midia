@@ -62,22 +62,25 @@ class TelaLogin(Screen):
             "route":"login"
         }
         self.cliente.input_mensage(login)
-        person = self.cliente.get_msg_server()
-        if person:
+        resposta = self.cliente.get_msg_server()
+        if resposta:
+            person = resposta['person']
+            status = resposta['status']
             user = User()
             user.set_image_perfil(person['photo'])
-            # user.set_cidade(person[])
-            # user.set_estado(person[])
+            user.set_profissao(status['profession'])
+            user.set_cidade(person['city'])
+            user.set_estado(person['state'])
             user.set_colaboradores(200)
             user.set_colaborando(20)
-            # user.set_curso(person[])
+            user.set_curso(status['course'])
             user.set_data_nascimento(person['birthday'])
             user.set_nome(person['name'])
             user.set_email(person['email'])
-            # user.set_universidade(person[])
-            # user.set_web_site(person[])
+            user.set_universidade(status['university'])
+            user.set_web_site(status['web_site'])
             user.set_senha(person['password'])
-            # user.set_linkedin(person[])
+            user.set_linkedin(status['linkedin'])
             self.clear_widgets()
             self.add_widget(self.screenManager.go_to('feed')(self.screenManager,user))
         else:

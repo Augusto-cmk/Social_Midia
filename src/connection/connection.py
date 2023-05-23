@@ -49,7 +49,6 @@ class Connection:
                 CREATE TABLE IF NOT EXISTS person_status (
                     id INTEGER PRIMARY KEY,
                     person_id INTEGER,
-                    status_text VARCHAR(255),
                     profession VARCHAR(50),
                     university VARCHAR(50),
                     course VARCHAR(50),

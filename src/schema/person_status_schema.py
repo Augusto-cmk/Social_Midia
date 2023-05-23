@@ -1,10 +1,7 @@
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields
 
 
 class PersonStatusSchema(Schema):
-    status_text = fields.Str(
-         required=True
-    )
     profession = fields.Str(
          required=True
     )
