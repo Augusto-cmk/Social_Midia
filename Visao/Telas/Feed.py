@@ -8,11 +8,12 @@ from kivy.uix.label import Label
 from Visao.Recursos.Text import Text,TextToSearch
 from Visao.Recursos.checkbox import Interactive_Checkbox
 from Visao.Recursos.choose_file import Choose_file
-from Modelo.user import User
+from Modelo.user import User, create_image_perfil
 from cv2 import imread
 from Comunication.mensagem import serialize
 from Visao.Recursos.Popup import Alerta
 from Comunication.cliente import Cliente
+
 
 class TelaFeed(Screen):
     def __init__(self,screenManager,user:User,**kw):
@@ -80,14 +81,24 @@ class TelaFeed(Screen):
 
         label = Label(text="Pesquise por um usuário para colaboração",color='black',pos_hint={'center_x':0.5,'center_y':0.82},size_hint=(.01,.01))
         self.search_user.insertWidget(label)
-
-        busca = TextToSearch((1,1,1,1),(0,0,0,1),15,(0,0,0,1),["Pedro","Patrick","Pietro","Victoria","Gabriel"],btns_search,self.action_name_search,pos_hint={"center_x":0.5,'center_y':0.7},size_hint=(.5,.05))
+        
+        
+        self.cliente.input_mensage({"route":"persons"})
+        self.persons = self.cliente.get_msg_server()
+        nomes = [person['name'] for person in self.persons]
+        busca = TextToSearch((1,1,1,1),(0,0,0,1),15,(0,0,0,1),nomes,btns_search,self.action_name_search,pos_hint={"center_x":0.5,'center_y':0.7},size_hint=(.5,.05))
         self.search_user.insertWidget(busca)
 
         self.rl.add_widget(self.search_user)
 
     def action_name_search(self,nome):# O nome vai ser a chave de um dicionário que contém as informações do usuário selecionado,ao entrar nesse método, o nome selecionado vai ser obtido e podemos acessar as informações pelo dicionario e ir para o perfil desse usuário
-        print(nome) 
+        perfil = None
+        for person in self.persons:
+            if person['name'] == nome:
+                perfil = person
+                break
+        
+        self.visualizar_perfil_usuario(perfil)
 
     def criar_post(self): # Aqui vai dar um self.r.remove_widget(self.feed) e depois abrir um bloco para criar um post
         self.rl.remove_widget(self.feed)
@@ -159,6 +170,86 @@ class TelaFeed(Screen):
     def voltar(self):
         self.clear_widgets()
         self.add_widget(self.screenManager.go_to('login')(self.screenManager))
+    
+    def colaborar(self,id_perfil): # Local onde o usuário passa a ser colaborador do perfil visualizado
+        pass
+    
+    def visualizar_perfil_usuario(self,perfil):
+        if int(self.user.get_id()) == int(perfil['id']):
+            self.perfil()
+        else:
+            self.rl.remove_widget(self.feed)
+            self.cliente.input_mensage({'route':'status','id':int(perfil['id'])})
+            status_perfil = self.cliente.get_msg_server()
+
+            if self.search_user:
+                self.rl.remove_widget(self.search_user)
+                self.search_user = None
+            
+            if self.postagem:
+                self.rl.remove_widget(self.postagem)
+                self.postagem = None
+            
+            if self.perfil_user:
+                self.rl.remove_widget(self.perfil_user)
+                self.perfil_user = None
+            
+            if self.editarPerfil:
+                self.rl.remove_widget(self.editarPerfil)
+                self.editarPerfil = None
+            
+            self.perfil_user = Bloco(0.85,0.75,pos_hint={"center_x":0.5,"center_y":0.47})
+            self.perfil_user.setFormat("retangulo_arredondado",(1,1,1,1))
+            
+            btnVoltar = ImageButton(self.restore_to_feed,"Imagens/Voltar.png","circulo",pos_hint={'center_x':0.16,'center_y':0.88},size_hint=(0.05,0.05))
+            self.perfil_user.insertWidget(btnVoltar)
+
+            path_foto_user = f"temp/user_see_{perfil['name']}.png"
+            create_image_perfil(path_foto_user,perfil['photo'])
+
+            foto_perfil = BoxImage('circulo',path_foto_user,size_hint=(.1,.1),pos_hint={'center_x':0.22,'center_y':0.82})
+            self.perfil_user.insertWidget(foto_perfil)
+
+            colaboradores = Label(text="colaboradores",color='black',pos_hint={'center_x':0.44,'center_y':0.79},size_hint=(.01,.01))
+            self.perfil_user.insertWidget(colaboradores)
+
+            colaborando = Label(text="colaborando",color='black',pos_hint={'center_x':0.7,'center_y':0.79},size_hint=(.01,.01))
+            self.perfil_user.insertWidget(colaborando)
+
+            # Aplicar a lógica para obter os colaboradores e colaborandos do BD
+            colab = 100
+            colabs = 20
+            colaboradoresSize = Label(text=f"{colab}",color='black',pos_hint={'center_x':0.44,'center_y':0.82},size_hint=(.01,.01))
+            self.perfil_user.insertWidget(colaboradoresSize)
+
+            colaborandoSize = Label(text=f"{colabs}",color='black',pos_hint={'center_x':0.7,'center_y':0.82},size_hint=(.01,.01))
+            self.perfil_user.insertWidget(colaborandoSize)
+
+            nomePerfil = Label(text=perfil['name'],color='black',pos_hint={'center_x':0.22,'center_y':0.74},size_hint=(.01,.01))
+            self.perfil_user.insertWidget(nomePerfil)
+
+            colaborar_btn = PersonalButton(self.colaborar,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[perfil['id']],pos_hint={'center_x':0.5,'center_y':0.69},size_hint=(0.4,0.05),text="Colaborar",borderSize=1.5,borderColor=(0,0,0,1))
+            self.perfil_user.insertWidget(colaborar_btn)
+
+            linkedinLabel = Label(text=f"Linkedin: {status_perfil['linkedin']}",color='black',pos_hint={'center_x':0.5,'center_y':0.17},size_hint=(.01,.01))
+            emailLabel = Label(text=f"Email: {perfil['email']}",color='black',pos_hint={'center_x':0.5,'center_y':0.14},size_hint=(.01,.01))
+            githubLabel = Label(text=f"Web_site: {status_perfil['web_site']}",color='black',pos_hint={'center_x':0.5,'center_y':0.11},size_hint=(.01,.01))
+
+            self.perfil_user.insertWidget(linkedinLabel)
+            self.perfil_user.insertWidget(emailLabel)
+            self.perfil_user.insertWidget(githubLabel)
+            
+            # Criar a lógica para pegas os posts do usuário, likes de cada post e comentarios de cada post ( quantidade )
+            projetos = caixaRolagem(600,250,{"center_x":0.5,"center_y":0.46},spacing=0.2)
+            self.perfil_user.insertWidget(projetos)
+
+            paths = ["Imagens/ForgotSenha.png","Imagens/Fundo_chat.png","Imagens/OlhoFechado.png"]
+            for path in paths:
+                project = Projeto(0.7,0.7,{"center_x":0.5,"center_y":0.8},path,153,20)
+                project.show()
+                projetos.add(project)
+
+            self.rl.add_widget(self.perfil_user)
     
     def perfil(self): # Criar um bloco para visualizar o perfil
         self.rl.remove_widget(self.feed)

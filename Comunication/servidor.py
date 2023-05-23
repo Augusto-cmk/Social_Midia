@@ -53,6 +53,15 @@ class Server:
                 person = PersonService().get_person(id)
                 status = PersonStatusService().get_person_status(id)
                 retorno_servidor = {'person':person,'status':status}
+            
+            elif path == "persons":
+                persons = PersonService().get_person_all()
+                retorno_servidor = persons
+            
+            elif path == "status":
+                status = PersonStatusService().get_person_status(msg['id'])
+                retorno_servidor = status
+            
             #------------------------------
             # Depois, mandar a mensagem para o cliente
             msg_serialized = serialize(retorno_servidor)

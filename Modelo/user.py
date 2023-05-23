@@ -116,12 +116,14 @@ class User:
         self.foto = path
 
     def set_image_perfil(self,image_bd:str):
-        image_bytes = image_bd.encode('latin1')
-        image = deserialize(image_bytes)
         self.foto = "temp/img_perfil_user.png"
-        imwrite(self.foto,image)
+        create_image_perfil(self.foto,image_bd)
     
     def get_path_image(self):
         return self.foto
         
-                
+
+def create_image_perfil(path,image_bd:str):
+    image_bytes = image_bd.encode('latin1')
+    image = deserialize(image_bytes)
+    imwrite(path,image)

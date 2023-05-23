@@ -67,6 +67,7 @@ class TelaLogin(Screen):
             person = resposta['person']
             status = resposta['status']
             user = User()
+            user.set_id(person['id'])
             user.set_image_perfil(person['photo'])
             user.set_profissao(status['profession'])
             user.set_cidade(person['city'])

@@ -7,10 +7,14 @@ from Visao.Telas.Feed import TelaFeed
 from Comunication.cliente import Cliente
 from kivy.core.window import Window
 import sys
+import os
 
 class GerenciadorTelas(ScreenManager):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
+        arquivos = os.listdir("temp")
+        for arquivo in arquivos:
+            os.remove(f"temp/{arquivo}")
         self.telas = {'login':TelaLogin,'cadastro':TelaCadastro,'chat':TelaChat,'feed':TelaFeed}
         self.cliente = Cliente()
         self.cliente.start()
