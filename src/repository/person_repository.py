@@ -23,7 +23,7 @@ class PersonRepository:
                         )
         person.save()
 
-    def get_person_all(self) -> None:
+    def get_person_all(self) -> list:
         persons = self.__session.query(Person).all()
         list_persons = []
         for person in persons:
@@ -111,7 +111,7 @@ class PersonRepository:
 
         return person_friends
 
-    def get_person_posts(self, person_id: int) -> Post:
+    def get_person_posts(self, person_id: int) -> list:
         person = self.__session.query(Person).get(person_id)
 
         if person is None:

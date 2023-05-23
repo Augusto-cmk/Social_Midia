@@ -24,6 +24,7 @@ class PersonSchema(Schema):
 
     state = fields.Str(
         required=True
+
     )
 
     city = fields.Str(

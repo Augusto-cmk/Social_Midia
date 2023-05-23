@@ -1,4 +1,3 @@
-from marshmallow import Schema, ValidationError
 from src.schema.validation_schema import ValidationSchema
 from src.repository.comment_repository import CommentRepository
 from src.schema.comment_schema import CommentSchema

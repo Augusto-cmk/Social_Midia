@@ -2,6 +2,7 @@ from src.connection.connection import Connection
 from src.models.person_status import PersonStatus
 import sqlite3
 
+
 class PersonStatusRepository:
     def __init__(self) -> None:
         self.__session = Connection().get_session()
@@ -10,11 +11,11 @@ class PersonStatusRepository:
     def _insert_person_status(data_person_status: dict, person_id: int) -> bool:
         try:
             person_status = PersonStatus(person_id=person_id,
-                                        profession=data_person_status.get("profession"),
-                                        university=data_person_status.get("university"),
-                                        course=data_person_status.get("course"),
-                                        web_site=data_person_status.get("web_site"),
-                                        linkedin=data_person_status.get("linkedin"))
+                                         profession=data_person_status.get("profession"),
+                                         university=data_person_status.get("university"),
+                                         course=data_person_status.get("course"),
+                                         web_site=data_person_status.get("web_site"),
+                                         linkedin=data_person_status.get("linkedin"))
             person_status.save()
             return True
         except sqlite3.OperationalError as e:
@@ -37,7 +38,7 @@ class PersonStatusRepository:
 
     def get_status_person(self, person_id: int) -> bool:
         person_status = self.__session.query(PersonStatus).filter_by(person_id=person_id).first()
-        
+
         if person_status is None:
             return False
 

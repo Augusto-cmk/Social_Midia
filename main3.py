@@ -1,6 +1,7 @@
 from src.services.person_status_service import PersonStatusService
 from src.services.person_service import PersonService
-
+from src.services.friend_service import FriendService
+from src.services.post_service import PostService
 
 person_data1 = {
     'name': 'John Doe',
@@ -15,7 +16,9 @@ person_data1 = {
 
 # person = PersonService()
 # person.register_person(person_data1)
-print(PersonService().get_person_all())
+variavel = PersonService().get_person_all()
+ids = [person['id'] for person in variavel]
+print(ids)
 # id = PersonService().id_person('john@example.com','password123')
 
 person_status_data = {
@@ -26,20 +29,7 @@ person_status_data = {
     'linkedin': "kjhdajf",
 }
 
-# print(id)
+FriendService.create_friendship(2, 1)
+a = PersonService()
+print(a.get_friends_person(2)[0]['name'])
 
-# status = PersonStatusService()
-# status.create_status_person(id,person_status_data)
-# print(status.get_status_person(id))
-
-# person_status_data = {
-#     'Profession': 'ga',
-#     'university': 'ufv',
-#     'course': 'cc',
-#     'web_site': 'ww.com',
-#     'linkedin': "kjhdajf",
-# }
-
-# status = PersonStatusRepository()
-# status._insert_person_status(person_status_data, 1)
-# print(status.get_status_person(1))

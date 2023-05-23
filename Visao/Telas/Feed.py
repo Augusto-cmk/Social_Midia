@@ -91,7 +91,7 @@ class TelaFeed(Screen):
 
         self.rl.add_widget(self.search_user)
 
-    def action_name_search(self,nome):# O nome vai ser a chave de um dicionário que contém as informações do usuário selecionado,ao entrar nesse método, o nome selecionado vai ser obtido e podemos acessar as informações pelo dicionario e ir para o perfil desse usuário
+    def action_name_search(self, nome):# O nome vai ser a chave de um dicionário que contém as informações do usuário selecionado,ao entrar nesse método, o nome selecionado vai ser obtido e podemos acessar as informações pelo dicionario e ir para o perfil desse usuário
         perfil = None
         for person in self.persons:
             if person['name'] == nome:
@@ -171,10 +171,10 @@ class TelaFeed(Screen):
         self.clear_widgets()
         self.add_widget(self.screenManager.go_to('login')(self.screenManager))
     
-    def colaborar(self,id_perfil): # Local onde o usuário passa a ser colaborador do perfil visualizado
+    def colaborar(self, id_perfil): # Local onde o usuário passa a ser colaborador do perfil visualizado
         pass
     
-    def visualizar_perfil_usuario(self,perfil):
+    def visualizar_perfil_usuario(self, perfil):
         if int(self.user.get_id()) == int(perfil['id']):
             self.perfil()
         else:
