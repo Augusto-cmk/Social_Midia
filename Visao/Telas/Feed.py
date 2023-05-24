@@ -49,19 +49,21 @@ class TelaFeed(Screen):
         self.search_btn = ImageButton(self.buscar_usuario,"Imagens/BuscarUsuario.png","circulo",size_hint=(0.27,0.27),pos_hint={"center_x":0.94,"center_y":0.46})
         self.rl.add_widget(self.search_btn)
 
+        self.atualizar_btn = ImageButton(self.atualizar_feed,"Imagens/atualizar_btn.png","circulo",size_hint=(0.1,0.1),pos_hint={"center_x":0.5,"center_y":0.93})
+        self.rl.add_widget(self.atualizar_btn)
+
         self.postagem = None
         self.search_user = None
         self.perfil_user = None
         self.editarPerfil = None
 
         ## método para obter o feed do banco de dados
-        self.cliente.input_mensage({"route":"posts","id":self.user.get_id()})
-        my_posts = self.cliente.get_msg_server()
-        for i,my_post in enumerate(my_posts):
-            path = {}
-            path['path'] = create_image_perfil(f"temp/post_{self.user.get_nome()}_{i}.png",my_post['image'])
-            self.inserir_post_friends(my_post['text'],path,self.user.get_nome(),self.user.get_path_image())
+        self.atualizar_feed()
+        #---------------------------------------------------------------------------------------------------
+        self.add_widget(self.rl)
 
+    def atualizar_feed(self):
+        self.feed.clear()
         self.cliente.input_mensage({"route":"friends","id":self.user.get_id()})
         amigos = self.cliente.get_msg_server()
         for amigo in amigos:
@@ -73,8 +75,6 @@ class TelaFeed(Screen):
                 path = {}
                 path['path'] = create_image_perfil(f"temp/post_{amigo['name']}_{i}_{j}.png",post['image'])
                 self.inserir_post_friends(post['text'],path,amigo['name'],path_perfil)
-        #---------------------------------------------------------------------------------------------------
-        self.add_widget(self.rl)
 
     def buscar_usuario(self): # Cria um bloco para buscar um novo usuário (Enquanto digita, vão aparecendo os botões de sujestão)
         self.rl.remove_widget(self.feed)
@@ -299,9 +299,11 @@ class TelaFeed(Screen):
             projetos = caixaRolagem(600,250,{"center_x":0.5,"center_y":0.46},spacing=0.2)
             self.perfil_user.insertWidget(projetos)
 
-            paths = ["Imagens/ForgotSenha.png","Imagens/Fundo_chat.png","Imagens/OlhoFechado.png"]
-            for path in paths:
-                project = Projeto(0.7,0.7,{"center_x":0.5,"center_y":0.8},path,153,20)
+            self.cliente.input_mensage({"route":"posts","id":perfil['id']})
+            my_posts = self.cliente.get_msg_server()
+            for i,my_post in enumerate(my_posts):
+                path = create_image_perfil(f"temp/post_{perfil['name']}_{i}.png",my_post['image'])
+                project = Projeto(0.7,0.7,{"center_x":0.5,"center_y":0.8},path,my_post['curtir'],20)
                 project.show()
                 projetos.add(project)
 
@@ -364,9 +366,12 @@ class TelaFeed(Screen):
         projetos = caixaRolagem(600,250,{"center_x":0.5,"center_y":0.46},spacing=0.2)
         self.perfil_user.insertWidget(projetos)
 
-        paths = ["Imagens/ForgotSenha.png","Imagens/Fundo_chat.png","Imagens/OlhoFechado.png"]
-        for path in paths:
-            project = Projeto(0.7,0.7,{"center_x":0.5,"center_y":0.8},path,153,20)
+
+        self.cliente.input_mensage({"route":"posts","id":self.user.get_id()})
+        my_posts = self.cliente.get_msg_server()
+        for i,my_post in enumerate(my_posts):
+            path = create_image_perfil(f"temp/post_{self.user.get_nome()}_{i}.png",my_post['image'])
+            project = Projeto(0.7,0.7,{"center_x":0.5,"center_y":0.8},path,my_post['curtir'],20)
             project.show()
             projetos.add(project)
 
