@@ -5,6 +5,8 @@ import queue
 import sys
 from src.services.person_service import PersonService
 from src.services.person_status_service import PersonStatusService
+from src.services.friend_service import FriendService
+from src.services.post_service import PostService
 
 
 class Server:
@@ -49,10 +51,15 @@ class Server:
             elif path == "login":
                 email = msg['email']
                 senha = msg['password']
-                id = PersonService().id_person(email, senha)
-                person = PersonService().get_person(id)
-                status = PersonStatusService().get_person_status(id)
-                retorno_servidor = {'person': person, 'status': status}
+                try:
+                    id = PersonService().id_person(email, senha)
+                    person = PersonService().get_person(id)
+                    status = PersonStatusService().get_person_status(id)
+                    colaborando = PersonService().get_len_colaborando(id)
+                    colaboradores = 0
+                    retorno_servidor = {'person': person, 'status': status,'colaborando':colaborando,'colaboradores':colaboradores}
+                except Exception:
+                    retorno_servidor = None
 
             elif path == "persons":
                 persons = PersonService().get_persons_all()
@@ -61,6 +68,29 @@ class Server:
             elif path == "status":
                 status = PersonStatusService().get_person_status(msg['id'])
                 retorno_servidor = status
+            
+            elif path == "colaborar":
+                try:
+                    FriendService().create_friends(msg['id_user'],msg['id_perfil'])
+                    retorno_servidor = True
+                except Exception:
+                    retorno_servidor = False
+            
+            elif path == "friend_exist":
+                try:
+                    id = msg['id_user']
+                    friends = PersonService().get_friends_person(id)
+                    ids = [friend['id'] for friend in friends]
+                    retorno_servidor = msg['id_perfil'] in ids
+                except Exception:
+                    retorno_servidor = False
+            
+            elif path == "post": # Ainda não funciona
+                try:
+                    PostService().create_post(msg['info_post'])
+                    retorno_servidor = True
+                except Exception:
+                    retorno_servidor = False
 
             # ------------------------------
             # Depois, mandar a mensagem para o cliente

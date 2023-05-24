@@ -116,7 +116,7 @@ class User:
         self.foto = path
 
     def set_image_perfil(self,image_bd:str):
-        self.foto = "temp/img_perfil_user.png"
+        self.foto = f"temp/img_perfil_user{self.nome}.png"
         create_image_perfil(self.foto,image_bd)
     
     def get_path_image(self):

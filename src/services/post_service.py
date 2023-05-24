@@ -4,10 +4,8 @@ from src.schema.post_schema import PostSchema
 
 
 class PostService(PostRepository):
-    def __init__(self, data_post: dict) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self._data_post = data_post
-        self._validation_schema = PostSchema()
 
-    def create_post(self):
-        self._data_post = ValidationSchema.validation(self._data_post, self._validation_schema)
+    def create_post(self,data_post: dict):
+        self._create_post(ValidationSchema.validation(data_post, PostSchema()))

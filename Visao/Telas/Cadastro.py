@@ -277,9 +277,8 @@ class TelaCadastro(Screen):
             alerta = Alerta()
             alerta.start("Sucesso","Cadastro efetuado com sucesso!")
             self.rl.add_widget(alerta)
-            if not alerta.is_open():
-                self.clear_widgets()
-                self.add_widget(self.screenManager.go_to('login')(self.screenManager))
+            self.clear_widgets()
+            self.add_widget(self.screenManager.go_to('login')(self.screenManager))
         else:
             alerta = Alerta()
             alerta.start("Erro","Houve um erro ao efetuar o cadastro, favor verificar os campos novamente!")

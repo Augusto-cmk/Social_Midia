@@ -9,12 +9,11 @@ class PostRepository:
     def __init__(self) -> None:
         self.__session = Connection().get_session()
 
-    @staticmethod
-    def create_post(data_post: dict) -> None:
+    def _create_post(self,data_post: dict) -> None:
         post = Post(text=data_post.get('text'),
                     image=data_post.get('image'),
-                    curtir=0,
-                    date=datetime.now(),
+                    curtir=data_post.get('curtir'),
+                    date=data_post.get('date'),
                     author_id=data_post.get('person_id'))
         post.save()
 

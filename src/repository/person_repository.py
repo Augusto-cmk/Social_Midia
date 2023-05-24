@@ -124,9 +124,4 @@ class PersonRepository:
         return list_posts
 
     def get_friends_count(self, person_id: int) -> int:
-        person = self.__session.query(Person).get(person_id)
-
-        if person is None:
-            return 0
-        
-        return len(person.friends)
+        return len(self.get_friends(person_id))

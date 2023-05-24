@@ -7,3 +7,5 @@ class FriendService(FriendRepository):
 
     def create_friends(self, id_person: int, id_friend: int) -> None:
         self.create_friendship(id_person, id_friend)
+
+    

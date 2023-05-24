@@ -63,20 +63,24 @@ class TelaLogin(Screen):
         }
         self.cliente.input_mensage(login)
         resposta = self.cliente.get_msg_server()
+
+
         if resposta:
             person = resposta['person']
             status = resposta['status']
+            colaborando = resposta['colaborando']
+            colaboradores = resposta['colaboradores']
             user = User()
+            user.set_nome(person['name'])
+            user.set_colaborando(colaborando)
+            user.set_colaboradores(colaboradores)
             user.set_id(person['id'])
             user.set_image_perfil(person['photo'])
             user.set_profissao(status['profession'])
             user.set_cidade(person['city'])
             user.set_estado(person['state'])
-            user.set_colaboradores(200)
-            user.set_colaborando(20)
             user.set_curso(status['course'])
             user.set_data_nascimento(person['birthday'])
-            user.set_nome(person['name'])
             user.set_email(person['email'])
             user.set_universidade(status['university'])
             user.set_web_site(status['web_site'])

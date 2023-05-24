@@ -1,3 +1,4 @@
+import os
 from kivy.uix.screenmanager import Screen
 from kivy.uix.relativelayout import RelativeLayout
 from Visao.Recursos.Bloco import BoxImage,Post,Bloco,Projeto
@@ -13,6 +14,8 @@ from cv2 import imread
 from Comunication.mensagem import serialize
 from Visao.Recursos.Popup import Alerta
 from Comunication.cliente import Cliente
+import cv2
+import datetime
 
 
 class TelaFeed(Screen):
@@ -168,12 +171,25 @@ class TelaFeed(Screen):
         self.rl.add_widget(self.search_btn)
 
     def voltar(self):
+        arquivos = os.listdir("temp")
+        for arquivo in arquivos:
+            os.remove(f"temp/{arquivo}")
+
         self.clear_widgets()
         self.add_widget(self.screenManager.go_to('login')(self.screenManager))
     
     def colaborar(self, id_perfil): # Local onde o usuário passa a ser colaborador do perfil visualizado
+        self.cliente.input_mensage({"route":"colaborar","id_user":self.user.get_id(),"id_perfil":id_perfil})
+        resposta = self.cliente.get_msg_server()
+        if resposta:
+            self.perfil_user.removeWidget(self.colaborar_btn)
+            self.colaborar_btn = PersonalButton(self.desfazer_colaboracao,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[id_perfil],pos_hint={'center_x':0.5,'center_y':0.69},size_hint=(0.4,0.05),text="Deixar de colaborar",borderSize=1.5,borderColor=(0,0,0,1))
+            self.perfil_user.insertWidget(self.colaborar_btn)
+                    
+        
+    def desfazer_colaboracao(self,id_perfil): # Precisa implementar esse método 
         pass
-    
+
     def visualizar_perfil_usuario(self, perfil):
         if int(self.user.get_id()) == int(perfil['id']):
             self.perfil()
@@ -181,6 +197,9 @@ class TelaFeed(Screen):
             self.rl.remove_widget(self.feed)
             self.cliente.input_mensage({'route':'status','id':int(perfil['id'])})
             status_perfil = self.cliente.get_msg_server()
+
+            self.cliente.input_mensage({'route':'friend_exist','id_user':self.user.get_id(),'id_perfil':perfil['id']})
+            already_colaborando = self.cliente.get_msg_server()
 
             if self.search_user:
                 self.rl.remove_widget(self.search_user)
@@ -228,8 +247,13 @@ class TelaFeed(Screen):
             nomePerfil = Label(text=perfil['name'],color='black',pos_hint={'center_x':0.22,'center_y':0.74},size_hint=(.01,.01))
             self.perfil_user.insertWidget(nomePerfil)
 
-            colaborar_btn = PersonalButton(self.colaborar,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[perfil['id']],pos_hint={'center_x':0.5,'center_y':0.69},size_hint=(0.4,0.05),text="Colaborar",borderSize=1.5,borderColor=(0,0,0,1))
-            self.perfil_user.insertWidget(colaborar_btn)
+            if not already_colaborando:
+                self.colaborar_btn = PersonalButton(self.colaborar,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[perfil['id']],pos_hint={'center_x':0.5,'center_y':0.69},size_hint=(0.4,0.05),text="Colaborar",borderSize=1.5,borderColor=(0,0,0,1))
+                self.perfil_user.insertWidget(self.colaborar_btn)
+
+            else:
+                self.colaborar_btn = PersonalButton(self.desfazer_colaboracao,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[perfil['id']],pos_hint={'center_x':0.5,'center_y':0.69},size_hint=(0.4,0.05),text="Deixar de colaborar",borderSize=1.5,borderColor=(0,0,0,1))
+                self.perfil_user.insertWidget(self.colaborar_btn)
 
             linkedinLabel = Label(text=f"Linkedin: {status_perfil['linkedin']}",color='black',pos_hint={'center_x':0.5,'center_y':0.17},size_hint=(.01,.01))
             emailLabel = Label(text=f"Email: {perfil['email']}",color='black',pos_hint={'center_x':0.5,'center_y':0.14},size_hint=(.01,.01))
@@ -541,6 +565,46 @@ class TelaFeed(Screen):
 
         #--------------------------------------------
 
+    def inserir_post_friends(self,text_post:Text,path_image_post:dict, nome:str, path_imagem_perfil:str):
+        do = True
+        if self.postagem:
+            try:
+                path_image_post['path']
+                self.restore_to_feed()
+                self.postagem = None
+            except Exception:
+                do = False
+        if do:        
+            post = Post(0.8,0.8,pos_hint={"center_x":0.5,"center_y":0.79})
+            post.setFormat("retangulo_arredondado",(1,1,1,1))
+
+            # inserir informações do post
+            foto_perfil = BoxImage('circulo',path_imagem_perfil,size_hint=(.1,.1),pos_hint={'center_x':0.22,'center_y':0.82})
+            post.insertWidget(foto_perfil)
+
+            arroba = Label(text=f'@{nome}',color='black',pos_hint={'center_x':0.4,'center_y':0.82},size_hint=(.01,.01))
+            post.insertWidget(arroba)
+
+            separador = Geometry('retangulo',(0,0,0,0.2),pos_hint={'center_x':0.5,'center_y':0.75},size_hint=(.8,.003))
+
+            post.insertWidget(separador)
+
+            text_post = Label(text=text_post,color='black',pos_hint={'center_x':0.5,'center_y':0.7},size_hint=(.01,.01))
+            post.insertWidget(text_post)
+
+            img_post = BoxImage('retangulo',path_image_post['path'],size_hint=(.6,.35),pos_hint={'center_x':0.5,'center_y':0.45})
+            post.insertWidget(img_post)
+
+            curtir_button = PersonalButton(self.post_curtido,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',pos_hint={'center_x':0.32,'center_y':0.2},size_hint=(0.3,0.05),text="Curtir",borderSize=1.5,borderColor=(0,0,0,1))
+            post.insertWidget(curtir_button)
+
+            comentar_button = PersonalButton(self.comentar_post,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[post],pos_hint={'center_x':0.68,'center_y':0.2},size_hint=(0.3,0.05),text="Comentar",borderSize=1.5,borderColor=(0,0,0,1))
+            post.insertWidget(comentar_button)
+
+            post.freeze_state()
+
+            self.feed.add(post)
+
     def inserir_post(self,text_post:Text,path_image_post:dict):# Método chamado para inserir um post no feed do usuário
         do = True
         if self.postagem:
@@ -579,9 +643,29 @@ class TelaFeed(Screen):
             post.insertWidget(comentar_button)
 
             post.freeze_state()
-            #-------------------------
-
             self.feed.add(post)
+
+            try:
+                imagem = cv2.imread(path_image_post['path'])
+            except Exception:
+                alerta = Alerta()
+                alerta.start("Erro","A imagem enviada não é válida")
+                self.rl.add_widget(alerta)
+                imagem = None
+
+            self.cliente.input_mensage({"route":"post",
+                                        "info_post":{"text":text_post.text,
+                                                     "image":serialize(imagem).decode('latin1'),
+                                                     "curtir": 0,
+                                                     "date": datetime.datetime.now(),
+                                                     "author_id": self.user.get_id()}})
+            
+            resposta = self.cliente.get_msg_server()
+            if resposta:
+                print("Deu certo")
+            else:
+                print("Deu errado")
+            
         
     def post_curtido(self):
         pass

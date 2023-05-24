@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields
 
 
 class PostSchema(Schema):
@@ -12,4 +12,8 @@ class PostSchema(Schema):
 
     date = fields.DateTime(
         required=True
+    )
+
+    curtir = fields.Int(
+        required = True
     )
