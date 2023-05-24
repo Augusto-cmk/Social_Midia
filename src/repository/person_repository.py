@@ -31,6 +31,12 @@ class PersonRepository:
 
         return list_persons
 
+    def _get_person_password(self,email:str)->str:
+        person = self.__session.query(Person).filter_by(email=email).first()
+        if person is None:
+            return None
+        return person.password
+    
     def _get_person_id(self, email: str, password: str) -> int:
         person = self.__session.query(Person).filter_by(email=email, password=password).first()
 

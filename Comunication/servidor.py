@@ -60,10 +60,25 @@ class Server:
                     retorno_servidor = {'person': person, 'status': status,'colaborando':colaborando,'colaboradores':colaboradores}
                 except Exception:
                     retorno_servidor = None
+            
+            elif path == "password":
+                email = msg['email']
+                password = PersonService().get_password_person(email)
+                retorno_servidor = password
 
             elif path == "persons":
                 persons = PersonService().get_persons_all()
                 retorno_servidor = persons
+
+            elif path == "friendship":
+                try:
+                    colaborando = PersonService().get_len_colaborando(msg['id'])
+                    colaboradores = 0
+                except Exception:
+                    colaboradores = 0
+                    colaborando = 0
+
+                retorno_servidor = {'colaborando':colaborando,'colaboradores':colaboradores}
 
             elif path == "status":
                 status = PersonStatusService().get_person_status(msg['id'])

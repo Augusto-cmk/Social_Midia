@@ -1,9 +1,5 @@
-import random
 import email.message
 import smtplib
-
-def gerarNumero():
-    return random.randint(1,10000)
 
 def dicionarioEmail(tipo,mensagem):
     corpo_do_email_senha = f"""
@@ -18,11 +14,9 @@ def dicionarioEmail(tipo,mensagem):
         """
 
     corpo_do_email_confirmacao = f"""
-                <p>Para sua segurança, favor confirmar o seu email!</p>
+                <p>Obrigado por realizar o cadastro na nossa plataforma!</p>
 
-                <p>Este é o seu código de confirmaçãoo: {mensagem}</p>
-
-                <p>Cole este código na entrada do programa para confirmar este email!</p>
+                <p>Esperamos fornecer o melhor serviço possível</p>
 
                 <p>Att,</p>
                 <p>ADM.</p>

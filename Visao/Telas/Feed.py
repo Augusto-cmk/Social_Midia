@@ -182,6 +182,8 @@ class TelaFeed(Screen):
         self.cliente.input_mensage({"route":"colaborar","id_user":self.user.get_id(),"id_perfil":id_perfil})
         resposta = self.cliente.get_msg_server()
         if resposta:
+            self.user.set_colaborando(self.user.get_colaborando()+1)
+            self.colaboradoresSize.text = str(int(self.colaboradoresSize.text)+1)
             self.perfil_user.removeWidget(self.colaborar_btn)
             self.colaborar_btn = PersonalButton(self.desfazer_colaboracao,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[id_perfil],pos_hint={'center_x':0.5,'center_y':0.69},size_hint=(0.4,0.05),text="Deixar de colaborar",borderSize=1.5,borderColor=(0,0,0,1))
             self.perfil_user.insertWidget(self.colaborar_btn)
@@ -224,7 +226,7 @@ class TelaFeed(Screen):
             self.perfil_user.insertWidget(btnVoltar)
 
             path_foto_user = f"temp/user_see_{perfil['name']}.png"
-            create_image_perfil(path_foto_user,perfil['photo'])
+            path_foto_user = create_image_perfil(path_foto_user,perfil['photo'])
 
             foto_perfil = BoxImage('circulo',path_foto_user,size_hint=(.1,.1),pos_hint={'center_x':0.22,'center_y':0.82})
             self.perfil_user.insertWidget(foto_perfil)
@@ -236,12 +238,14 @@ class TelaFeed(Screen):
             self.perfil_user.insertWidget(colaborando)
 
             # Aplicar a lógica para obter os colaboradores e colaborandos do BD
-            colab = 100
-            colabs = 20
-            colaboradoresSize = Label(text=f"{colab}",color='black',pos_hint={'center_x':0.44,'center_y':0.82},size_hint=(.01,.01))
-            self.perfil_user.insertWidget(colaboradoresSize)
+            self.cliente.input_mensage({"route":"friendship",'id':perfil['id']})
+            friendship = self.cliente.get_msg_server()
+            colab = friendship['colaborando']
+            colabs = friendship['colaboradores']
+            self.colaboradoresSize = Label(text=f"{colabs}",color='black',pos_hint={'center_x':0.44,'center_y':0.82},size_hint=(.01,.01))
+            self.perfil_user.insertWidget(self.colaboradoresSize)
 
-            colaborandoSize = Label(text=f"{colabs}",color='black',pos_hint={'center_x':0.7,'center_y':0.82},size_hint=(.01,.01))
+            colaborandoSize = Label(text=f"{colab}",color='black',pos_hint={'center_x':0.7,'center_y':0.82},size_hint=(.01,.01))
             self.perfil_user.insertWidget(colaborandoSize)
 
             nomePerfil = Label(text=perfil['name'],color='black',pos_hint={'center_x':0.22,'center_y':0.74},size_hint=(.01,.01))

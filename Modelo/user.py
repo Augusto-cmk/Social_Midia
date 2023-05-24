@@ -1,5 +1,6 @@
 from Comunication.mensagem import deserialize
 from cv2 import imwrite
+from unidecode import unidecode
 class User:
     def __init__(self) -> None:
         self.id = ''
@@ -116,14 +117,16 @@ class User:
         self.foto = path
 
     def set_image_perfil(self,image_bd:str):
-        self.foto = f"temp/img_perfil_user{self.nome}.png"
-        create_image_perfil(self.foto,image_bd)
+        path = f"temp/img_perfil_user{self.nome}.png"
+        self.foto = create_image_perfil(path,image_bd)
     
     def get_path_image(self):
         return self.foto
         
 
-def create_image_perfil(path,image_bd:str):
+def create_image_perfil(path,image_bd:str)->str:
     image_bytes = image_bd.encode('latin1')
     image = deserialize(image_bytes)
-    imwrite(path,image)
+    new_path = unidecode(path)
+    imwrite(new_path,image)
+    return new_path

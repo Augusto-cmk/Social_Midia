@@ -95,15 +95,21 @@ class TelaLogin(Screen):
 
     def esqueci_senha(self):
         email = self.email.get_text()
-        # realizar uma consulta para obter a senha do usuário e determinar se o e-mail existe no banco de dados
-        send = envioEmail(email,"Recuperação de senha","Senha do usuário","senha")
-        if send:
-            alerta = Alerta()
-            alerta.start("Recuperação de senha",f"A senha foi enviada para {email}")
-            self.rl.add_widget(alerta)
+        self.cliente.input_mensage({"route":"password","email":email})
+        senha = self.cliente.get_msg_server()
+        if senha:
+            send = envioEmail(email,"Recuperação de senha",senha,"senha")
+            if send:
+                alerta = Alerta()
+                alerta.start("Recuperação de senha",f"A senha foi enviada para {email}")
+                self.rl.add_widget(alerta)
+            else:
+                alerta = Alerta()
+                alerta.start("Erro","Algo deu errado ao tentar recuperar a senha, favor tentar novamente mais tarde!")
+                self.rl.add_widget(alerta)
         else:
             alerta = Alerta()
-            alerta.start("Erro","Algo deu errado ao tentar recuperar a senha, favor tentar novamente mais tarde!")
+            alerta.start("Erro","Você não possui cadastro no nosso sistema!")
             self.rl.add_widget(alerta)
     
     def cadastro(self):

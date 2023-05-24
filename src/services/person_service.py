@@ -15,7 +15,10 @@ class PersonService(PersonRepository):
 
     def id_person(self, email: str, password: str) -> int:
         return self._get_person_id(email, password)
-
+    
+    def get_password_person(self,email)->str:
+        return self._get_person_password(email)
+    
     def get_person(self, id):
         return self._get_person(id)
 

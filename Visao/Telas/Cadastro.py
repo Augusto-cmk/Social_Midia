@@ -6,7 +6,7 @@ from Visao.Recursos.Bloco import Bloco,BoxImage
 from Visao.Recursos.Text import Text
 from Visao.Recursos.Geometry import Geometry
 from Visao.Recursos.checkbox import Interactive_Checkbox
-from Controle.Envio_email import envioEmail,gerarNumero
+from Controle.Envio_email import envioEmail
 from Visao.Recursos.Popup import Confirmar_Email,Alerta
 from Visao.Recursos.choose_file import Choose_file
 import cv2
@@ -232,24 +232,12 @@ class TelaCadastro(Screen):
                 alerta.start("Erro",erros[i])
                 self.rl.add_widget(alerta)
 
-        codigo_email = gerarNumero()
         email = self.email.get_text()
-        send = envioEmail(email,"Confirmação de e-mail",codigo_email,'confirmar')
-        if send:
-            confirm = Confirmar_Email()
-            confirm.start(codigo_email)
-            self.rl.add_widget(confirm)
-        else:
-            alerta = Alerta()
-            alerta.start("Erro","Houve um erro ao tentar enviar o e-mail, favor tentar novamente!")
-            self.rl.add_widget(alerta)
+        envioEmail(email,"Confirmação de e-mail",None,'confirmar')
         #_______________________________________________________________________________________________
         try:
             imagem = cv2.imread(self.dir_img)
         except Exception:
-            alerta = Alerta()
-            alerta.start("Erro","A imagem enviada não é válida")
-            self.rl.add_widget(alerta)
             imagem = None
         cadastro = {
             "person":
@@ -274,9 +262,6 @@ class TelaCadastro(Screen):
         self.cliente.input_mensage(cadastro)
         resposta = self.cliente.get_msg_server()
         if resposta == True:
-            alerta = Alerta()
-            alerta.start("Sucesso","Cadastro efetuado com sucesso!")
-            self.rl.add_widget(alerta)
             self.clear_widgets()
             self.add_widget(self.screenManager.go_to('login')(self.screenManager))
         else:
