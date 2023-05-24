@@ -14,7 +14,6 @@ from cv2 import imread
 from Comunication.mensagem import serialize
 from Visao.Recursos.Popup import Alerta
 from Comunication.cliente import Cliente
-import cv2
 import datetime
 
 
@@ -74,7 +73,14 @@ class TelaFeed(Screen):
             for j,post in enumerate(posts):
                 path = {}
                 path['path'] = create_image_perfil(f"temp/post_{amigo['name']}_{i}_{j}.png",post['image'])
-                self.inserir_post_friends(post['text'],path,amigo['name'],path_perfil)
+                self.inserir_post_friends(post['id'],post['curtir'],post['text'],path,amigo['name'],path_perfil)
+        
+        self.cliente.input_mensage({"route":"posts","id":self.user.get_id()})
+        my_posts = self.cliente.get_msg_server()
+        for i,my_post in enumerate(my_posts):
+            path = {}
+            path['path'] = create_image_perfil(f"temp/post_{self.user.get_nome()}_{i}.png",my_post['image'])
+            self.inserir_post_friends(my_post['id'],my_post['curtir'],my_post['text'],path,self.user.get_nome(),self.user.get_path_image())
 
     def buscar_usuario(self): # Cria um bloco para buscar um novo usuário (Enquanto digita, vão aparecendo os botões de sujestão)
         self.rl.remove_widget(self.feed)
@@ -602,7 +608,7 @@ class TelaFeed(Screen):
 
         #--------------------------------------------
 
-    def inserir_post_friends(self,text_post:Text,path_image_post:dict, nome:str, path_imagem_perfil:str):
+    def inserir_post_friends(self,id_post,curtidas,text_post:Text,path_image_post:dict, nome:str, path_imagem_perfil:str):
         do = True
         if self.postagem:
             try:
@@ -632,8 +638,14 @@ class TelaFeed(Screen):
             img_post = BoxImage('retangulo',path_image_post['path'],size_hint=(.6,.35),pos_hint={'center_x':0.5,'center_y':0.45})
             post.insertWidget(img_post)
 
-            curtir_button = PersonalButton(self.post_curtido,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',pos_hint={'center_x':0.32,'center_y':0.2},size_hint=(0.3,0.05),text="Curtir",borderSize=1.5,borderColor=(0,0,0,1))
+            text_curtir = Label(text=str(curtidas),color='black',pos_hint={'center_x':0.32,'center_y':0.14},size_hint=(.01,.01))
+            post.insertWidget(text_curtir)
+
+            curtir_button = PersonalButton(self.post_curtido,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[id_post,text_curtir],pos_hint={'center_x':0.32,'center_y':0.2},size_hint=(0.3,0.05),text="Curtir",borderSize=1.5,borderColor=(0,0,0,1))
             post.insertWidget(curtir_button)
+
+            text_comentar = Label(text="0",color='black',pos_hint={'center_x':0.68,'center_y':0.14},size_hint=(.01,.01))
+            post.insertWidget(text_comentar)
 
             comentar_button = PersonalButton(self.comentar_post,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[post],pos_hint={'center_x':0.68,'center_y':0.2},size_hint=(0.3,0.05),text="Comentar",borderSize=1.5,borderColor=(0,0,0,1))
             post.insertWidget(comentar_button)
@@ -651,39 +663,9 @@ class TelaFeed(Screen):
                 self.postagem = None
             except Exception:
                 do = False
-        
         if do:
-            post = Post(0.8,0.8,pos_hint={"center_x":0.5,"center_y":0.79})
-            post.setFormat("retangulo_arredondado",(1,1,1,1))
-
-            # inserir informações do post
-            foto_perfil = BoxImage('circulo',self.user.get_path_image(),size_hint=(.1,.1),pos_hint={'center_x':0.22,'center_y':0.82})
-            post.insertWidget(foto_perfil)
-
-            arroba = Label(text=f'@{self.user.get_nome()}',color='black',pos_hint={'center_x':0.4,'center_y':0.82},size_hint=(.01,.01))
-            post.insertWidget(arroba)
-
-            separador = Geometry('retangulo',(0,0,0,0.2),pos_hint={'center_x':0.5,'center_y':0.75},size_hint=(.8,.003))
-
-            post.insertWidget(separador)
-
-            text_post = Label(text=text_post.get_text(),color='black',pos_hint={'center_x':0.5,'center_y':0.7},size_hint=(.01,.01))
-            post.insertWidget(text_post)
-
-            img_post = BoxImage('retangulo',path_image_post['path'],size_hint=(.6,.35),pos_hint={'center_x':0.5,'center_y':0.45})
-            post.insertWidget(img_post)
-
-            curtir_button = PersonalButton(self.post_curtido,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',pos_hint={'center_x':0.32,'center_y':0.2},size_hint=(0.3,0.05),text="Curtir",borderSize=1.5,borderColor=(0,0,0,1))
-            post.insertWidget(curtir_button)
-
-            comentar_button = PersonalButton(self.comentar_post,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[post],pos_hint={'center_x':0.68,'center_y':0.2},size_hint=(0.3,0.05),text="Comentar",borderSize=1.5,borderColor=(0,0,0,1))
-            post.insertWidget(comentar_button)
-
-            post.freeze_state()
-            self.feed.add(post)
-
             try:
-                imagem = cv2.imread(path_image_post['path'])
+                imagem = imread(path_image_post['path'])
             except Exception:
                 alerta = Alerta()
                 alerta.start("Erro","A imagem enviada não é válida")
@@ -692,14 +674,25 @@ class TelaFeed(Screen):
 
             self.cliente.input_mensage({"route":"post",
                                         "info_post":{"text":text_post.text,
-                                                     "image":serialize(imagem).decode('latin1'),
-                                                     "curtir": 0,
-                                                     "date": datetime.datetime.now(),
-                                                     "author_id": self.user.get_id()}})
+                                                        "image":serialize(imagem).decode('latin1'),
+                                                        "curtir": 0,
+                                                        "date": datetime.datetime.now(),
+                                                        "author_id": self.user.get_id()}})
             
-        
-    def post_curtido(self):
-        pass
+            postado = self.cliente.get_msg_server()
+            if postado:
+                alerta = Alerta()
+                alerta.start("Sucesso","Post criado com sucesso !")
+            else:
+                alerta = Alerta()
+                alerta.start("Erro","Erro ao tentar inserir post!")
+            
+            self.rl.add_widget(alerta)
+
+    def post_curtido(self,id_post,text_curtidas:Label):
+        text_curtidas.text = str(int(text_curtidas.text) + 1)
+        self.cliente.input_mensage({"route":"curtir","id":id_post})
+        self.cliente.get_msg_server()
 
     def comentar_post(self,post:Post): # Tem que receber as informações do post (quem enviou o post e os comentarios existentes)
         post.clearWidgets()

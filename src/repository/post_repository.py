@@ -8,13 +8,19 @@ class PostRepository:
     def __init__(self) -> None:
         self.__session = Connection().get_session()
 
-    def _create_post(self,data_post: dict) -> None:
+    def _create_post(self,data_post: dict) -> int:
         post = Post(text=data_post.get('text'),
                     image=data_post.get('image'),
                     curtir=data_post.get('curtir'),
                     date=data_post.get('date'),
                     author_id=data_post.get('author_id'))
         post.save()
+
+    def add_like(self,id_post):
+        post = self.__session.query(Post).filter(Post.id == id_post).order_by(Post.date).first()
+        post.curtir += 1
+        self.__session.commit()
+        
 
     def get_posts_user(self,autor_id)->list:
         posts = self.__session.query(Post).filter(Post.author_id == autor_id).order_by(Post.date).all()

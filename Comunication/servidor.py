@@ -100,12 +100,15 @@ class Server:
                 except Exception:
                     retorno_servidor = False
             
-            elif path == "post": # Ainda não funciona
+            elif path == "post":
                 try:
                     PostService().create_post(msg['info_post'])
                     retorno_servidor = True
                 except Exception:
                     retorno_servidor = False
+            
+            elif path == "curtir":
+                retorno_servidor = PostService().curtir_post(msg['id'])
             
             elif path == "posts":
                 retorno_servidor = PostService().get_posts(msg['id'])
