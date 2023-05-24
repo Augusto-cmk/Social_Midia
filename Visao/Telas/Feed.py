@@ -49,11 +49,32 @@ class TelaFeed(Screen):
         self.search_btn = ImageButton(self.buscar_usuario,"Imagens/BuscarUsuario.png","circulo",size_hint=(0.27,0.27),pos_hint={"center_x":0.94,"center_y":0.46})
         self.rl.add_widget(self.search_btn)
 
-        self.add_widget(self.rl)
         self.postagem = None
         self.search_user = None
         self.perfil_user = None
         self.editarPerfil = None
+
+        ## método para obter o feed do banco de dados
+        self.cliente.input_mensage({"route":"posts","id":self.user.get_id()})
+        my_posts = self.cliente.get_msg_server()
+        for i,my_post in enumerate(my_posts):
+            path = {}
+            path['path'] = create_image_perfil(f"temp/post_{self.user.get_nome()}_{i}.png",my_post['image'])
+            self.inserir_post_friends(my_post['text'],path,self.user.get_nome(),self.user.get_path_image())
+
+        self.cliente.input_mensage({"route":"friends","id":self.user.get_id()})
+        amigos = self.cliente.get_msg_server()
+        for amigo in amigos:
+            self.cliente.input_mensage({"route":"posts","id":amigo['id']})
+            posts = self.cliente.get_msg_server()
+            i = 0
+            path_perfil = create_image_perfil(f"temp/post_perfil_{amigo['name']}.png",amigo['photo'])
+            for j,post in enumerate(posts):
+                path = {}
+                path['path'] = create_image_perfil(f"temp/post_{amigo['name']}_{i}_{j}.png",post['image'])
+                self.inserir_post_friends(post['text'],path,amigo['name'],path_perfil)
+        #---------------------------------------------------------------------------------------------------
+        self.add_widget(self.rl)
 
     def buscar_usuario(self): # Cria um bloco para buscar um novo usuário (Enquanto digita, vão aparecendo os botões de sujestão)
         self.rl.remove_widget(self.feed)
@@ -670,12 +691,6 @@ class TelaFeed(Screen):
                                                      "curtir": 0,
                                                      "date": datetime.datetime.now(),
                                                      "author_id": self.user.get_id()}})
-            
-            resposta = self.cliente.get_msg_server()
-            if resposta:
-                print("Deu certo")
-            else:
-                print("Deu errado")
             
         
     def post_curtido(self):

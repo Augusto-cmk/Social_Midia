@@ -105,7 +105,6 @@ class PersonRepository:
         person = self.__session.query(Person).get(person_id)
 
         if person is None:
-            print("Person not found.")
             return False
 
         friends = self.__session.query(Person).join(Friend, Friend.friend_id == Person.id).filter(

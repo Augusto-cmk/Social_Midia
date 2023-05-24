@@ -107,6 +107,12 @@ class Server:
                 except Exception:
                     retorno_servidor = False
             
+            elif path == "posts":
+                retorno_servidor = PostService().get_posts(msg['id'])
+            
+            elif path == 'friends':
+                retorno_servidor = PersonService().get_friends_person(msg['id'])
+
             elif path == "close_friendship":
                 retorno_servidor = FriendService().delete_friends(msg['id_user'],msg['id_perfil'])
 

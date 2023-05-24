@@ -1,7 +1,6 @@
 from src.connection.connection import Connection
 from src.models.post import Post
 from src.models.comment import Comment
-from datetime import datetime
 import json
 
 
@@ -14,14 +13,28 @@ class PostRepository:
                     image=data_post.get('image'),
                     curtir=data_post.get('curtir'),
                     date=data_post.get('date'),
-                    author_id=data_post.get('person_id'))
+                    author_id=data_post.get('author_id'))
         post.save()
 
-    def search_post_all(self) -> None:
+    def get_posts_user(self,autor_id)->list:
+        posts = self.__session.query(Post).filter(Post.author_id == autor_id).order_by(Post.date).all()
+        posts_user = []
+        for post in posts:
+            data = {
+                'id':post.id,
+                'text':post.text,
+                'image':post.image,
+                'curtir':post.curtir,
+                'date':post.date,
+                'author_id':post.author_id
+            }
+            posts_user.append(data)
+        return posts_user
+    
+    def get_posts_all(self):
         posts = self.__session.query(Post).all()
         for post in posts:
-            # Tratar isso, se tiver foto ou não
-            print(f'id:{post.id}, text:{post.text}, id_user:{post.author_id}')
+            print(post.text)
 
     def get_post_comments(self, post_id: int):
         post = self.__session.query(Post).get(post_id)
