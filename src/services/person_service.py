@@ -31,8 +31,8 @@ class PersonService(PersonRepository):
     def get_len_colaborando(self, person_id):
         return self.get_friends_count(person_id)
 
-    #def get_len_colaborandores(self, person_id):
-    #    return self.get_friends_count(person_id)
+    def get_len_colaborandores(self, person_id):
+        return self.get_colaboradores_count(person_id)
 
     def get_persons_all(self) -> list:
         return self.get_person_all()

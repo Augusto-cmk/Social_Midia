@@ -190,7 +190,14 @@ class TelaFeed(Screen):
                     
         
     def desfazer_colaboracao(self,id_perfil): # Precisa implementar esse método 
-        pass
+        self.cliente.input_mensage({'route':"close_friendship",'id_user':self.user.get_id(),'id_perfil':id_perfil})
+        resposta = self.cliente.get_msg_server()
+        if resposta:
+            self.user.set_colaborando(self.user.get_colaborando()-1)
+            self.colaboradoresSize.text = str(int(self.colaboradoresSize.text)-1)
+            self.perfil_user.removeWidget(self.colaborar_btn)
+            self.colaborar_btn = PersonalButton(self.colaborar,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[id_perfil],pos_hint={'center_x':0.5,'center_y':0.69},size_hint=(0.4,0.05),text="Colaborar",borderSize=1.5,borderColor=(0,0,0,1))
+            self.perfil_user.insertWidget(self.colaborar_btn)
 
     def visualizar_perfil_usuario(self, perfil):
         if int(self.user.get_id()) == int(perfil['id']):

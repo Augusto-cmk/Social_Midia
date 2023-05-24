@@ -56,7 +56,7 @@ class Server:
                     person = PersonService().get_person(id)
                     status = PersonStatusService().get_person_status(id)
                     colaborando = PersonService().get_len_colaborando(id)
-                    colaboradores = 0
+                    colaboradores = PersonService().get_colaboradores_count(id)
                     retorno_servidor = {'person': person, 'status': status,'colaborando':colaborando,'colaboradores':colaboradores}
                 except Exception:
                     retorno_servidor = None
@@ -73,7 +73,7 @@ class Server:
             elif path == "friendship":
                 try:
                     colaborando = PersonService().get_len_colaborando(msg['id'])
-                    colaboradores = 0
+                    colaboradores = PersonService().get_colaboradores_count(msg['id'])
                 except Exception:
                     colaboradores = 0
                     colaborando = 0
@@ -106,6 +106,9 @@ class Server:
                     retorno_servidor = True
                 except Exception:
                     retorno_servidor = False
+            
+            elif path == "close_friendship":
+                retorno_servidor = FriendService().delete_friends(msg['id_user'],msg['id_perfil'])
 
             # ------------------------------
             # Depois, mandar a mensagem para o cliente

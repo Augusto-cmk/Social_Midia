@@ -7,5 +7,8 @@ class FriendService(FriendRepository):
 
     def create_friends(self, id_person: int, id_friend: int) -> None:
         self.create_friendship(id_person, id_friend)
+    
+    def delete_friends(self,id_person: int, id_friend: int) -> bool:
+        return self.delete_friendship(id_person,id_friend)
 
     

@@ -15,4 +15,13 @@ class FriendRepository:
             return True
         except sqlite3.Error:
             return False
+    
+    def delete_friendship(self,person_id:int,friend_id:int)->bool:
+        try:
+            self.__session.query(Friend).filter(Friend.person_id == person_id,Friend.friend_id == friend_id).delete()
+            self.__session.commit()
+            return True
+        except Exception:
+            return False
+        
         

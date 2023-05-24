@@ -131,3 +131,6 @@ class PersonRepository:
 
     def get_friends_count(self, person_id: int) -> int:
         return len(self.get_friends(person_id))
+    
+    def get_colaboradores_count(self,person_id:int)->int:
+        return len(self.__session.query(Friend).filter_by(friend_id=person_id).all())
