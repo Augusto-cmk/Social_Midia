@@ -22,6 +22,21 @@ class PersonRepository:
                         birthday=data_person.get('birthday')
                         )
         person.save()
+    
+    def refresh_profile(self,id_person,data_person: dict)->bool:
+        try:
+            person = self.__session.query(Person).filter(Person.id == id_person).first()
+            person.birthday = data_person['birthday']
+            person.city = data_person['city']
+            person.email = data_person['email']
+            person.name = data_person['name']
+            person.password = data_person['password']
+            person.photo = data_person['photo']
+            person.state = data_person['state']
+            self.__session.commit()
+            return True
+        except Exception:
+            return False
 
     def get_person_all(self) -> list:
         persons = self.__session.query(Person).all()

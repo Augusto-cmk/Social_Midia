@@ -238,7 +238,7 @@ class TelaCadastro(Screen):
         try:
             imagem = cv2.imread(self.dir_img)
         except Exception:
-            imagem = None
+            imagem = cv2.imread("Imagens/foto_perfil.jpg")
         cadastro = {
             "person":
             {

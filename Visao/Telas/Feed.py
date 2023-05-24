@@ -55,7 +55,7 @@ class TelaFeed(Screen):
         self.search_user = None
         self.perfil_user = None
         self.editarPerfil = None
-
+        self.dir_img = None
         ## método para obter o feed do banco de dados
         self.atualizar_feed()
         #---------------------------------------------------------------------------------------------------
@@ -544,15 +544,22 @@ class TelaFeed(Screen):
         self.rl.add_widget(self.editarPerfil)
 
     def salvar_alteracao(self):
-        self.user.set_new_path(self.dir_img)
-        self.perfil_button.set_new_img(self.dir_img)
+        if self.dir_img:
         # Salvar alteração das informações do usuário
-        try:
-            foto = imread(self.dir_img)
-        except Exception:
-            alerta = Alerta()
-            alerta.start("Erro","Houve um erro ao ler a imagem!")
-            foto = None
+            try:
+                foto = imread(self.dir_img)
+                self.user.set_new_path(self.dir_img)
+                self.perfil_button.set_new_img(self.dir_img)
+            except Exception:
+                alerta = Alerta()
+                alerta.start("Erro","Houve um erro ao ler a imagem!")
+                foto = imread("Imagens/foto_perfil.jpg")
+                self.user.set_new_path("Imagens/foto_perfil.jpg")
+                self.perfil_button.set_new_img("Imagens/foto_perfil.jpg")
+        
+        else:
+            foto = imread(self.user.get_path_image())
+
         atributos_necessarios = [self.email.get_text(),self.senha.get_text(),self.nome.get_text(),self.dia_aniversario.get_text(),self.mes_aniversario.get_text(),self.ano_aniversario.get_text()]
         erros = ["O campo de email é obrigatorio","O campo de senha é obrigatorio","O campo do nome é obrigatorio","O campo dia do aniversário é obrigatorio","O campo mes do aniversário é obrigatorio","O campo ano do aniversário é obrigatorio"]
         for i,atributo in enumerate(atributos_necessarios):
@@ -561,13 +568,18 @@ class TelaFeed(Screen):
                 alerta.start("Erro",erros[i])
                 self.rl.add_widget(alerta)
         new_data = {
+            "old":
+            {
+                "email":self.user.get_email(),
+                "senha":self.user.get_senha()
+            },
             "person":
             {
             "name":self.nome.get_text(),
             "birthday":f"{self.dia_aniversario.get_text()}/{self.mes_aniversario.get_text()}/{self.ano_aniversario.get_text()}",
             "email":self.email.get_text(),
             "password": self.senha.get_text(),
-            "photo": str(serialize(foto)),
+            "photo": serialize(foto).decode('latin1'),
             "state": self.estado.get_text(),
             "city": self.cidade.get_text()
             },
@@ -586,6 +598,17 @@ class TelaFeed(Screen):
             alerta = Alerta()
             alerta.start("Sucesso","Alterações efetuadas com sucesso!")
             self.rl.add_widget(alerta)
+            self.user.set_nome(self.nome.get_text())
+            self.user.set_profissao(self.profissao.get_text())
+            self.user.set_cidade(self.cidade.get_text())
+            self.user.set_estado(self.estado.get_text())
+            self.user.set_curso(self.curso.get_text())
+            self.user.set_data_nascimento(f"{self.dia_aniversario.get_text()}/{self.mes_aniversario.get_text()}/{self.ano_aniversario.get_text()}")
+            self.user.set_email(self.email.get_text())
+            self.user.set_universidade(self.universidade.get_text())
+            self.user.set_web_site(self.website.get_text())
+            self.user.set_senha(self.senha.get_text())
+            self.user.set_linkedin(self.linkedin.get_text())
         else:
             alerta = Alerta()
             alerta.start("Erro","Houve um erro ao efetuar as altarações, favor verificar os campos novamente!")

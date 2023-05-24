@@ -1,6 +1,8 @@
 from Comunication.mensagem import deserialize
 from cv2 import imwrite
 from unidecode import unidecode
+from random import randint
+import os
 class User:
     def __init__(self) -> None:
         self.id = ''
@@ -117,7 +119,7 @@ class User:
         self.foto = path
 
     def set_image_perfil(self,image_bd:str):
-        path = f"temp/img_perfil_user{self.nome}.png"
+        path = f"temp/img_perfil_user{self.nome}_{randint(1,1000)}.png"
         self.foto = create_image_perfil(path,image_bd)
     
     def get_path_image(self):

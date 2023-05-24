@@ -15,3 +15,6 @@ class PersonStatusService(PersonStatusRepository):
 
     def get_person_status(self, id_person):
         return self.get_status_person(id_person)
+
+    def refresh_status(self,person_id,updated_data: dict):
+        return self._update_person_status(person_id,updated_data)

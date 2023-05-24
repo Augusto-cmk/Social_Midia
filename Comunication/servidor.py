@@ -48,6 +48,12 @@ class Server:
                 except Exception:
                     retorno_servidor = False
 
+            elif path == "alterar dados usuário":
+                id = PersonService().id_person(msg["old"]["email"], msg["old"]["senha"])
+                perfil_atualizado = PersonService().refresh_perfil(id,msg['person'])
+                status_atualizado = PersonStatusService().refresh_status(id,msg['status'])
+                retorno_servidor = perfil_atualizado and status_atualizado
+
             elif path == "login":
                 email = msg['email']
                 senha = msg['password']

@@ -13,6 +13,9 @@ class PersonService(PersonRepository):
                                                         self._validation_schema)
         self.insert_person(self._data_person)
 
+    def refresh_perfil(self, id_person,data_person: dict):
+        return self.refresh_profile(id_person,data_person)
+    
     def id_person(self, email: str, password: str) -> int:
         return self._get_person_id(email, password)
     

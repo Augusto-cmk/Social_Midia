@@ -21,21 +21,18 @@ class PersonStatusRepository:
         except sqlite3.OperationalError as e:
             return False
 
-    @staticmethod
-    def _update_person_status(person_status_id: str, updated_data: dict) -> bool:
+    def _update_person_status(self,person_id: str, updated_data: dict) -> bool:
         try:
-            person_status = PersonStatus.get(id=person_status_id)
+            status = self.__session.query(PersonStatus).filter(PersonStatus.person_id == person_id).first()
+            status.course = updated_data['course']
+            status.linkedin = updated_data['linkedin']
+            status.profession = updated_data['profession']
+            status.university = updated_data['university']
+            status.web_site = updated_data['university']
+            self.__session.commit()
+            return True
         except Exception:
-            raise Exception("PersonStatus não encontrado")
-
-        person_status.profession = updated_data.get("profession", person_status.profession)
-        person_status.university = updated_data.get("university", person_status.university)
-        person_status.course = updated_data.get("course", person_status.course)
-        person_status.web_site = updated_data.get("web_site", person_status.web_site)
-        person_status.linkedin = updated_data.get("linkedin", person_status.linkedin)
-
-        person_status.save()
-
+            return False        
     def get_status_person(self, person_id: int) -> bool:
         person_status = self.__session.query(PersonStatus).filter_by(person_id=person_id).first()
 
