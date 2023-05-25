@@ -62,3 +62,27 @@ class PostRepository:
             comments_data.append(comment_data)
 
         return json.dumps(comments_data)
+
+    def get_ordered_comments(self, post_id: int):
+        post = self.__session.query(Post).get(post_id)
+
+        if post is None:
+            return []
+
+        comments = (
+            self.__session.query(Comment)
+            .filter_by(post_id=post_id)
+            .order_by(Comment.date.asc())
+            .all()
+        )
+        comments_list = []
+        for comment in comments:
+            comment_dict = {
+                'id': comment.id,
+                'text': comment.text,
+                'date': comment.date,
+                'author_id': comment.author_id,
+                'post_id': comment.post_id
+            }
+            comments_list.append(comment_dict)
+        return comments_list

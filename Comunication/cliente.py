@@ -6,7 +6,7 @@ import sys
 
 class Cliente:
     def __init__(self) -> None:
-        self.porta = 8080
+        self.porta = 5050
         self.ip_servidor = socket.gethostbyname(socket.gethostname())
         self.addr = (self.ip_servidor, self.porta)
         self.thread_client_server = Thread(target=self.__server_to_client)

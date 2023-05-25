@@ -6,15 +6,18 @@ class PostService(PostRepository):
     def __init__(self) -> None:
         super().__init__()
 
-    def create_post(self,data_post: dict)->int:
+    def create_post(self, data_post: dict) -> int:
         self._create_post(data_post)
-    
-    def get_posts(self,id_autor)->list:
+
+    def get_posts(self, id_autor) -> list:
         return self.get_posts_user(id_autor)
 
-    def curtir_post(self,id_post)->bool:
+    def curtir_post(self, id_post) -> bool:
         try:
             self.add_like(id_post)
             return True
         except Exception:
             return False
+
+    def get_comments(self, post_id):
+        return self.get_ordered_comments(post_id)

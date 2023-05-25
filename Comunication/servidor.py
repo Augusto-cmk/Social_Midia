@@ -12,7 +12,7 @@ from src.services.post_service import PostService
 class Server:
     def __init__(self) -> None:
         self.ip = socket.gethostbyname(socket.gethostname())
-        self.porta = 8080
+        self.porta = 5050
         self.address = (self.ip, self.porta)
         self.servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.servidor.bind(self.address)

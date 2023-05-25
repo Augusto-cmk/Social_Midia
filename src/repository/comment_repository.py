@@ -3,6 +3,7 @@ from src.models.comment import Comment
 import sqlite3
 from datetime import datetime
 
+
 class CommentRepository:
 
     def __init__(self) -> None:
@@ -17,7 +18,7 @@ class CommentRepository:
         except sqlite3.DataError:
             return False
 
-    def _get_comment(self, id_comment: int) -> str:
+    def _get_comment(self, id_comment: int) -> dict:
         try:
             result = self.__session.query(Comment).get(id_comment)
             return result.__dict__

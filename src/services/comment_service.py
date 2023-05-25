@@ -15,5 +15,5 @@ class CommentService(CommentRepository):
                                                          self._validation)
         return self._create_comment(post_id, person_id, text)
     
-    def get_comment(self, id_comment: int) -> bool:
+    def get_comment(self, id_comment: int) -> dict:
         return self._get_comment(id_comment)
