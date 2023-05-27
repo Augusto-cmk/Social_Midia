@@ -7,12 +7,13 @@ from src.services.person_service import PersonService
 from src.services.person_status_service import PersonStatusService
 from src.services.friend_service import FriendService
 from src.services.post_service import PostService
+from src.services.comment_service import CommentService
 
 
 class Server:
     def __init__(self) -> None:
         self.ip = socket.gethostbyname(socket.gethostname())
-        self.porta = 5050
+        self.porta = 8080
         self.address = (self.ip, self.porta)
         self.servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.servidor.bind(self.address)
@@ -124,6 +125,15 @@ class Server:
 
             elif path == "close_friendship":
                 retorno_servidor = FriendService().delete_friends(msg['id_user'],msg['id_perfil'])
+            
+            elif path == "comment_post":
+                retorno_servidor = CommentService().insert_comment(msg['post_id'],msg['person_id'],msg['text'])
+            
+            elif path == "comments_post":
+                retorno_servidor = PostService().get_comments(msg['id_post'])
+            
+            elif path == "img_perfil":
+                retorno_servidor = PersonService().get_person(msg['id'])['photo']
 
             # ------------------------------
             # Depois, mandar a mensagem para o cliente

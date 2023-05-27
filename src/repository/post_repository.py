@@ -81,7 +81,7 @@ class PostRepository:
                 'id': comment.id,
                 'text': comment.text,
                 'date': comment.date,
-                'author_id': comment.author_id,
+                'author_id': comment.person_id,
                 'post_id': comment.post_id
             }
             comments_list.append(comment_dict)

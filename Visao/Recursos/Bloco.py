@@ -125,6 +125,17 @@ class Post(Bloco):
             self.insertWidget(BoxImagePerfil)
             self.insertWidget(LabelComentario)
             self.i += 0.1
+    
+    def reset_comments(self):
+        for comentario in self.comentarios:
+            self.removeWidget(comentario[0])
+            self.removeWidget(comentario[1])
+        self.i = 0
+        self.comentarios = list()
+    
+    def go_to_freeze_state(self):
+        self.reset_comments()
+        return super().go_to_freeze_state()
 
 class Projeto(Bloco):
     def __init__(self, altura, largura, pos_hint,image_project,sizelikes,sizefeedbacks, **kw):

@@ -48,6 +48,9 @@ class TelaFeed(Screen):
         self.search_btn = ImageButton(self.buscar_usuario,"Imagens/BuscarUsuario.png","circulo",size_hint=(0.27,0.27),pos_hint={"center_x":0.94,"center_y":0.46})
         self.rl.add_widget(self.search_btn)
 
+        chat_btn = ImageButton(self.chat,"Imagens/btn_chat.png","circulo",size_hint=(0.22,0.22),pos_hint={"center_x":0.94,"center_y":0.22})
+        self.rl.add_widget(chat_btn)
+
         self.atualizar_btn = ImageButton(self.atualizar_feed,"Imagens/atualizar_btn.png","circulo",size_hint=(0.1,0.1),pos_hint={"center_x":0.5,"center_y":0.93})
         self.rl.add_widget(self.atualizar_btn)
 
@@ -60,6 +63,10 @@ class TelaFeed(Screen):
         self.atualizar_feed()
         #---------------------------------------------------------------------------------------------------
         self.add_widget(self.rl)
+    
+    def chat(self):
+        self.clear_widgets()
+        self.add_widget(self.screenManager.go_to('chat')(self.screenManager,self.user))
 
     def atualizar_feed(self):
         self.feed.clear()
@@ -73,14 +80,18 @@ class TelaFeed(Screen):
             for j,post in enumerate(posts):
                 path = {}
                 path['path'] = create_image_perfil(f"temp/post_{amigo['name']}_{i}_{j}.png",post['image'])
-                self.inserir_post_friends(post['id'],post['curtir'],post['text'],path,amigo['name'],path_perfil)
+                self.cliente.input_mensage({"route":"comments_post","id_post":post['id']})
+                comentarios = len(self.cliente.get_msg_server())
+                self.inserir_post_friends(post['id'],post['curtir'],comentarios,post['text'],path,amigo['name'],path_perfil)
         
         self.cliente.input_mensage({"route":"posts","id":self.user.get_id()})
         my_posts = self.cliente.get_msg_server()
         for i,my_post in enumerate(my_posts):
             path = {}
             path['path'] = create_image_perfil(f"temp/post_{self.user.get_nome()}_{i}.png",my_post['image'])
-            self.inserir_post_friends(my_post['id'],my_post['curtir'],my_post['text'],path,self.user.get_nome(),self.user.get_path_image())
+            self.cliente.input_mensage({"route":"comments_post","id_post":my_post['id']})
+            comentarios = len(self.cliente.get_msg_server())
+            self.inserir_post_friends(my_post['id'],my_post['curtir'],comentarios,my_post['text'],path,self.user.get_nome(),self.user.get_path_image())
 
     def buscar_usuario(self): # Cria um bloco para buscar um novo usuário (Enquanto digita, vão aparecendo os botões de sujestão)
         self.rl.remove_widget(self.feed)
@@ -309,7 +320,9 @@ class TelaFeed(Screen):
             my_posts = self.cliente.get_msg_server()
             for i,my_post in enumerate(my_posts):
                 path = create_image_perfil(f"temp/post_{perfil['name']}_{i}.png",my_post['image'])
-                project = Projeto(0.7,0.7,{"center_x":0.5,"center_y":0.8},path,my_post['curtir'],20)
+                self.cliente.input_mensage({"route":"comments_post","id_post":my_post['id']})
+                comentarios = len(self.cliente.get_msg_server())
+                project = Projeto(0.7,0.7,{"center_x":0.5,"center_y":0.8},path,my_post['curtir'],comentarios)
                 project.show()
                 projetos.add(project)
 
@@ -377,7 +390,9 @@ class TelaFeed(Screen):
         my_posts = self.cliente.get_msg_server()
         for i,my_post in enumerate(my_posts):
             path = create_image_perfil(f"temp/post_{self.user.get_nome()}_{i}.png",my_post['image'])
-            project = Projeto(0.7,0.7,{"center_x":0.5,"center_y":0.8},path,my_post['curtir'],20)
+            self.cliente.input_mensage({"route":"comments_post","id_post":my_post['id']})
+            comentarios = len(self.cliente.get_msg_server())
+            project = Projeto(0.7,0.7,{"center_x":0.5,"center_y":0.8},path,my_post['curtir'],comentarios)
             project.show()
             projetos.add(project)
 
@@ -627,11 +642,7 @@ class TelaFeed(Screen):
         self.dir_img = Choose_file().get_dir()
         self.carregar_img.set_new_img(self.dir_img)
 
-        # Mandar aqui a nova foto para o banco de dados
-
-        #--------------------------------------------
-
-    def inserir_post_friends(self,id_post,curtidas,text_post:Text,path_image_post:dict, nome:str, path_imagem_perfil:str):
+    def inserir_post_friends(self,id_post,curtidas,comentarios,text_post:Text,path_image_post:dict, nome:str, path_imagem_perfil:str):# Método chamado para inserir um post no feed do usuário
         do = True
         if self.postagem:
             try:
@@ -667,17 +678,17 @@ class TelaFeed(Screen):
             curtir_button = PersonalButton(self.post_curtido,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[id_post,text_curtir],pos_hint={'center_x':0.32,'center_y':0.2},size_hint=(0.3,0.05),text="Curtir",borderSize=1.5,borderColor=(0,0,0,1))
             post.insertWidget(curtir_button)
 
-            text_comentar = Label(text="0",color='black',pos_hint={'center_x':0.68,'center_y':0.14},size_hint=(.01,.01))
+            text_comentar = Label(text=f"{comentarios}",color='black',pos_hint={'center_x':0.68,'center_y':0.14},size_hint=(.01,.01))
             post.insertWidget(text_comentar)
 
-            comentar_button = PersonalButton(self.comentar_post,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[post],pos_hint={'center_x':0.68,'center_y':0.2},size_hint=(0.3,0.05),text="Comentar",borderSize=1.5,borderColor=(0,0,0,1))
+            comentar_button = PersonalButton(self.comentar_post,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[post,id_post,text_comentar],pos_hint={'center_x':0.68,'center_y':0.2},size_hint=(0.3,0.05),text="Comentar",borderSize=1.5,borderColor=(0,0,0,1))
             post.insertWidget(comentar_button)
 
             post.freeze_state()
 
             self.feed.add(post)
 
-    def inserir_post(self,text_post:Text,path_image_post:dict):# Método chamado para inserir um post no feed do usuário
+    def inserir_post(self,text_post:Text,path_image_post:dict):
         do = True
         if self.postagem:
             try:
@@ -717,20 +728,37 @@ class TelaFeed(Screen):
         self.cliente.input_mensage({"route":"curtir","id":id_post})
         self.cliente.get_msg_server()
 
-    def comentar_post(self,post:Post): # Tem que receber as informações do post (quem enviou o post e os comentarios existentes)
+    def comentar_post(self,post:Post,id_post,text_comentar): # Tem que receber as informações do post (quem enviou o post e os comentarios existentes)
         post.clearWidgets()
         comentario_post = Text((1,1,1,1),(0,0,0,1),15,(0,0,0,1),35,pos_hint={"center_x":0.47,'center_y':0.2},size_hint=(.6,.07))
-        btn_send = ImageButton(self.enviar_comentario_post,"Imagens/btn_send2.png","retangulo",argsAction=[post,comentario_post],size_hint=(.06,.05),pos_hint={"center_x":0.82,'center_y':0.2})
+        btn_send = ImageButton(self.enviar_comentario_post,"Imagens/btn_send2.png","retangulo",argsAction=[post,comentario_post,id_post,text_comentar],size_hint=(.06,.05),pos_hint={"center_x":0.82,'center_y':0.2})
         post.insertWidget(btn_send)
         post.insertWidget(comentario_post)
         btnVoltar = ImageButton(post.go_to_freeze_state,"Imagens/Voltar.png","circulo",pos_hint={'center_x':0.15,'center_y':0.82},size_hint=(0.05,0.05))
         post.insertWidget(btnVoltar)
-        # inserir aqui os comentarios (Precisa criar um bloco rolavel)
-
-        #-----------------------------
-    
-    def enviar_comentario_post(self,post:Post,comentario:Text):# Tem que receber as informações do post para poder enviar o comentario, assim como quem fez o comentario
-        if len(comentario.get_text()) > 0:
-            foto_perfil = BoxImage('circulo',self.user.get_path_image(),size_hint=(.05,.05),pos_hint={'center_x':0.22,'center_y':0.82})
-            comentLabel = Label(text=f'{comentario.get_text()}',color='black',pos_hint={'center_x':0.5,'center_y':0.82},size_hint=(.01,.01))
+        self.cliente.input_mensage({"route":"comments_post","id_post":id_post})
+        comentarios = self.cliente.get_msg_server()
+        for comentario in comentarios:
+            texto = comentario['text']
+            self.cliente.input_mensage({"route":"img_perfil","id":comentario['author_id']})
+            foto = self.cliente.get_msg_server()
+            path_perfil = create_image_perfil(f"temp/post_perfil_comentario{comentario['author_id']}.png",foto)
+            foto_perfil = BoxImage('circulo',path_perfil,size_hint=(.05,.05),pos_hint={'center_x':0.22,'center_y':0.82})
+            comentLabel = Label(text=f'{texto}',color='black',pos_hint={'center_x':0.5,'center_y':0.82},size_hint=(.01,.01))
             post.comment(foto_perfil,comentLabel)
+    
+    def enviar_comentario_post(self,post:Post,comentario:Text,id_post,text_comentar:Text):# Tem que receber as informações do post para poder enviar o comentario, assim como quem fez o comentario
+        if len(comentario.get_text()) > 0:
+            text_comentar.text = str(int(text_comentar.text)+1)
+            data = {
+                "text":comentario.get_text(),
+                "post_id":id_post,
+                "person_id":self.user.get_id(),
+                "route":"comment_post"
+            }
+            self.cliente.input_mensage(data)
+            resposta = self.cliente.get_msg_server()
+            if resposta:
+                foto_perfil = BoxImage('circulo',self.user.get_path_image(),size_hint=(.05,.05),pos_hint={'center_x':0.22,'center_y':0.82})
+                comentLabel = Label(text=f'{comentario.get_text()}',color='black',pos_hint={'center_x':0.5,'center_y':0.82},size_hint=(.01,.01))
+                post.comment(foto_perfil,comentLabel)
