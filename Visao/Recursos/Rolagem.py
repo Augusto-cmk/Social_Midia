@@ -108,16 +108,20 @@ class BlocoRolavel(RelativeLayout):
         self.scroll_view.bar_inactive_alpha = 0
         self.scroll_view.bar_color = [1, 1, 1, 0.8]
         self.scroll_view.effect_cls = 'ScrollEffect'
-        self.total_height = self.height*2 + spacing
+        self.total_height = self.height + spacing
         self.spacing = spacing
         self.widgets = list()
-       
+    
+    def set_y_scroll_top(self):
+        self.scroll_view.scroll_y = 1
+
     def add(self, widget):
         # Adiciona o widget ao layout scrollable_layout
         self.widgets.append(widget)
         self.__redefine_pos()
-        self.total_height += widget.height + self.spacing
+        self.total_height += widget.height
         self.scrollable_layout.height = max(self.total_height, self.height)
+        self.scroll_view.scroll_y = 0
 
     def __redefine_pos(self):
         self.scrollable_layout.clear_widgets()

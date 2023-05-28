@@ -3,12 +3,13 @@ from kivy.uix.relativelayout import RelativeLayout
 from Visao.Recursos.Bloco import Bloco
 from Visao.Recursos.Bloco import BoxImage
 from Visao.Recursos.Botao import PersonalButton,ImageButton
+from Visao.Recursos.Popup import Alerta
 from Visao.Recursos.Text import Text
 from Visao.Recursos.mensagemChat import Mensagem
 from kivy.uix.label import Label
 from Visao.Recursos.Rolagem import BlocoRolavel
 from random import randint
-from Modelo.user import User
+from Modelo.user import User, create_image_perfil
 from Visao.Recursos.Text import TextToSearch
 from Comunication.cliente import Cliente
 from Visao.Recursos.Rolagem import caixaRolagem
@@ -18,6 +19,8 @@ class TelaChat(Screen):
         super().__init__(**kw)
         self.rl = RelativeLayout()
         self.user = user
+        self.contato_img = None
+        self.nome_contato = None
         self.screenManager = screenManager
         self.cliente:Cliente = screenManager.get_client()
         fundo = BoxImage('retangulo','Imagens/Fundo2.jpg',size_hint=(1,1),pos_hint={'center_x':0.5,'center_y':0.5})
@@ -37,14 +40,8 @@ class TelaChat(Screen):
         imgChat = BoxImage('retangulo','Imagens/Fundo_chat.png',size_hint=(.565,.7),pos_hint={'center_x':0.669,'center_y':0.5})
         self.caixaChat.insertWidget(imgChat)
 
-        contato = BoxImage("circulo",'Imagens/foto_perfil.jpg',pos_hint={'center_x':0.45,'center_y':0.8},size_hint=(0.07,0.07))
-        nome_contato = Label(text='Nome do contato',color='white',pos_hint={'center_x':0.57,'center_y':0.82},size_hint=(.04,.02))
-        profissao = Label(text='Profissão',color='white',pos_hint={'center_x':0.57,'center_y':0.79},size_hint=(.04,.02))
-        self.caixaChat.insertWidget(profissao)
-        self.caixaChat.insertWidget(nome_contato)
-        self.caixaChat.insertWidget(contato)
 
-        self.chat = BlocoRolavel(400,250,pos_hint={'center_x':0.67,'center_y':0.5})
+        self.chat = BlocoRolavel(400,250,pos_hint={'center_x':0.67,'center_y':0.5},spacing=0)
 
         btn_send = ImageButton(self.enviarMSG,"Imagens/btn_send.png","circulo",size_hint=(.2,.2),pos_hint={"center_x":0.9,'center_y':0.2})
         self.caixaChat.insertWidget(btn_send)
@@ -56,15 +53,16 @@ class TelaChat(Screen):
 
         # código copiado do feed de buscar usuário
         # Usar esse código para pegar os amigos e criar os botões para abrir o chat
-        btns_search = caixaRolagem(500,200,{"center_x":0.5,"center_y":0.45},spacing=0.91)
-        self.search_user.insertWidget(btns_search)
+        btns_search = caixaRolagem(300,200,{"center_x":0.35,"center_y":0.45},spacing=0.91)
+        self.caixaChat.insertWidget(btns_search)
 
-        self.cliente.input_mensage({"route":"friends"})
+        self.cliente.input_mensage({"route":"friends","id":self.user.get_id()})
         self.friends = self.cliente.get_msg_server()
-        nomes = [person['name'] for person in self.persons]
-        busca = TextToSearch((1,1,1,1),(0,0,0,1),15,(0,0,0,1),nomes,btns_search,self.action_name_search,pos_hint={"center_x":0.5,'center_y':0.7},size_hint=(.5,.05))
-        self.search_user.insertWidget(busca)
-        self.rl.add_widget(self.search_user)
+        nomes = [person['name'] for person in self.friends]
+        busca = TextToSearch((1,1,1,1),(0,0,0,1),15,(0,0,0,1),nomes,btns_search,self.action_name_search,pos_hint={"center_x":0.22,'center_y':0.2},size_hint=(.3,.05))
+        busca.set_defeault_text("Digite o nome do amigo")
+        busca.set_new_width_button(1)
+        self.caixaChat.insertWidget(busca)
         #--------------------------------------------------------------
 
         self.rl.add_widget(self.caixaChat)
@@ -73,15 +71,56 @@ class TelaChat(Screen):
         self.add_widget(self.rl)
     
     def action_name_search(self,nome):
-        pass
+        if self.contato_img and self.nome_contato:
+            self.caixaChat.removeWidget(self.contato_img)
+            self.caixaChat.removeWidget(self.nome_contato)
+            self.contato_img = None
+            self.nome_contato = None
+            
+        contato = None
+        for friend in self.friends:
+            if friend['name'] == nome:
+                contato = friend
+                break
+        
+        self.go_to_chat(contato)
+        
+    def go_to_chat(self,contato):
+        self.chat.clearWidgets()
+        self.contato = contato
+        path_foto_user = f"temp/user_see_chat_{contato['name']}.png"
+        path_foto_user = create_image_perfil(path_foto_user,contato['photo'])
 
+        self.contato_img = BoxImage("circulo",path_foto_user,pos_hint={'center_x':0.45,'center_y':0.8},size_hint=(0.07,0.07))
+        self.nome_contato = Label(text=contato['name'],color='white',pos_hint={'center_x':0.57,'center_y':0.8},size_hint=(.04,.02))
+    
+        self.caixaChat.insertWidget(self.contato_img)
+        self.caixaChat.insertWidget(self.nome_contato)
+
+        self.cliente.input_mensage({'route':'recive_msg','author':contato['id'],'destine':self.user.get_id()})
+        mensagens_recived = self.cliente.get_msg_server()
+
+        self.cliente.input_mensage({'route':'recive_msg','author':self.user.get_id(),'destine':contato['id']})
+        mensagens_sended = self.cliente.get_msg_server()
+
+        self.mensagens = sorted([*mensagens_recived,*mensagens_sended],key=lambda x: x['date'])
+        for mensagem in self.mensagens:
+            msg = Mensagem(mensagem['text'],15,mensagem['author_id']==self.user.get_id(),size_hint=(.2,.05))
+            self.chat.add(msg)        
+    
     def voltar(self):
         self.clear_widgets()
         self.add_widget(self.screenManager.go_to('feed')(self.screenManager,self.user))
 
     def enviarMSG(self):
         texto = self.mensagem.get_text()
-        # label = Label(text=texto,color='black',size_hint=(.467,.05),pos=[50,50])
-        teste = [True,False]
-        mensagem = Mensagem(texto,15,teste[randint(0,1)],size_hint=(.2,.05))
-        self.chat.add(mensagem)
+        self.cliente.input_mensage({'route':"send_msg",'id_envio':self.user.get_id(),'id_recebe':self.contato['id'],'text':texto})
+        sucesso = self.cliente.get_msg_server()
+        if not sucesso:
+            alerta = Alerta()
+            alerta.start("Erro","A mensagem não pôde ser enviada, favor tentar novamente!")
+            self.rl.add_widget(alerta)
+        else:
+            mensagem = Mensagem(texto,15,True,size_hint=(.2,.05))
+            self.chat.add(mensagem)
+            self.chat.set_y_scroll_top()

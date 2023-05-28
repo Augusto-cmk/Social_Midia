@@ -48,8 +48,8 @@ class TelaFeed(Screen):
         self.search_btn = ImageButton(self.buscar_usuario,"Imagens/BuscarUsuario.png","circulo",size_hint=(0.27,0.27),pos_hint={"center_x":0.94,"center_y":0.46})
         self.rl.add_widget(self.search_btn)
 
-        chat_btn = ImageButton(self.chat,"Imagens/btn_chat.png","circulo",size_hint=(0.22,0.22),pos_hint={"center_x":0.94,"center_y":0.22})
-        self.rl.add_widget(chat_btn)
+        self.chat_btn = ImageButton(self.chat,"Imagens/btn_chat.png","circulo",size_hint=(0.22,0.22),pos_hint={"center_x":0.94,"center_y":0.22})
+        self.rl.add_widget(self.chat_btn)
 
         self.atualizar_btn = ImageButton(self.atualizar_feed,"Imagens/atualizar_btn.png","circulo",size_hint=(0.1,0.1),pos_hint={"center_x":0.5,"center_y":0.93})
         self.rl.add_widget(self.atualizar_btn)
@@ -110,6 +110,7 @@ class TelaFeed(Screen):
         if self.editarPerfil:
             self.rl.remove_widget(self.editarPerfil)
             self.editarPerfil = None
+        
         
         self.search_user = Bloco(0.75,0.75,pos_hint={"center_x":0.5,"center_y":0.5})
         self.search_user.setFormat("retangulo_arredondado",(1,1,1,1))
@@ -199,14 +200,15 @@ class TelaFeed(Screen):
         if self.perfil_user:
             self.rl.remove_widget(self.perfil_user)
         
-        
         self.rl.remove_widget(self.post_btn)
         self.rl.remove_widget(self.sair_button)
         self.rl.remove_widget(self.search_btn)
+        self.rl.remove_widget(self.chat_btn)
         self.rl.add_widget(self.feed)
         self.rl.add_widget(self.post_btn)
         self.rl.add_widget(self.sair_button)
         self.rl.add_widget(self.search_btn)
+        self.rl.add_widget(self.chat_btn)
 
     def voltar(self):
         arquivos = os.listdir("temp")

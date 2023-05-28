@@ -75,9 +75,26 @@ class TextToSearch(TextInput):
         self.tree.addList(names_to_search)
         self.btns_search = btns_search
         self.action_btn_search = action_btns_search
+        self.defeaut_width = 0.6
+        self.defeaut_text = None
+
+    def set_defeault_text(self,text):
+        self.defeaut_text = text
 
     def get_text(self):
         return self.text
+
+    def set_new_width_button(self,width):
+        self.defeaut_width = width
+    
+    def _on_focus(self, instance, value, *largs):
+        if value and self.defeaut_text:
+            self.text = ""
+        
+        elif not value and self.defeaut_text:
+            self.text = self.defeaut_text
+            
+        return super()._on_focus(instance, value, *largs)
 
     def keyboard_on_textinput(self, window, text):
         self.btns_search.clear()
@@ -87,7 +104,7 @@ class TextToSearch(TextInput):
             bloco = Bloco(0.1,0.1,pos_hint={"center_x":0.5,"center_y":0.75})
             bloco.setFormat("retangulo_arredondado",(1,1,1,1))
 
-            btn = PersonalButton(self.action_btn_search,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[correspondencia],pos_hint={'center_x':0.5,'center_y':0.9},size_hint=(0.6,0.05),text=correspondencia,borderSize=1.5,borderColor=(0,0,0,1))
+            btn = PersonalButton(self.action_btn_search,(1,1,1,1),(0,0,0,1),12,'retangulo_arredondado',argsAction=[correspondencia],pos_hint={'center_x':0.5,'center_y':0.9},size_hint=(self.defeaut_width,0.05),text=correspondencia,borderSize=1.5,borderColor=(0,0,0,1))
             bloco.insertWidget(btn)
 
             self.btns_search.add(bloco)

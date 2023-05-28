@@ -8,6 +8,7 @@ from src.services.person_status_service import PersonStatusService
 from src.services.friend_service import FriendService
 from src.services.post_service import PostService
 from src.services.comment_service import CommentService
+from src.services.message_service import MessageService
 
 
 class Server:
@@ -134,6 +135,12 @@ class Server:
             
             elif path == "img_perfil":
                 retorno_servidor = PersonService().get_person(msg['id'])['photo']
+            
+            elif path == "send_msg":
+                retorno_servidor = MessageService().send_message(msg['id_envio'],msg['id_recebe'],msg['text'])
+            
+            elif path == "recive_msg":
+                retorno_servidor = MessageService().get_messages(msg['author'],msg['destine'])
 
             # ------------------------------
             # Depois, mandar a mensagem para o cliente

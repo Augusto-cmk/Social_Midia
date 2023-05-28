@@ -89,3 +89,18 @@ class Connection:
                 """
             )
             connection.execute(statement)
+
+            statement = text(
+                """
+                CREATE TABLE IF NOT EXISTS message(
+                    id INTEGER PRIMARY KEY,
+                    text VARCHAR(255),
+                    date DATETIME,
+                    author_id INTEGER,
+                    destine_id INTEGER,
+                    FOREIGN KEY (author_id) REFERENCES person (id),
+                    FOREIGN KEY (destine_id) REFERENCES person (id)
+                )
+                """
+            )
+            connection.execute(statement)
