@@ -51,7 +51,7 @@ class Cliente:
             except ConnectionResetError:
                 print("[INFO] O Servidor desconectou-se")
                 break
-
+    
     def get_msg_server(self):
         return self.mensagem_recived.get()
 

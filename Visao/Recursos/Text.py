@@ -80,6 +80,7 @@ class TextToSearch(TextInput):
 
     def set_defeault_text(self,text):
         self.defeaut_text = text
+        self.text = text
 
     def get_text(self):
         return self.text

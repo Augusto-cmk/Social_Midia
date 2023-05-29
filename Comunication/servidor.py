@@ -21,7 +21,7 @@ class Server:
         self.conexoes = {}
         self.server_client = Thread(target=self.__server_to_client)
         self.mensagens = queue.Queue()
-        self.threads = {}
+        self.clientes = {}
 
     def start(self):
         print("[INFO] Servidor Iniciado")
@@ -31,7 +31,6 @@ class Server:
             conn, addr = self.servidor.accept()
             thread = Thread(target=self.__clients_to_server, args=(conn, addr))
             thread.start()
-            self.threads[addr] = thread
 
     def __server_to_client(self):
         while True:
@@ -61,6 +60,7 @@ class Server:
                 senha = msg['password']
                 try:
                     id = PersonService().id_person(email, senha)
+                    self.clientes[id] = self.conexoes[addr]
                     person = PersonService().get_person(id)
                     status = PersonStatusService().get_person_status(id)
                     colaborando = PersonService().get_len_colaborando(id)

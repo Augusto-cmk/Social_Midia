@@ -21,6 +21,7 @@ class TelaChat(Screen):
         self.user = user
         self.contato_img = None
         self.nome_contato = None
+        self.contato = None
         self.screenManager = screenManager
         self.cliente:Cliente = screenManager.get_client()
         fundo = BoxImage('retangulo','Imagens/Fundo2.jpg',size_hint=(1,1),pos_hint={'center_x':0.5,'center_y':0.5})
@@ -37,11 +38,14 @@ class TelaChat(Screen):
         nomeUser = Label(text=f'{self.user.get_nome()}',color='black',pos_hint={'center_x':0.2,'center_y':0.75},size_hint=(.06,.02))
         self.caixaChat.insertWidget(nomeUser)
 
-        imgChat = BoxImage('retangulo','Imagens/Fundo_chat.png',size_hint=(.565,.7),pos_hint={'center_x':0.669,'center_y':0.5})
+        imgChat = BoxImage('retangulo','Imagens/Fundo_chat.png',size_hint=(.563,.7),pos_hint={'center_x':0.669,'center_y':0.5})
         self.caixaChat.insertWidget(imgChat)
 
+        imgChat2 = BoxImage('retangulo','Imagens/Fundo2.png',size_hint=(.555,.5),pos_hint={'center_x':0.669,'center_y':0.5})
+        self.caixaChat.insertWidget(imgChat2)
 
-        self.chat = BlocoRolavel(400,250,pos_hint={'center_x':0.67,'center_y':0.5},spacing=0)
+
+        self.chat = BlocoRolavel(400,250,pos_hint={'center_x':0.67,'center_y':0.5})
 
         btn_send = ImageButton(self.enviarMSG,"Imagens/btn_send.png","circulo",size_hint=(.2,.2),pos_hint={"center_x":0.9,'center_y':0.2})
         self.caixaChat.insertWidget(btn_send)
@@ -65,15 +69,17 @@ class TelaChat(Screen):
         self.caixaChat.insertWidget(busca)
         #--------------------------------------------------------------
 
+
         self.rl.add_widget(self.caixaChat)
         self.rl.add_widget(btnVoltar)
         self.rl.add_widget(self.chat)
         self.add_widget(self.rl)
     
     def action_name_search(self,nome):
-        if self.contato_img and self.nome_contato:
+        if self.contato_img:
             self.caixaChat.removeWidget(self.contato_img)
             self.caixaChat.removeWidget(self.nome_contato)
+            self.caixaChat.removeWidget(self.btn_atualizar)
             self.contato_img = None
             self.nome_contato = None
             
@@ -84,10 +90,25 @@ class TelaChat(Screen):
                 break
         
         self.go_to_chat(contato)
-        
+    
+    def atualizar_chat(self,contato):
+        self.chat.clearWidgets()
+        self.cliente.input_mensage({'route':'recive_msg','author':contato['id'],'destine':self.user.get_id()})
+        mensagens_recived = self.cliente.get_msg_server()
+
+        self.cliente.input_mensage({'route':'recive_msg','author':self.user.get_id(),'destine':contato['id']})
+        mensagens_sended = self.cliente.get_msg_server()
+
+        self.mensagens = sorted([*mensagens_recived,*mensagens_sended],key=lambda x: x['date'])
+        for mensagem in self.mensagens:
+            msg = Mensagem(mensagem['text'],15,mensagem['author_id']==self.user.get_id(),size_hint=(.2,.05))
+            self.chat.add(msg)
+
     def go_to_chat(self,contato):
         self.chat.clearWidgets()
         self.contato = contato
+        self.btn_atualizar = ImageButton(self.atualizar_chat,"Imagens/atualizar_btn.png","circulo",argsAction=[contato],pos_hint={'center_x':0.8,'center_y':0.8},size_hint=(0.04,0.04))
+        self.caixaChat.insertWidget(self.btn_atualizar)
         path_foto_user = f"temp/user_see_chat_{contato['name']}.png"
         path_foto_user = create_image_perfil(path_foto_user,contato['photo'])
 
@@ -109,6 +130,7 @@ class TelaChat(Screen):
             self.chat.add(msg)        
     
     def voltar(self):
+        self.thread_chat = False
         self.clear_widgets()
         self.add_widget(self.screenManager.go_to('feed')(self.screenManager,self.user))
 
@@ -121,6 +143,4 @@ class TelaChat(Screen):
             alerta.start("Erro","A mensagem não pôde ser enviada, favor tentar novamente!")
             self.rl.add_widget(alerta)
         else:
-            mensagem = Mensagem(texto,15,True,size_hint=(.2,.05))
-            self.chat.add(mensagem)
-            self.chat.set_y_scroll_top()
+            self.atualizar_chat(self.contato)

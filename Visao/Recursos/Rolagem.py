@@ -87,7 +87,7 @@ class BlocoRolavel(RelativeLayout):
             - altura = altura da forma do bloco
             - largura = largura da forma do bloco
     """
-    def __init__(self, width, height,pos_hint,spacing=10, **kwargs):
+    def __init__(self, width, height,pos_hint, **kwargs):
         super().__init__(**kwargs)
         
         self.width = width
@@ -108,8 +108,7 @@ class BlocoRolavel(RelativeLayout):
         self.scroll_view.bar_inactive_alpha = 0
         self.scroll_view.bar_color = [1, 1, 1, 0.8]
         self.scroll_view.effect_cls = 'ScrollEffect'
-        self.total_height = self.height + spacing
-        self.spacing = spacing
+        self.total_height = 0 
         self.widgets = list()
     
     def set_y_scroll_top(self):
@@ -120,24 +119,25 @@ class BlocoRolavel(RelativeLayout):
         self.widgets.append(widget)
         self.__redefine_pos()
         self.total_height += widget.height
-        self.scrollable_layout.height = max(self.total_height, self.height)
+        self.scrollable_layout.height = max(self.total_height, self.height*2)
         self.scroll_view.scroll_y = 0
 
     def __redefine_pos(self):
         self.scrollable_layout.clear_widgets()
         total = self.total_height
         for widget in self.widgets:
-            widget.pos[1] = total
+            widget.pos[1] = total - widget.height
             self.scrollable_layout.add_widget(widget)
-            total -= widget.height + self.spacing
+            total -= widget.height
        
     def remove(self, widget):
         # Remove o widget do layout scrollable_layout
-        self.total_height -= widget.height + self.spacing
+        self.total_height -= widget.height
         self.scrollable_layout.remove_widget(widget)
-        self.scrollable_layout.height = max(self.total_height, self.height)
+        self.scrollable_layout.height = max(self.total_height, self.height*2)
     
     def clearWidgets(self):
+        self.widgets = list()
         self.total_height = 0
         self.scrollable_layout.clear_widgets()
-        self.scrollable_layout.height = max(self.total_height, self.height)
+        self.scrollable_layout.height = max(self.total_height, self.height*2)
