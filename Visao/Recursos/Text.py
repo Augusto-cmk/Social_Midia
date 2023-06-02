@@ -28,9 +28,14 @@ class Text(TextInput):
         self.cursor_color = [*cursorColor]
         self.max_caracter = max_caracter
         self.only_number = only_number
+        self.tab_press = False
 
     def get_text(self):
-        return self.text
+        return self.text.strip()
+
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        if keycode[1] != 'tab':
+            return super().keyboard_on_key_down(window, keycode, text, modifiers)
 
     def keyboard_on_textinput(self, window, text):
         if len(self.text) < self.max_caracter and self.__is_number(text):

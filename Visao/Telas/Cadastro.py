@@ -7,13 +7,11 @@ from Visao.Recursos.Text import Text
 from Visao.Recursos.Geometry import Geometry
 from Visao.Recursos.checkbox import Interactive_Checkbox
 from Controle.Envio_email import envioEmail
-from Visao.Recursos.Popup import Confirmar_Email,Alerta
+from Visao.Recursos.Popup import Alerta
 from Visao.Recursos.choose_file import Choose_file
 import cv2
 from Comunication.mensagem import serialize
 from Comunication.cliente import Cliente
-import sys
-from Controle.entrada import controleEntrada
 
 class TelaCadastro(Screen):
     def __init__(self,screenManager,**kw):
