@@ -12,6 +12,9 @@ import os
 class GerenciadorTelas(ScreenManager):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
+        caminho_pasta = 'temp'
+        if not os.path.exists(caminho_pasta):
+            os.mkdir(caminho_pasta)
         arquivos = os.listdir("temp")
         for arquivo in arquivos:
             os.remove(f"temp/{arquivo}")
