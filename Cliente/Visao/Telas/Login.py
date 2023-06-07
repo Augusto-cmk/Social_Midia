@@ -12,14 +12,13 @@ from Modelo.user import User
 
 
 class TelaLogin(Screen):
-    def __init__(self,screenManager,**kw):
+    def __init__(self,screenManager,alerta=None,**kw):
         super().__init__(**kw)
         self.screenManager = screenManager
         self.cliente:Cliente = self.screenManager.get_client()
         self.rl = RelativeLayout() # Layout relativo, cujas estruturas requerem que uma localização seja inserida para os objetos inseridos
         caixaLogin = Bloco(0.7,0.5,{'center_x':0.5,'center_y':0.5})
-        caixaLogin.setFormat('retangulo_arredondado',(1,1,1,1))
-        
+        caixaLogin.setFormat('retangulo_arredondado',(1,1,1,1))            
         fundo = BoxImage('retangulo','Imagens/Fundo2.jpg',size_hint=(1,1),pos_hint={'center_x':0.5,'center_y':0.5})
         self.rl.add_widget(fundo)
 
@@ -50,6 +49,8 @@ class TelaLogin(Screen):
         caixaLogin.insertWidget(logo)
 
         self.rl.add_widget(caixaLogin)
+        if alerta:
+            self.rl.add_widget(alerta)
         self.add_widget(self.rl)
 
     def exibirSenha(self,status):

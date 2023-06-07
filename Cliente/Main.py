@@ -6,8 +6,8 @@ from Visao.Telas.Chat import TelaChat
 from Visao.Telas.Feed import TelaFeed
 from Comunication.cliente import Cliente
 from kivy.core.window import Window
-import sys
 import os
+import signal
 
 class GerenciadorTelas(ScreenManager):
     def __init__(self,**kwargs):
@@ -28,9 +28,6 @@ class GerenciadorTelas(ScreenManager):
 
     def get_client(self):
         return self.cliente
-    
-    def close_cliet(self):
-        self.cliente.stop_client()
 
 
 class BrainCase(App):
@@ -41,7 +38,6 @@ class BrainCase(App):
         return self.gerenciador
 
     def on_request_close(self, *args):
-        self.gerenciador.close_cliet()
-        sys.exit(0)
+        os.kill(os.getpid(),signal.SIGTERM)
 
 BrainCase().run()

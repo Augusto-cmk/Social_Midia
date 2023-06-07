@@ -1,21 +1,9 @@
-ifeq ($(OS), Windows_NT)
 run:
-	python servidor.py
+	venv/bin/python3 servidor.py
 
 install:
-	pip install -r requirements.txt
+	venv/bin/pip3 install -r requirements.txt
 
-build:
-	python setup.py build bdist_wheel
-
-else
-run:
-	python3 Main.py
-
-install:
-	pip3 install -r requirements.txt
-
-build:
-	python3 setup.py build bdist_wheel
-
-endif
+venv:
+	sudo apt-get install python3.8-venv
+	python3 -m venv venv

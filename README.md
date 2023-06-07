@@ -16,9 +16,21 @@ Este projeto é uma rede social que permite aos usuários se conectarem, compart
 ## Tecnologias utilizadas
   - Python
 
-## Instalação
-1. Clone este repositório: `git clone [URL do repositório]`
-2. Entre na pasta do projeto: `cd [Nome da Rede Social]`
-3. Instale as dependências: `npm install`
-4. Inicie o servidor: `npm start`
-5. Abra o navegador e acesse `http://localhost:3000`
+## Execução
+
+### Criando ambiente virtual python para o servidor e instalando as bibliotecas
+1. Abra a pasta Servidor no terminal linux e execute o comando 'make venv'
+2. Execute o comando 'make install', para instalar todas as dependencias no ambiente virtual
+
+## Execução do processo Servidor
+1. Não esqueça de executar primeiramente o passo de criação do ambiente virtual
+2. Abra a pasta Servidor no terminal linux e execute o comando 'make run'
+
+### Criando ambiente virtual python para o cliente e instalando as bibliotecas
+1. Abra a pasta Cliente no terminal linux e execute o comando 'make venv'
+2. Execute o comando 'make install', para instalar todas as dependencias no ambiente virtual
+
+### Execução do processo Cliente
+1. Execute primeiro as instruções de execução do servidor
+2. Não esqueça de executar primeiramente o passo de criação do ambiente virtual
+3. Abra a pasta Cliente no terminal linux e execute o comando 'make run'

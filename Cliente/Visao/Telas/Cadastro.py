@@ -224,48 +224,53 @@ class TelaCadastro(Screen):
         # Código de confirmação de e-mail
         atributos_necessarios = [self.email.get_text(),self.senha.get_text(),self.nome.get_text(),self.dia_aniversario.get_text(),self.mes_aniversario.get_text(),self.ano_aniversario.get_text()]
         erros = ["O campo de email é obrigatorio","O campo de senha é obrigatorio","O campo do nome é obrigatorio","O campo dia do aniversário é obrigatorio","O campo mes do aniversário é obrigatorio","O campo ano do aniversário é obrigatorio"]
+        erro = False
         for i,atributo in enumerate(atributos_necessarios):
             if atributo == '':
                 alerta = Alerta()
                 alerta.start("Erro",erros[i])
                 self.rl.add_widget(alerta)
-
-        email = self.email.get_text()
-        envioEmail(email,"Confirmação de e-mail",None,'confirmar')
-        #_______________________________________________________________________________________________
-        try:
-            imagem = cv2.imread(self.dir_img)
-        except Exception:
-            imagem = cv2.imread("Imagens/foto_perfil.jpg")
-        cadastro = {
-            "person":
-            {
-            "name":self.nome.get_text(),
-            "birthday":f"{self.dia_aniversario.get_text()}/{self.mes_aniversario.get_text()}/{self.ano_aniversario.get_text()}",
-            "email":self.email.get_text(),
-            "password": self.senha.get_text(),
-            "photo": serialize(imagem).decode('latin1'),
-            "state": self.estado.get_text(),
-            "city": self.cidade.get_text()
-            },
-            "status":{
-                "profession": self.profissao.get_text(),
-                "university": self.universidade.get_text(),
-                "course": self.curso.get_text(),
-                "web_site": self.website.get_text(),
-                "linkedin": self.linkedin.get_text()
-            },
-            "route":"cadastro"
-        }
-        self.cliente.input_mensage(cadastro)
-        resposta = self.cliente.get_msg_server()
-        if resposta == True:
-            self.clear_widgets()
-            self.add_widget(self.screenManager.go_to('login')(self.screenManager))
-        else:
-            alerta = Alerta()
-            alerta.start("Erro","Houve um erro ao efetuar o cadastro, favor verificar os campos novamente!")
-            self.rl.add_widget(alerta)
+                erro = True
+        
+        if not erro:
+            email = self.email.get_text()
+            envioEmail(email,"Confirmação de e-mail",None,'confirmar')
+            #_______________________________________________________________________________________________
+            try:
+                imagem = cv2.imread(self.dir_img)
+            except Exception:
+                imagem = cv2.imread("Imagens/foto_perfil.jpg")
+            cadastro = {
+                "person":
+                {
+                "name":self.nome.get_text(),
+                "birthday":f"{self.dia_aniversario.get_text()}/{self.mes_aniversario.get_text()}/{self.ano_aniversario.get_text()}",
+                "email":self.email.get_text(),
+                "password": self.senha.get_text(),
+                "photo": serialize(imagem).decode('latin1'),
+                "state": self.estado.get_text(),
+                "city": self.cidade.get_text()
+                },
+                "status":{
+                    "profession": self.profissao.get_text(),
+                    "university": self.universidade.get_text(),
+                    "course": self.curso.get_text(),
+                    "web_site": self.website.get_text(),
+                    "linkedin": self.linkedin.get_text()
+                },
+                "route":"cadastro"
+            }
+            self.cliente.input_mensage(cadastro)
+            resposta = self.cliente.get_msg_server()
+            if resposta == True:
+                self.clear_widgets()
+                alerta = Alerta()
+                alerta.start("Sucesso","Cadastro efetuado com sucesso!")
+                self.add_widget(self.screenManager.go_to('login')(self.screenManager,alerta))
+            else:
+                alerta = Alerta()
+                alerta.start("Erro","Houve um erro ao efetuar o cadastro, favor verificar os campos novamente!")
+                self.rl.add_widget(alerta)
     
     def voltar(self):
         self.clear_widgets()

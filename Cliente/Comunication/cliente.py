@@ -66,10 +66,3 @@ class Cliente:
         self.is_running = True
         self.thread_client_server.start()
         self.thread_client_to_server.start()
-
-    def stop_client(self):
-        self.is_running = False
-        # Aguarda as threads serem encerradas
-        self.thread_client_server.join()
-        self.thread_client_to_server.join()
-        self.cliente.close()
