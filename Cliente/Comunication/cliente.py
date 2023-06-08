@@ -3,6 +3,7 @@ from threading import Thread
 from Comunication.mensagem import serialize, deserialize,fragment_msg
 import queue
 import sys
+import time
 
 class Cliente:
     def __init__(self) -> None:
@@ -14,27 +15,28 @@ class Cliente:
         self.cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.mensagem_to_send = queue.Queue()
         self.mensagem_recived = queue.Queue()
-        self.is_running = False
+        self.resposta_servidor = queue.Queue()
 
     def input_mensage(self, mensagem):
         msg_serialized = serialize(mensagem)
-        self.mensagem_to_send.put(serialize({"size_buffer":sys.getsizeof(msg_serialized)}))
+        self.cliente.send(serialize({"size_buffer":sys.getsizeof(msg_serialized)}))
         fragmentos = fragment_msg(msg_serialized,4096)
-        for fragmento in fragmentos:
-            self.mensagem_to_send.put(fragmento)
+        self.mensagem_to_send.put_nowait(fragmentos)
 
     def __client_to_server(self):
-        while self.is_running:
+        while True:
             try:
-                self.cliente.send(self.mensagem_to_send.get())
-            except ConnectionResetError:
+                fragmentos = self.mensagem_to_send.get()
+                for fragmento in fragmentos:
+                    self.cliente.send(fragmento)
+            except ConnectionRefusedError:
                 print("[INFO] O Servidor desconectou-se")
                 break
 
     def __server_to_client(self):
         buffer = b""
         expected_size = sys.maxsize
-        while self.is_running:
+        while True:
             try:
                 data = self.cliente.recv(4096)
                 if data:
@@ -47,22 +49,28 @@ class Cliente:
                             self.mensagem_recived.put(msg)
                             expected_size = sys.maxsize
                             buffer = b""
+                
+                else:
+                    print("[INFO] O Servidor desconectou-se")
+                    break    
 
-            except ConnectionResetError:
+            except Exception:
                 print("[INFO] O Servidor desconectou-se")
                 break
     
     def get_msg_server(self):
-        return self.mensagem_recived.get()
+        try:
+            return self.mensagem_recived.get(timeout=10)
+        except Exception:
+            return None
 
     def start(self):
         try:
             self.cliente.connect(self.addr)
 
-        except ConnectionRefusedError:
+        except Exception:
             print("[INFO] O servidor está desconectado")
             return
-
-        self.is_running = True
+        
         self.thread_client_server.start()
         self.thread_client_to_server.start()

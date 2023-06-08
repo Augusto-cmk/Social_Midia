@@ -38,6 +38,6 @@ class BrainCase(App):
         return self.gerenciador
 
     def on_request_close(self, *args):
-        os.kill(os.getpid(),signal.SIGTERM)
+        os.kill(os.getpid(),signal.SIGKILL)
 
 BrainCase().run()

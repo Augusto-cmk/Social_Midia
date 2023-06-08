@@ -3,6 +3,7 @@ run:
 
 install:
 	sudo apt-get install python3-tk
+	sudo apt-get install xclip xsel
 	venv/bin/pip3 install -r requirements.txt
 
 venv:

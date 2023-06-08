@@ -9,6 +9,7 @@ from Visao.Recursos.Popup import Alerta
 from Controle.Envio_email import envioEmail
 from Comunication.cliente import Cliente
 from Modelo.user import User
+import time
 
 
 class TelaLogin(Screen):
@@ -64,8 +65,6 @@ class TelaLogin(Screen):
         }
         self.cliente.input_mensage(login)
         resposta = self.cliente.get_msg_server()
-
-
         if resposta:
             person = resposta['person']
             status = resposta['status']

@@ -134,12 +134,13 @@ class TelaFeed(Screen):
         self.rl.add_widget(self.search_user)
 
     def action_name_search(self, nome):# O nome vai ser a chave de um dicionário que contém as informações do usuário selecionado,ao entrar nesse método, o nome selecionado vai ser obtido e podemos acessar as informações pelo dicionario e ir para o perfil desse usuário
-        perfil = None
         for person in self.persons:
             if person['name'] == nome:
                 perfil = person
                 break
         
+        self.cliente.input_mensage({'route':'person','id':perfil['id']})
+        perfil = self.cliente.get_msg_server()
         self.visualizar_perfil_usuario(perfil)
 
     def criar_post(self): # Aqui vai dar um self.r.remove_widget(self.feed) e depois abrir um bloco para criar um post
@@ -185,9 +186,10 @@ class TelaFeed(Screen):
     
     def inserir_image_post(self,path:dict):
         path['path'] = Choose_file().get_dir()
-        self.postagem.removeWidget(self.insert_image)
-        image = BoxImage('retangulo',path['path'],size_hint=(.6,.35),pos_hint={'center_x':0.5,'center_y':0.5})
-        self.postagem.insertWidget(image)
+        if path['path'] != ():
+            self.postagem.removeWidget(self.insert_image)
+            image = BoxImage('retangulo',path['path'],size_hint=(.6,.35),pos_hint={'center_x':0.5,'center_y':0.5})
+            self.postagem.insertWidget(image)
 
 
     def restore_to_feed(self):
