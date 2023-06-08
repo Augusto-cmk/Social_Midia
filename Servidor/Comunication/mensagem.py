@@ -18,4 +18,3 @@ def fragment_msg(mensagem,size_required):
         fragmentos.append(fragmento)
     
     return fragmentos
-

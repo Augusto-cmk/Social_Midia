@@ -42,7 +42,10 @@ class PersonRepository:
         persons = self.__session.query(Person).all()
         list_persons = []
         for person in persons:
-            list_persons.append(person.__dict__)
+            list_persons.append(
+                {'id':person.id,
+                 'name':person.name}
+            )
 
         return list_persons
 
