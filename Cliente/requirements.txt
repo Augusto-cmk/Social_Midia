@@ -5,3 +5,4 @@ marshmallow~=3.19.0
 unidecode
 opencv-python
 tk
+netifaces

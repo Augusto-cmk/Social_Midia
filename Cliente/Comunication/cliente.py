@@ -60,7 +60,7 @@ class Cliente:
     
     def get_msg_server(self):
         try:
-            return self.mensagem_recived.get(timeout=10)
+            return self.mensagem_recived.get(timeout=20)
         except Exception:
             return None
 
