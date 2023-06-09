@@ -11,6 +11,138 @@ from src.services.comment_service import CommentService
 from src.services.message_service import MessageService
 import time
 
+class LogicalServer: # Serve para realizar a ação requisitada pelo usuário, ao acessar a posição ele realiza a operação
+    def __init__(self) -> None:
+        self.actions = {"cadastro":self.__cadastro,
+                        "alterar dados usuário":self.__alterar_dados_usuario,
+                        "login":self.__login,
+                        "password":self.__password,
+                        "persons":self.__persons,
+                        "person":self.__person,
+                        "friendship":self.__friendship,
+                        "status":self.__status,
+                        "colaborar":self.__colaborar,
+                        "friend_exist":self.__friend_exist,
+                        "post":self.__post,
+                        "curtir":self.__curtir,
+                        "posts":self.__posts,
+                        "friends":self.__friends,
+                        "close_friendship":self.__close_friendship,
+                        "comment_post":self.__comment_post,
+                        "comments_post":self.__comments_post,
+                        "img_perfil":self.__img_perfil,
+                        "send_msg":self.__send_msg,
+                        "recive_msg":self.__recive_msg
+                        }
+    def get(self,key:str,msg:dict):
+        return self.actions[key](msg)
+
+    def __recive_msg(self,msg:dict):
+        return MessageService().get_messages(msg['author'],msg['destine'])
+
+    def __send_msg(self,msg:dict):
+        return MessageService().send_message(msg['id_envio'],msg['id_recebe'],msg['text'])
+
+    def __img_perfil(self,msg:dict):
+        return PersonService().get_person(msg['id'])['photo']
+
+    def __comments_post(self,msg:dict):
+        return PostService().get_comments(msg['id_post'])
+
+    def __comment_post(self,msg:dict):
+        return CommentService().insert_comment(msg['post_id'],msg['person_id'],msg['text'])
+
+    def __close_friendship(self,msg:dict):
+        return FriendService().delete_friends(msg['id_user'],msg['id_perfil'])
+
+    def __friends(self,msg:dict):
+        return PersonService().get_friends_person(msg['id'])
+
+    def __posts(self,msg:dict):
+        return PostService().get_posts(msg['id'])
+    
+    def __curtir(self,msg:dict):
+        return PostService().curtir_post(msg['id'])
+
+    def __post(self,msg:dict):
+        try:
+            PostService().create_post(msg['info_post'])
+            return True
+        except Exception:
+            return False
+
+    def __friend_exist(self,msg:dict):
+        try:
+            id = msg['id_user']
+            friends = PersonService().get_friends_person(id)
+            ids = [friend['id'] for friend in friends]
+            return msg['id_perfil'] in ids
+        except Exception:
+            return False
+
+    def __colaborar(self,msg:dict):
+        try:
+            FriendService().create_friends(msg['id_user'],msg['id_perfil'])
+            return True
+        except Exception:
+            return False
+
+    def __status(self,msg:dict):
+        status = PersonStatusService().get_person_status(msg['id'])
+        return status
+    
+    def __friendship(self,msg:dict):
+        try:
+            colaborando = PersonService().get_len_colaborando(msg['id'])
+            colaboradores = PersonService().get_colaboradores_count(msg['id'])
+        except Exception:
+            colaboradores = 0
+            colaborando = 0
+
+        return {'colaborando':colaborando,'colaboradores':colaboradores}
+
+    def __person(self,msg:dict):
+        return PersonService().get_person(msg['id'])
+    
+    def __persons(self,msg:dict):
+        persons = PersonService().get_persons_all()
+        return persons
+
+    def __cadastro(self,msg:dict):
+        try:
+            person_service = PersonService()
+            person_service.register_person(msg["person"])
+            person_id = person_service.id_person(msg["person"]["email"], msg["person"]["password"])
+            person_status_service = PersonStatusService()
+            person_status_service.create_status_person(person_id, msg['status'])
+            return True
+        except Exception:
+            return False
+    
+    def __password(self,msg:dict):
+        email = msg['email']
+        password = PersonService().get_password_person(email)
+        return password
+
+    def __login(self,msg:dict):
+        email = msg['email']
+        senha = msg['password']
+        try:
+            id = PersonService().id_person(email, senha)
+            person = PersonService().get_person(id)
+            status = PersonStatusService().get_person_status(id)
+            colaborando = PersonService().get_len_colaborando(id)
+            colaboradores = PersonService().get_colaboradores_count(id)
+            return {'person': person, 'status': status,'colaborando':colaborando,'colaboradores':colaboradores}
+        except Exception:
+            return None
+
+    def __alterar_dados_usuario(self,msg:dict):
+        id = PersonService().id_person(msg["old"]["email"], msg["old"]["senha"])
+        perfil_atualizado = PersonService().refresh_perfil(id,msg['person'])
+        status_atualizado = PersonStatusService().refresh_status(id,msg['status'])
+        return perfil_atualizado and status_atualizado
+
 class Server:
     def __init__(self) -> None:
         self.ip = socket.gethostbyname(socket.gethostname())
@@ -21,7 +153,7 @@ class Server:
         self.conexoes = {}
         self.server_client = Thread(target=self.__server_to_client)
         self.mensagens = queue.Queue()
-        self.clientes = {}
+        self.ServerAction = LogicalServer()
 
     def start(self):
         print("[INFO] Servidor Iniciado")
@@ -39,113 +171,7 @@ class Server:
             # Realizar o tratamento da mensagem
             try:
                 path = msg['route']
-                if path == "cadastro":
-                    try:
-                        person_service = PersonService()
-                        person_service.register_person(msg["person"])
-                        person_id = person_service.id_person(msg["person"]["email"], msg["person"]["password"])
-                        person_status_service = PersonStatusService()
-                        person_status_service.create_status_person(person_id, msg['status'])
-                        retorno_servidor = True
-                    except Exception:
-                        retorno_servidor = False
-
-                elif path == "alterar dados usuário":
-                    id = PersonService().id_person(msg["old"]["email"], msg["old"]["senha"])
-                    perfil_atualizado = PersonService().refresh_perfil(id,msg['person'])
-                    status_atualizado = PersonStatusService().refresh_status(id,msg['status'])
-                    retorno_servidor = perfil_atualizado and status_atualizado
-
-                elif path == "login":
-                    email = msg['email']
-                    senha = msg['password']
-                    try:
-                        id = PersonService().id_person(email, senha)
-                        self.clientes[id] = self.conexoes[addr]
-                        person = PersonService().get_person(id)
-                        status = PersonStatusService().get_person_status(id)
-                        colaborando = PersonService().get_len_colaborando(id)
-                        colaboradores = PersonService().get_colaboradores_count(id)
-                        retorno_servidor = {'person': person, 'status': status,'colaborando':colaborando,'colaboradores':colaboradores}
-                    except Exception:
-                        retorno_servidor = None
-                
-                elif path == "password":
-                    email = msg['email']
-                    password = PersonService().get_password_person(email)
-                    retorno_servidor = password
-
-                elif path == "persons":
-                    persons = PersonService().get_persons_all()
-                    retorno_servidor = persons
-                
-                elif path == 'person':
-                    retorno_servidor = PersonService().get_person(msg['id'])
-
-                elif path == "friendship":
-                    try:
-                        colaborando = PersonService().get_len_colaborando(msg['id'])
-                        colaboradores = PersonService().get_colaboradores_count(msg['id'])
-                    except Exception:
-                        colaboradores = 0
-                        colaborando = 0
-
-                    retorno_servidor = {'colaborando':colaborando,'colaboradores':colaboradores}
-
-                elif path == "status":
-                    status = PersonStatusService().get_person_status(msg['id'])
-                    retorno_servidor = status
-                
-                elif path == "colaborar":
-                    try:
-                        FriendService().create_friends(msg['id_user'],msg['id_perfil'])
-                        retorno_servidor = True
-                    except Exception:
-                        retorno_servidor = False
-                
-                elif path == "friend_exist":
-                    try:
-                        id = msg['id_user']
-                        friends = PersonService().get_friends_person(id)
-                        ids = [friend['id'] for friend in friends]
-                        retorno_servidor = msg['id_perfil'] in ids
-                    except Exception:
-                        retorno_servidor = False
-                
-                elif path == "post":
-                    try:
-                        PostService().create_post(msg['info_post'])
-                        retorno_servidor = True
-                    except Exception:
-                        retorno_servidor = False
-                
-                elif path == "curtir":
-                    retorno_servidor = PostService().curtir_post(msg['id'])
-                
-                elif path == "posts":
-                    retorno_servidor = PostService().get_posts(msg['id'])
-                
-                elif path == 'friends':
-                    retorno_servidor = PersonService().get_friends_person(msg['id'])
-
-                elif path == "close_friendship":
-                    retorno_servidor = FriendService().delete_friends(msg['id_user'],msg['id_perfil'])
-                
-                elif path == "comment_post":
-                    retorno_servidor = CommentService().insert_comment(msg['post_id'],msg['person_id'],msg['text'])
-                
-                elif path == "comments_post":
-                    retorno_servidor = PostService().get_comments(msg['id_post'])
-                
-                elif path == "img_perfil":
-                    retorno_servidor = PersonService().get_person(msg['id'])['photo']
-                
-                elif path == "send_msg":
-                    retorno_servidor = MessageService().send_message(msg['id_envio'],msg['id_recebe'],msg['text'])
-                
-                elif path == "recive_msg":
-                    retorno_servidor = MessageService().get_messages(msg['author'],msg['destine'])
-                
+                retorno_servidor = self.ServerAction.get(path,msg)
                 # ------------------------------
                 # Depois, mandar a mensagem para o cliente
                 msg_serialized = serialize(retorno_servidor)
@@ -153,7 +179,6 @@ class Server:
 
                 fragmentos = fragment_msg(msg_serialized, 4096)
                 time.sleep(0.1)
-                # print(fragmentos)
                 for fragmento in fragmentos:
                     self.conexoes[addr].send(fragmento)
             except KeyError:
