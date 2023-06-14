@@ -8,7 +8,6 @@ from src.services.person_status_service import PersonStatusService
 
 class ClientNameServer:
     def __init__(self) -> None:        
-        # obtém a referência para o objeto remoto de person
         pyro.config.SERVERTYPE = "localhost"
         pyro.config.PORT = 5000
         pyro.config.HOST = "braincase"
