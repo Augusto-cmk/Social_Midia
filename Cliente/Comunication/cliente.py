@@ -1,76 +1,43 @@
-import socket
-from threading import Thread
-from Comunication.mensagem import serialize, deserialize,fragment_msg
-import queue
-import sys
-import time
+import Pyro5.api as pyro
+from src.services.person_service import PersonService
+from src.services.post_service import PostService
+from src.services.comment_service import CommentService
+from src.services.message_service import MessageService
+from src.services.friend_service import FriendService
+from src.services.person_status_service import PersonStatusService
 
-class Cliente:
-    def __init__(self) -> None:
-        self.porta = 8080
-        self.ip_servidor = socket.gethostbyname(socket.gethostname())
-        self.addr = (self.ip_servidor, self.porta)
-        self.thread_client_server = Thread(target=self.__server_to_client)
-        self.thread_client_to_server = Thread(target=self.__client_to_server)
-        self.cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.mensagem_to_send = queue.Queue()
-        self.mensagem_recived = queue.Queue()
-        self.resposta_servidor = queue.Queue()
+class ClientNameServer:
+    def __init__(self) -> None:        
+        # obtém a referência para o objeto remoto de person
+        pyro.config.SERVERTYPE = "localhost"
+        pyro.config.PORT = 5000
+        pyro.config.HOST = "braincase"
 
-    def input_mensage(self, mensagem):
-        msg_serialized = serialize(mensagem)
-        self.cliente.send(serialize({"size_buffer":sys.getsizeof(msg_serialized)}))
-        fragmentos = fragment_msg(msg_serialized,4096)
-        self.mensagem_to_send.put_nowait(fragmentos)
+        classes = ["person","post","comment","message","friend","person_status"]
+        name_server = pyro.locate_ns()
+        uris = [name_server.lookup(classe) for classe in classes]
+        services_aux = [pyro.Proxy(uri) for uri in uris]
+        self.services = {}
+        for classe,service in zip(classes,services_aux):
+            services_aux[classe] = service
 
-    def __client_to_server(self):
-        while True:
-            try:
-                fragmentos = self.mensagem_to_send.get()
-                for fragmento in fragmentos:
-                    self.cliente.send(fragmento)
-            except ConnectionRefusedError:
-                print("[INFO] O Servidor desconectou-se")
-                break
-
-    def __server_to_client(self):
-        buffer = b""
-        expected_size = sys.maxsize
-        while True:
-            try:
-                data = self.cliente.recv(4096)
-                if data:
-                    if expected_size == sys.maxsize:
-                        expected_size = deserialize(data)['size_buffer']
-                    else:
-                        buffer += data
-                        if sys.getsizeof(buffer) >= expected_size:
-                            msg = deserialize(buffer)
-                            self.mensagem_recived.put(msg)
-                            expected_size = sys.maxsize
-                            buffer = b""
-                
-                else:
-                    print("[INFO] O Servidor desconectou-se")
-                    break    
-
-            except Exception:
-                print("[INFO] O Servidor desconectou-se")
-                break
+    def get_person_service(self)->PersonService:
+        return self.services['person']
     
-    def get_msg_server(self):
-        try:
-            return self.mensagem_recived.get(timeout=20)
-        except Exception:
-            return None
+    def get_post_service(self)->PostService:
+        return self.services['post']
+    
+    def get_comment_service(self)->CommentService:
+        return self.services['comment']
 
-    def start(self):
-        try:
-            self.cliente.connect(self.addr)
+    def get_message_service(self)->MessageService:
+        return self.services['message']
 
-        except Exception:
-            print("[INFO] O servidor está desconectado")
-            return
-        
-        self.thread_client_server.start()
-        self.thread_client_to_server.start()
+    def get_friend_service(self)->FriendService:
+        return self.services['friend']
+
+    def get_person_status_service(self)->PersonStatusService:
+        return self.services['person_status']
+
+
+cliente = ClientNameServer()
