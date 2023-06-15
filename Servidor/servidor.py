@@ -8,9 +8,9 @@ from src.services.person_status_service import *
 
 class NameServer:
     def __init__(self) -> None:
-        pyro.config.SERVERTYPE = "braincase"
+        pyro.config.SERVERTYPE = "thread"
         pyro.config.HOST = "localhost"
-        pyro.config.PORT = 5000
+        pyro.config.NS_PORT = 5000
         # Inicia o name server
         pyro.start_ns()
         # criando instâncias para as services
@@ -26,4 +26,6 @@ class NameServer:
 
     def start(self):
         self.deamon.requestLoop()
+
+NameServer().start()
 

@@ -7,10 +7,10 @@ from src.services.friend_service import FriendService
 from src.services.person_status_service import PersonStatusService
 
 class ClientNameServer:
-    def __init__(self) -> None:        
-        pyro.config.SERVERTYPE = "localhost"
-        pyro.config.PORT = 5000
-        pyro.config.HOST = "braincase"
+    def __init__(self) -> None:
+        pyro.config.SERVERTYPE = "thread"
+        pyro.config.NS_PORT = 5000
+        pyro.config.HOST = "localhost"
 
         classes = ["person","post","comment","message","friend","person_status"]
         name_server = pyro.locate_ns()
@@ -37,6 +37,3 @@ class ClientNameServer:
 
     def get_person_status_service(self)->PersonStatusService:
         return self.services['person_status']
-
-
-cliente = ClientNameServer()
