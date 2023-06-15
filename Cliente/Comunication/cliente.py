@@ -18,7 +18,7 @@ class ClientNameServer:
         services_aux = [pyro.Proxy(uri) for uri in uris]
         self.services = {}
         for classe,service in zip(classes,services_aux):
-            services_aux[classe] = service
+            self.services[classe] = service
 
     def get_person_service(self)->PersonService:
         return self.services['person']
