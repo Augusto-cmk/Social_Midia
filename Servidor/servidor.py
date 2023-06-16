@@ -1,4 +1,4 @@
-import Pyro5.api as pyro
+import Pyro5.api
 from src.services.person_service import *
 from src.services.post_service import *
 from src.services.comment_service import *
@@ -6,26 +6,44 @@ from src.services.message_service import *
 from src.services.friend_service import *
 from src.services.person_status_service import *
 
-class NameServer:
-    def __init__(self) -> None:
-        pyro.config.SERVERTYPE = "thread"
-        pyro.config.HOST = "localhost"
-        pyro.config.NS_PORT = 5000
-        # Inicia o name server
-        pyro.start_ns()
-        # criando instâncias para as services
-        services = [PersonService(),PostService(),CommentService(),MessageService(),FriendService(),PersonStatusService()]
-        # Configurando o objeto Pyro e registando os serviços no nameserver
-        self.deamon = pyro.Daemon()
-        uris = [self.deamon.register(service) for service in services]
 
-        name_server = pyro.locate_ns()
-        classes = ["person","post","comment","message","friend","person_status"]
-        for classe,uri in zip(classes,uris):
-            name_server.register(classe,uri)
+class Server:
+    def __init__(self):
+        Pyro5.config.SERVERTYPE = "multiplex"
+        self.daemon = Pyro5.api.Daemon()
+
+    def register_services(self):
+        person_service = PersonService()
+        post_service = PostService()
+        comment_service = CommentService()
+        message_service = MessageService()
+        friend_service = FriendService()
+        person_status_service = PersonStatusService()
+
+        person_uri = self.daemon.register(person_service)
+        post_service_uri = self.daemon.register(post_service)
+        comment_service_uri = self.daemon.register(comment_service)
+        message_service_uri = self.daemon.register(message_service)
+        friend_service_uri = self.daemon.register(friend_service)
+        person_status_service_uri = self.daemon.register(person_status_service)
+
+        ns = Pyro5.api.locate_ns(host="localhost", port=9999)
+
+        ns.register("person", person_uri)
+        ns.register("post_service", post_service_uri)
+        ns.register("comment_service", comment_service_uri)
+        ns.register("message_service", message_service_uri)
+        ns.register("friend_service", friend_service_uri)
+        ns.register("person_status_service", person_status_service_uri)
 
     def start(self):
-        self.deamon.requestLoop()
+        print("Servidor pronto para aceitar conexões.")
+        self.daemon.requestLoop()
 
-NameServer().start()
 
+# Exemplo de uso
+
+if __name__ == "__main__":
+    server = Server()
+    server.register_services()
+    server.start()
