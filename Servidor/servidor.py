@@ -20,7 +20,7 @@ class Server:
         friend_service = FriendService()
         person_status_service = PersonStatusService()
 
-        person_uri = self.daemon.register(person_service)
+        person_service_uri = self.daemon.register(person_service)
         post_service_uri = self.daemon.register(post_service)
         comment_service_uri = self.daemon.register(comment_service)
         message_service_uri = self.daemon.register(message_service)
@@ -29,7 +29,7 @@ class Server:
 
         ns = Pyro5.api.locate_ns(host="localhost", port=9999)
 
-        ns.register("person", person_uri)
+        ns.register("person_service", person_service_uri)
         ns.register("post_service", post_service_uri)
         ns.register("comment_service", comment_service_uri)
         ns.register("message_service", message_service_uri)
@@ -42,7 +42,6 @@ class Server:
 
 
 # Exemplo de uso
-
 if __name__ == "__main__":
     server = Server()
     server.register_services()
