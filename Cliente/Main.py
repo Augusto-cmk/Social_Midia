@@ -4,7 +4,7 @@ from Visao.Telas.Login import TelaLogin
 from Visao.Telas.Cadastro import TelaCadastro
 from Visao.Telas.Chat import TelaChat
 from Visao.Telas.Feed import TelaFeed
-from Comunication.cliente import ClientNameServer
+from Comunication.cliente import Client
 from kivy.core.window import Window
 import os
 import signal
@@ -19,8 +19,10 @@ class GerenciadorTelas(ScreenManager):
         for arquivo in arquivos:
             os.remove(f"temp/{arquivo}")
         self.telas = {'login':TelaLogin,'cadastro':TelaCadastro,'chat':TelaChat,'feed':TelaFeed}
-        self.cliente = ClientNameServer()
-        self.add_widget(TelaLogin(self))
+        self.cliente = Client()
+        self.cliente.connect_to_server()
+        print(self.cliente.person_service.get_person(1))
+        # self.add_widget(TelaLogin(self))
 
     def go_to(self,nomeTela):
         return self.telas[nomeTela]

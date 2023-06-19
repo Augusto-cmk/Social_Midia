@@ -11,7 +11,7 @@ from Visao.Recursos.Rolagem import BlocoRolavel
 from random import randint
 from Modelo.user import User, create_image_perfil
 from Visao.Recursos.Text import TextToSearch
-from Comunication.cliente import ClientNameServer
+from Comunication.cliente import Client
 from Visao.Recursos.Rolagem import caixaRolagem
 
 class TelaChat(Screen):
@@ -23,7 +23,7 @@ class TelaChat(Screen):
         self.nome_contato = None
         self.contato = None
         self.screenManager = screenManager
-        self.cliente:ClientNameServer = screenManager.get_client()
+        self.cliente:Client = screenManager.get_client()
         fundo = BoxImage('retangulo','Imagens/Fundo2.jpg',size_hint=(1,1),pos_hint={'center_x':0.5,'center_y':0.5})
         self.rl.add_widget(fundo)
         logo = BoxImage('retangulo',"Imagens/Logo.png",size_hint=(.25,.2),pos_hint={'center_x':0.17,'center_y':0.945})

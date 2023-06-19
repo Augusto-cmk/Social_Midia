@@ -7,7 +7,7 @@ from Visao.Recursos.Text import Text
 from kivy.uix.label import Label
 from Visao.Recursos.Popup import Alerta
 from Controle.Envio_email import envioEmail
-from Comunication.cliente import ClientNameServer
+from Comunication.cliente import Client
 from Modelo.user import User
 import time
 
@@ -16,7 +16,7 @@ class TelaLogin(Screen):
     def __init__(self,screenManager,alerta=None,**kw):
         super().__init__(**kw)
         self.screenManager = screenManager
-        self.cliente:ClientNameServer = self.screenManager.get_client()
+        self.cliente:Client = self.screenManager.get_client()
         self.rl = RelativeLayout() # Layout relativo, cujas estruturas requerem que uma localização seja inserida para os objetos inseridos
         caixaLogin = Bloco(0.7,0.5,{'center_x':0.5,'center_y':0.5})
         caixaLogin.setFormat('retangulo_arredondado',(1,1,1,1))            
@@ -58,13 +58,12 @@ class TelaLogin(Screen):
         self.senha.password = not status
 
     def login(self):
-        login = self.cliente.get_person_service()
-        id_person = login.id_person(self.email.get_text(),self.senha.get_text())
+        id_person = self.cliente.person_service.id_person(self.email.get_text(),self.senha.get_text())
         if id_person:
-            person = login.get_person(id_person)
-            status = self.cliente.get_person_status_service().get_person_status(id_person)
-            colaborando = login.get_len_colaborando(id_person)
-            colaboradores = login.get_len_colaborandores(id_person)
+            person = self.cliente.person_service.get_person(id_person)
+            status = self.cliente.person_status_service.get_person_status(id_person)
+            colaborando = self.cliente.person_service.get_len_colaborando(id_person)
+            colaboradores = self.cliente.person_service.get_len_colaborandores(id_person)
             user = User()
             user.set_nome(person['name'])
             user.set_colaborando(colaborando)

@@ -1,10 +1,10 @@
 import Pyro5.api
-from src.services.person_service import *
-from src.services.post_service import *
-from src.services.comment_service import *
-from src.services.message_service import *
-from src.services.friend_service import *
-from src.services.person_status_service import *
+from src.services.person_service import PersonService
+from src.services.post_service import PostService
+from src.services.comment_service import CommentService
+from src.services.message_service import MessageService
+from src.services.friend_service import FriendService
+from src.services.person_status_service import PersonStatusService
 
 
 class Server:

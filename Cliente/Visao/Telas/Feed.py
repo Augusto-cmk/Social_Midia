@@ -13,7 +13,7 @@ from Modelo.user import User, create_image_perfil
 from cv2 import imread
 from Comunication.mensagem import serialize
 from Visao.Recursos.Popup import Alerta
-from Comunication.cliente import ClientNameServer
+from Comunication.cliente import Client
 import datetime
 
 
@@ -21,7 +21,7 @@ class TelaFeed(Screen):
     def __init__(self,screenManager,user:User,**kw):
         super().__init__(**kw)
         self.screenManager = screenManager
-        self.cliente:ClientNameServer = self.screenManager.get_client()
+        self.cliente:Client = self.screenManager.get_client()
         self.user = user
         self.rl = RelativeLayout()
 

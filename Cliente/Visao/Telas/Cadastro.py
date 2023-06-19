@@ -11,13 +11,13 @@ from Visao.Recursos.Popup import Alerta
 from Visao.Recursos.choose_file import Choose_file
 import cv2
 from Comunication.mensagem import serialize
-from Comunication.cliente import ClientNameServer
+from Comunication.cliente import Client
 
 class TelaCadastro(Screen):
     def __init__(self,screenManager,**kw):
         super().__init__(**kw)
         self.screenManager = screenManager
-        self.cliente:ClientNameServer = self.screenManager.get_client()
+        self.cliente:Client = self.screenManager.get_client()
 
         self.rl = RelativeLayout() # Layout relativo, cujas estruturas requerem que uma localização seja inserida para os objetos inseridos
         
