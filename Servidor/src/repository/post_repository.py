@@ -1,88 +1,90 @@
 from src.connection.connection import Connection
-from src.models.post import Post
-from src.models.comment import Comment
+
 import json
 
 
 class PostRepository:
-    def __init__(self) -> None:
-        self.__session = Connection().get_session()
+    def __init__(self):
+        self.__connection = Connection().get_connection()
 
-    def _create_post(self,data_post: dict) -> int:
-        post = Post(text=data_post.get('text'),
-                    image=data_post.get('image'),
-                    curtir=data_post.get('curtir'),
-                    date=data_post.get('date'),
-                    author_id=data_post.get('author_id'))
-        post.save()
+    def _create_post(self, data_post: dict) -> int:
+        try:
+            cursor = self.__connection.cursor()
+            cursor.execute(
+                "INSERT INTO post (text, image, curtir, date, author_id) VALUES (?, ?, ?, ?, ?)",
+                (data_post['text'], data_post['image'], data_post['curtir'], data_post['date'], data_post['author_id'])
+            )
+            self.__connection.commit()
+            return cursor.lastrowid
+        except Exception:
+            pass
 
-    def add_like(self,id_post):
-        post = self.__session.query(Post).filter(Post.id == id_post).order_by(Post.date).first()
-        post.curtir += 1
-        self.__session.commit()
-        
+    def add_like(self, id_post):
+        try:
+            cursor = self.__connection.cursor()
+            cursor.execute("UPDATE post SET curtir = curtir + 1 WHERE id = ?", (id_post,))
+            self.__connection.commit()
+        except Exception:
+            pass
 
-    def get_posts_user(self,autor_id)->list:
-        posts = self.__session.query(Post).filter(Post.author_id == autor_id).order_by(Post.date).all()
-        posts_user = []
-        for post in posts:
-            data = {
-                'id':post.id,
-                'text':post.text,
-                'image':post.image,
-                'curtir':post.curtir,
-                'date':post.date,
-                'author_id':post.author_id
-            }
-            posts_user.append(data)
+    def get_posts_user(self, author_id) -> list:
+        cursor = self.__connection.cursor()
+        cursor.execute("SELECT * FROM post WHERE author_id = ? ORDER BY date", (author_id,))
+        result = cursor.fetchall()
+        posts_user = [
+            {
+                "id": row[0],
+                "text": row[1],
+                "image": row[2],
+                "curtir": row[3],
+                "date": row[4],
+                "author_id": row[5]
+            } for row in result
+        ]
         return posts_user
-    
+
     def get_posts_all(self):
-        posts = self.__session.query(Post).all()
-        for post in posts:
-            print(post.text)
+        cursor = self.__connection.cursor()
+        cursor.execute("SELECT * FROM post")
+        result = cursor.fetchall()
+        for row in result:
+            print(row[1])
 
     def get_post_comments(self, post_id: int):
-        post = self.__session.query(Post).get(post_id)
-
-        if post is None:
-            return None
-
-        comments = self.__session.query(Comment).filter(Comment.post_id == post_id).order_by(Comment.date).all()
-
-        comments_data = []
-        for comment in comments:
-            comment_data = {
-                'id': comment.id,
-                'text': comment.text,
-                'post_id': comment.post_id,
-                'person_id': comment.person_id,
-                'date': comment.date.strftime('%Y-%m-%d %H:%M:%S')
-            }
-            comments_data.append(comment_data)
-
+        cursor = self.__connection.cursor()
+        cursor.execute(
+            "SELECT c.id, c.text, c.post_id, c.person_id, c.date "
+            "FROM comment AS c "
+            "WHERE c.post_id = ? "
+            "ORDER BY c.date",
+            (post_id,)
+        )
+        result = cursor.fetchall()
+        comments_data = [
+            {
+                'id': row[0],
+                'text': row[1],
+                'post_id': row[2],
+                'person_id': row[3],
+                'date': row[4].strftime('%Y-%m-%d %H:%M:%S')
+            } for row in result
+        ]
         return json.dumps(comments_data)
 
     def get_ordered_comments(self, post_id: int):
-        post = self.__session.query(Post).get(post_id)
-
-        if post is None:
-            return []
-
-        comments = (
-            self.__session.query(Comment)
-            .filter_by(post_id=post_id)
-            .order_by(Comment.date.asc())
-            .all()
+        cursor = self.__connection.cursor()
+        cursor.execute(
+            "SELECT * FROM comment WHERE post_id = ? ORDER BY date ASC",
+            (post_id,)
         )
-        comments_list = []
-        for comment in comments:
-            comment_dict = {
-                'id': comment.id,
-                'text': comment.text,
-                'date': comment.date,
-                'author_id': comment.person_id,
-                'post_id': comment.post_id
-            }
-            comments_list.append(comment_dict)
+        result = cursor.fetchall()
+        comments_list = [
+            {
+                'id': row[0],
+                'text': row[1],
+                'date': row[2],
+                'author_id': row[3],
+                'post_id': row[4]
+            } for row in result
+        ]
         return comments_list

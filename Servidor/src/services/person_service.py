@@ -21,15 +21,15 @@ class PersonService(PersonRepository):
     
     @Pyro5.api.expose
     def id_person(self, email: str, password: str) -> int:
-        return self._get_person_id(email, password)
+        return self.get_person_id(email, password)
     
     @Pyro5.api.expose
     def get_password_person(self,email)->str:
-        return self._get_person_password(email)
+        return self.get_person_password(email)
     
     @Pyro5.api.expose
     def get_person(self, id):
-        return self._get_person(id)
+        return self.get_person_1(id)
 
     @Pyro5.api.expose
     def get_friends_person(self, id_person):

@@ -9,145 +9,175 @@ import json
 
 class PersonRepository:
     def __init__(self):
-        self.__session = Connection().get_session()
+        self.__connection = Connection().get_connection()
 
     @staticmethod
     def insert_person(data_person: dict) -> None:
-        person = Person(name=data_person.get('name'),
-                        photo=data_person.get('photo'),
-                        email=data_person.get('email'),
-                        password=data_person.get('password'),
-                        state=data_person.get('state'),
-                        city=data_person.get('city'),
-                        birthday=data_person.get('birthday')
-                        )
-        person.save()
-    
-    def refresh_profile(self,id_person,data_person: dict)->bool:
         try:
-            person = self.__session.query(Person).filter(Person.id == id_person).first()
-            person.birthday = data_person['birthday']
-            person.city = data_person['city']
-            person.email = data_person['email']
-            person.name = data_person['name']
-            person.password = data_person['password']
-            person.photo = data_person['photo']
-            person.state = data_person['state']
-            self.__session.commit()
+            connection = Connection().get_connection()
+            cursor = connection.cursor()
+            cursor.execute(
+                "INSERT INTO person (name, photo, email, password, state, city, birthday) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (data_person['name'], data_person['photo'], data_person['email'], data_person['password'],
+                 data_person['state'], data_person['city'], data_person['birthday'])
+            )
+            connection.commit()
+        except Exception:
+            pass
+
+    def refresh_profile(self, id_person, data_person: dict) -> bool:
+        try:
+            cursor = self.__connection.cursor()
+            cursor.execute(
+                "UPDATE person SET birthday = ?, city = ?, email = ?, name = ?, password = ?, photo = ?, state = ? WHERE id = ?",
+                (data_person['birthday'], data_person['city'], data_person['email'], data_person['name'],
+                 data_person['password'], data_person['photo'], data_person['state'], id_person)
+            )
+            self.__connection.commit()
             return True
         except Exception:
             return False
 
     def get_person_all(self) -> list:
-        persons = self.__session.query(Person).all()
-        list_persons = []
-        for person in persons:
-            list_persons.append(
-                {'id':person.id,
-                 'name':person.name}
-            )
-
+        cursor = self.__connection.cursor()
+        cursor.execute("SELECT id, name FROM person")
+        result = cursor.fetchall()
+        list_persons = [
+            {'id': row[0], 'name': row[1]} for row in result
+        ]
         return list_persons
 
-    def _get_person_password(self,email:str)->str:
-        person = self.__session.query(Person).filter_by(email=email).first()
-        if person is None:
-            return None
-        return person.password
-    
+    def _get_person_password(self, email: str) -> str:
+        cursor = self.__connection.cursor()
+        cursor.execute("SELECT password FROM person WHERE email = ?", (email,))
+        result = cursor.fetchone()
+        if result:
+            return result[0]
+        return None
+
     def _get_person_id(self, email: str, password: str) -> int:
-        person = self.__session.query(Person).filter_by(email=email, password=password).first()
+        cursor = self.__connection.cursor()
+        cursor.execute("SELECT id FROM person WHERE email = ? AND password = ?", (email, password))
+        result = cursor.fetchone()
+        if result:
+            return result[0]
+        return None
 
-        if person is None:
-            return None
-
-        return person.id
-
-    def _get_person(self, person_id):
-        person = self.__session.query(Person).filter_by(id=person_id).first()
-        try:
-            return person.__dict__
-        except Exception:
-            return None
+    def get_person_1(self, person_id):
+        cursor = self.__connection.cursor()
+        cursor.execute("SELECT * FROM person WHERE id = ?", (person_id,))
+        result = cursor.fetchone()
+        if result:
+            person = {
+                "id": result[0],
+                "name": result[1],
+                "photo": result[2],
+                "email": result[3],
+                "password": result[4],
+                "state": result[5],
+                "city": result[6],
+                "birthday": result[7]
+            }
+            return person
+        return None
 
     def get_friends_posts(self, person_id: int) -> str:
-        person = self.__session.query(Person).get(person_id)
-
-        if person is None:
-            return None
-
-        friends = self.__session.query(Friend).filter(Friend.person_id == person_id).all()
-        friend_ids = [friend.friend_id for friend in friends]
-
-        posts = self.__session.query(Post).filter(Post.author_id.in_(friend_ids)).order_by(Post.date.desc()).all()
-
+        cursor = self.__connection.cursor()
+        cursor.execute(
+            "SELECT p.id, p.text, p.image, p.likes, p.date, p.author_id "
+            "FROM post AS p "
+            "JOIN friend AS f ON p.author_id = f.friend_id "
+            "WHERE f.person_id = ? "
+            "ORDER BY p.date DESC",
+            (person_id,)
+        )
+        result = cursor.fetchall()
         posts_data = []
-        for post in posts:
+        for row in result:
             post_data = {
-                'id': post.id,
-                'text': post.text,
-                'image': post.image,
-                'likes': post.likes,
-                'date': post.date.strftime('%Y-%m-%d %H:%M:%S'),
-                'author_id': post.author_id
+                'id': row[0],
+                'text': row[1],
+                'image': row[2],
+                'likes': row[3],
+                'date': row[4].strftime('%Y-%m-%d %H:%M:%S'),
+                'author_id': row[5]
             }
             posts_data.append(post_data)
-
         return json.dumps(posts_data)
 
     def like_friend_post(self, person_id: int, post_id: int) -> bool:
-        person = self.__session.query(Person).get(person_id)
-        post = self.__session.query(Post).get(post_id)
-
-        if person is None or post is None:
+        try:
+            cursor = self.__connection.cursor()
+            cursor.execute("UPDATE post SET likes = likes + 1 WHERE id = ?", (post_id,))
+            self.__connection.commit()
+            return True
+        except Exception:
             return False
-
-        post.likes += 1
-        post.save()
-
-        return True
 
     def comment_friend_post(self, person_id: int, post_id: int, text: str) -> bool:
-        person = self.__session.query(Person).get(person_id)
-        post = self.__session.query(Post).get(post_id)
-
-        if person is None or post is None:
+        try:
+            cursor = self.__connection.cursor()
+            cursor.execute(
+                "INSERT INTO comment (person_id, post_id, text) VALUES (?, ?, ?)",
+                (person_id, post_id, text)
+            )
+            self.__connection.commit()
+            return True
+        except Exception:
             return False
-
-        comment = Comment(person=person, post=post, text=text)
-        comment.save()
-
-        return True
 
     def get_friends(self, person_id: int):
-        person = self.__session.query(Person).get(person_id)
-
-        if person is None:
-            return False
-
-        friends = self.__session.query(Person).join(Friend, Friend.friend_id == Person.id).filter(
-            Friend.person_id == person_id).all()
-
-        person_friends = []
-        for friend in friends:
-            person_friends.append(friend.__dict__)
-
+        cursor = self.__connection.cursor()
+        cursor.execute(
+            "SELECT p.* "
+            "FROM person AS p "
+            "JOIN friend AS f ON p.id = f.friend_id "
+            "WHERE f.person_id = ?",
+            (person_id,)
+        )
+        result = cursor.fetchall()
+        person_friends = [
+            {
+                "id": row[0],
+                "name": row[1],
+                "photo": row[2],
+                "email": row[3],
+                "password": row[4],
+                "state": row[5],
+                "city": row[6],
+                "birthday": row[7]
+            } for row in result
+        ]
         return person_friends
 
     def get_person_posts(self, person_id: int) -> list:
-        person = self.__session.query(Person).get(person_id)
-
-        if person is None:
-            return False
-
-        posts = self.__session.query(Post).filter_by(author_id=person_id).all()
-        list_posts = []
-        for p in posts:
-            list_posts.append(p.__dict__)
+        cursor = self.__connection.cursor()
+        cursor.execute("SELECT * FROM post WHERE author_id = ?", (person_id,))
+        result = cursor.fetchall()
+        list_posts = [
+            {
+                "id": row[0],
+                "text": row[1],
+                "image": row[2],
+                "likes": row[3],
+                "date": row[4].strftime('%Y-%m-%d %H:%M:%S'),
+                "author_id": row[5]
+            } for row in result
+        ]
         return list_posts
 
     def get_friends_count(self, person_id: int) -> int:
-        return len(self.get_friends(person_id))
-    
-    def get_colaboradores_count(self,person_id:int)->int:
-        return len(self.__session.query(Friend).filter_by(friend_id=person_id).all())
+        cursor = self.__connection.cursor()
+        cursor.execute("SELECT COUNT(*) FROM friend WHERE person_id = ?", (person_id,))
+        result = cursor.fetchone()
+        if result:
+            return result[0]
+        return 0
+
+    def get_colaboradores_count(self, person_id: int) -> int:
+        cursor = self.__connection.cursor()
+        cursor.execute("SELECT COUNT(*) FROM friend WHERE friend_id = ?", (person_id,))
+        result = cursor.fetchone()
+        if result:
+            return result[0]
+        return 0

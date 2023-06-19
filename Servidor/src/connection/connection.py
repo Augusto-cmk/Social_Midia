@@ -1,22 +1,24 @@
-from typing import Any
-
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import scoped_session, sessionmaker, Session
+import sqlite3
 
 
 class Connection:
     def __init__(self) -> None:
-        self.engine = create_engine('sqlite:///braincase.db')
-        self.db_session = scoped_session(sessionmaker(autocommit=False, bind=self.engine))
+        self.__connection = None
+        self.connect()
+
+    def connect(self) -> None:
+        self.__connection = sqlite3.connect('braincase.db')
         self.create_tables()
 
-    def get_session(self) -> scoped_session[Session]:
-        return self.db_session
+    def get_connection(self) -> sqlite3.Connection:
+        return self.__connection
 
     def create_tables(self) -> None:
-        with self.engine.connect() as connection:
-            statement = text(
-                """
+        with self.__connection:
+            cursor = self.__connection.cursor()
+
+            # Criação da tabela person
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS person (
                     id INTEGER PRIMARY KEY,
                     name VARCHAR(40),
@@ -27,12 +29,10 @@ class Connection:
                     birthday VARCHAR,
                     city VARCHAR
                 )
-                """
-            )
-            connection.execute(statement)
+            """)
 
-            statement = text(
-                """
+            # Criação da tabela friend
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS friend (
                     id INTEGER PRIMARY KEY,
                     person_id INTEGER,
@@ -40,12 +40,10 @@ class Connection:
                     FOREIGN KEY (person_id) REFERENCES person (id),
                     FOREIGN KEY (friend_id) REFERENCES person (id)
                 )
-                """
-            )
-            connection.execute(statement)
+            """)
 
-            statement = text(
-                """
+            # Criação da tabela person_status
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS person_status (
                     id INTEGER PRIMARY KEY,
                     person_id INTEGER,
@@ -56,12 +54,10 @@ class Connection:
                     linkedin VARCHAR,
                     FOREIGN KEY (person_id) REFERENCES person (id)
                 )
-                """
-            )
-            connection.execute(statement)
+            """)
 
-            statement = text(
-                """
+            # Criação da tabela comment
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS comment (
                     id INTEGER PRIMARY KEY,
                     text VARCHAR(255),
@@ -71,12 +67,10 @@ class Connection:
                     FOREIGN KEY (post_id) REFERENCES post (id),
                     FOREIGN KEY (person_id) REFERENCES person (id)
                 )
-                """
-            )
-            connection.execute(statement)
+            """)
 
-            statement = text(
-                """
+            # Criação da tabela post
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS post (
                     id INTEGER PRIMARY KEY,
                     text VARCHAR(255),
@@ -86,12 +80,10 @@ class Connection:
                     author_id INTEGER,
                     FOREIGN KEY (author_id) REFERENCES person (id)
                 )
-                """
-            )
-            connection.execute(statement)
+            """)
 
-            statement = text(
-                """
+            # Criação da tabela message
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS message(
                     id INTEGER PRIMARY KEY,
                     text VARCHAR(255),
@@ -101,6 +93,4 @@ class Connection:
                     FOREIGN KEY (author_id) REFERENCES person (id),
                     FOREIGN KEY (destine_id) REFERENCES person (id)
                 )
-                """
-            )
-            connection.execute(statement)
+            """)

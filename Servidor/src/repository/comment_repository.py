@@ -1,26 +1,39 @@
 from src.connection.connection import Connection
-from src.models.comment import Comment
 import sqlite3
 from datetime import datetime
 
 
 class CommentRepository:
+    def __init__(self):
+        self.__connection = Connection().get_connection()
 
-    def __init__(self) -> None:
-        self.__session = Connection().get_session()
-
-    @staticmethod
-    def _create_comment(post_id: int, person_id: int, text: str) -> bool:
+    def _create_comment(self, post_id: int, person_id: int, text: str) -> bool:
         try:
-            comment = Comment(post_id=post_id, person_id=person_id, text=text, date=datetime.now())
-            comment.save()
+            cursor = self.__connection.cursor()
+            date = datetime.now()
+            cursor.execute(
+                "INSERT INTO comment (post_id, person_id, text, date) VALUES (?, ?, ?, ?)",
+                (post_id, person_id, text, date)
+            )
+            self.__connection.commit()
             return True
-        except sqlite3.DataError:
+        except sqlite3.Error:
             return False
 
     def _get_comment(self, id_comment: int) -> dict:
         try:
-            result = self.__session.query(Comment).get(id_comment)
-            return result.__dict__
+            cursor = self.__connection.cursor()
+            cursor.execute("SELECT * FROM comment WHERE id = ?", (id_comment,))
+            result = cursor.fetchone()
+            if result:
+                comment = {
+                    "id": result[0],
+                    "post_id": result[1],
+                    "person_id": result[2],
+                    "text": result[3],
+                    "date": result[4]
+                }
+                return comment
+            return {}
         except sqlite3.Error:
             return {}

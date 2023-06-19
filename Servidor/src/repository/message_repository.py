@@ -1,34 +1,42 @@
 from src.connection.connection import Connection
-from src.models.message import Message
 import sqlite3
 from datetime import datetime
 
 
 class MessageRepository:
-
     def __init__(self) -> None:
-        self.__session = Connection().get_session()
+        self.__connection = Connection().get_connection()
 
-    def _create_message(self,author_id: int, destine_id: int, text: str) -> bool:
+    def create_message(self, author_id: int, destine_id: int, text: str) -> bool:
         try:
-            message = Message(author_id=author_id, destine_id=destine_id, text=text, date=datetime.now())
-            message.save()
+            cursor = self.__connection.cursor()
+            date = datetime.now()
+            cursor.execute(
+                "INSERT INTO message (author_id, destine_id, text, date) VALUES (?, ?, ?, ?)",
+                (author_id, destine_id, text, date)
+            )
+            self.__connection.commit()
             return True
-        except sqlite3.DataError:
+        except sqlite3.Error:
             return False
 
-    def _get_messages(self, id_author: int, id_destine: int) -> list:
+    def obter_messages(self, id_author: int, id_destine: int) -> list:
         try:
-            messages = self.__session.query(Message).filter(Message.author_id == id_author, Message.destine_id == id_destine).all()
-            result = []
-            for message in messages:
-                value = {
-                    "text":message.text,
-                    "author_id":message.author_id,
-                    "destine_id":message.destine_id,
-                    "date":message.date
+            cursor = self.__connection.cursor()
+            cursor.execute(
+                "SELECT * FROM message WHERE author_id = ? AND destine_id = ?",
+                (id_author, id_destine)
+            )
+            results = cursor.fetchall()
+            messages = []
+            for result in results:
+                message = {
+                    "text": result[1],
+                    "author_id": result[2],
+                    "destine_id": result[3],
+                    "date": result[4]
                 }
-                result.append(value)
-            return result
+                messages.append(message)
+            return messages
         except sqlite3.Error:
-            return {}
+            return []

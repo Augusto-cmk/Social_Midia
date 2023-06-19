@@ -4,46 +4,72 @@ import sqlite3
 
 
 class PersonStatusRepository:
-    def __init__(self) -> None:
-        self.__session = Connection().get_session()
+    def __init__(self):
+        self.__connection = Connection().get_connection()
 
     @staticmethod
-    def _insert_person_status(data_person_status: dict, person_id: int) -> bool:
+    def _insert_person_status(self, data_person_status: dict, person_id: int) -> bool:
         try:
-            person_status = PersonStatus(person_id=person_id,
-                                         profession=data_person_status.get("profession"),
-                                         university=data_person_status.get("university"),
-                                         course=data_person_status.get("course"),
-                                         web_site=data_person_status.get("web_site"),
-                                         linkedin=data_person_status.get("linkedin"))
-            person_status.save()
+            cursor = self.__connection.cursor()
+            cursor.execute(
+                "INSERT INTO person_status (person_id, profession, university, course, web_site, linkedin) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (
+                    person_id,
+                    data_person_status.get("profession"),
+                    data_person_status.get("university"),
+                    data_person_status.get("course"),
+                    data_person_status.get("web_site"),
+                    data_person_status.get("linkedin")
+                )
+            )
+            self.__connection.commit()
             return True
         except sqlite3.OperationalError as e:
             return False
 
-    def _update_person_status(self,person_id: str, updated_data: dict) -> bool:
+    def _update_person_status(self, person_id: str, updated_data: dict) -> bool:
         try:
-            status = self.__session.query(PersonStatus).filter(PersonStatus.person_id == person_id).first()
-            status.course = updated_data['course']
-            status.linkedin = updated_data['linkedin']
-            status.profession = updated_data['profession']
-            status.university = updated_data['university']
-            status.web_site = updated_data['university']
-            self.__session.commit()
+            cursor = self.__connection.cursor()
+            cursor.execute(
+                "UPDATE person_status SET course = ?, linkedin = ?, profession = ?, university = ?, web_site = ? "
+                "WHERE person_id = ?",
+                (
+                    updated_data['course'],
+                    updated_data['linkedin'],
+                    updated_data['profession'],
+                    updated_data['university'],
+                    updated_data['web_site'],
+                    person_id
+                )
+            )
+            self.__connection.commit()
             return True
         except Exception:
-            return False        
-    def get_status_person(self, person_id: int) -> bool:
-        person_status = self.__session.query(PersonStatus).filter_by(person_id=person_id).first()
-
-        if person_status is None:
             return False
 
-        return person_status.__dict__
+    def get_status_person(self, person_id: int) -> bool:
+        cursor = self.__connection.cursor()
+        cursor.execute("SELECT * FROM person_status WHERE person_id = ?", (person_id,))
+        result = cursor.fetchone()
+        if result is None:
+            return False
+        person_status = {
+            'id': result[0],
+            'person_id': result[1],
+            'profession': result[2],
+            'university': result[3],
+            'course': result[4],
+            'web_site': result[5],
+            'linkedin': result[6]
+        }
+        return person_status
 
     def _delete_person_status(self, id_person: int) -> bool:
         try:
-            self.__session.query(PersonStatus).filter(PersonStatus.person_id == id_person).delete()
+            cursor = self.__connection.cursor()
+            cursor.execute("DELETE FROM person_status WHERE person_id = ?", (id_person,))
+            self.__connection.commit()
             return True
         except Exception:
             return False
