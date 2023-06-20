@@ -15,9 +15,9 @@ class PostRepository:
                 (data_post['text'], data_post['image'], data_post['curtir'], data_post['date'], data_post['author_id'])
             )
             self.__connection.commit()
-            return cursor.lastrowid
+            return True
         except Exception:
-            pass
+            return False
 
     def add_like(self, id_post):
         try:
@@ -83,8 +83,8 @@ class PostRepository:
                 'id': row[0],
                 'text': row[1],
                 'date': row[2],
-                'author_id': row[3],
-                'post_id': row[4]
+                'author_id': row[4],
+                'post_id': row[3]
             } for row in result
         ]
         return comments_list

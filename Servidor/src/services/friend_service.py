@@ -8,7 +8,7 @@ class FriendService(FriendRepository):
 
     @Pyro5.api.expose
     def create_friends(self, id_person: int, id_friend: int) -> None:
-        self.create_friendship(id_person, id_friend)
+        return self.create_friendship(id_person, id_friend)
 
     @Pyro5.api.expose
     def delete_friends(self,id_person: int, id_friend: int) -> bool:

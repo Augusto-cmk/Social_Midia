@@ -60,7 +60,7 @@ class TelaFeed(Screen):
         self.editarPerfil = None
         self.dir_img = None
         ## método para obter o feed do banco de dados
-        # self.atualizar_feed()
+        self.atualizar_feed()
         #---------------------------------------------------------------------------------------------------
         self.add_widget(self.rl)
     
@@ -70,27 +70,22 @@ class TelaFeed(Screen):
 
     def atualizar_feed(self):
         self.feed.clear()
-        self.cliente.input_mensage({"route":"friends","id":self.user.get_id()})
-        amigos = self.cliente.get_msg_server()
+        amigos = self.cliente.person_service.get_friends_person(self.user.get_id())
         for amigo in amigos:
-            self.cliente.input_mensage({"route":"posts","id":amigo['id']})
-            posts = self.cliente.get_msg_server()
+            posts = self.cliente.post_service.get_posts(amigo['id'])
             i = 0
             path_perfil = create_image_perfil(f"temp/post_perfil_{amigo['name']}.png",amigo['photo'])
             for j,post in enumerate(posts):
                 path = {}
                 path['path'] = create_image_perfil(f"temp/post_{amigo['name']}_{i}_{j}.png",post['image'])
-                self.cliente.input_mensage({"route":"comments_post","id_post":post['id']})
-                comentarios = len(self.cliente.get_msg_server())
+                comentarios = len(self.cliente.post_service.get_comments(post['id']))
                 self.inserir_post_friends(post['id'],post['curtir'],comentarios,post['text'],path,amigo['name'],path_perfil)
         
-        self.cliente.input_mensage({"route":"posts","id":self.user.get_id()})
-        my_posts = self.cliente.get_msg_server()
+        my_posts = self.cliente.post_service.get_posts(self.user.get_id())
         for i,my_post in enumerate(my_posts):
             path = {}
             path['path'] = create_image_perfil(f"temp/post_{self.user.get_nome()}_{i}.png",my_post['image'])
-            self.cliente.input_mensage({"route":"comments_post","id_post":my_post['id']})
-            comentarios = len(self.cliente.get_msg_server())
+            comentarios = len(self.cliente.post_service.get_comments(my_post['id']))
             self.inserir_post_friends(my_post['id'],my_post['curtir'],comentarios,my_post['text'],path,self.user.get_nome(),self.user.get_path_image())
 
     def buscar_usuario(self): # Cria um bloco para buscar um novo usuário (Enquanto digita, vão aparecendo os botões de sujestão)
@@ -124,9 +119,7 @@ class TelaFeed(Screen):
         label = Label(text="Pesquise por um usuário para colaboração",color='black',pos_hint={'center_x':0.5,'center_y':0.82},size_hint=(.01,.01))
         self.search_user.insertWidget(label)
         
-        
-        self.cliente.input_mensage({"route":"persons"})
-        self.persons = self.cliente.get_msg_server()
+        self.persons = self.cliente.person_service.get_persons_all()
         nomes = [person['name'] for person in self.persons]
         busca = TextToSearch((1,1,1,1),(0,0,0,1),15,(0,0,0,1),nomes,btns_search,self.action_name_search,pos_hint={"center_x":0.5,'center_y':0.7},size_hint=(.5,.05))
         self.search_user.insertWidget(busca)
@@ -139,8 +132,7 @@ class TelaFeed(Screen):
                 perfil = person
                 break
         
-        self.cliente.input_mensage({'route':'person','id':perfil['id']})
-        perfil = self.cliente.get_msg_server()
+        perfil = self.cliente.person_service.get_person(perfil['id'])
         self.visualizar_perfil_usuario(perfil)
 
     def criar_post(self): # Aqui vai dar um self.r.remove_widget(self.feed) e depois abrir um bloco para criar um post
@@ -221,8 +213,7 @@ class TelaFeed(Screen):
         self.add_widget(self.screenManager.go_to('login')(self.screenManager))
     
     def colaborar(self, id_perfil): # Local onde o usuário passa a ser colaborador do perfil visualizado
-        self.cliente.input_mensage({"route":"colaborar","id_user":self.user.get_id(),"id_perfil":id_perfil})
-        resposta = self.cliente.get_msg_server()
+        resposta = self.cliente.friend_service.create_friends(self.user.get_id(),id_perfil)
         if resposta:
             self.user.set_colaborando(self.user.get_colaborando()+1)
             self.colaboradoresSize.text = str(int(self.colaboradoresSize.text)+1)
@@ -232,8 +223,7 @@ class TelaFeed(Screen):
                     
         
     def desfazer_colaboracao(self,id_perfil): # Precisa implementar esse método 
-        self.cliente.input_mensage({'route':"close_friendship",'id_user':self.user.get_id(),'id_perfil':id_perfil})
-        resposta = self.cliente.get_msg_server()
+        resposta = self.cliente.friend_service.delete_friends(self.user.get_id(),id_perfil)
         if resposta:
             self.user.set_colaborando(self.user.get_colaborando()-1)
             self.colaboradoresSize.text = str(int(self.colaboradoresSize.text)-1)
@@ -246,11 +236,9 @@ class TelaFeed(Screen):
             self.perfil()
         else:
             self.rl.remove_widget(self.feed)
-            self.cliente.input_mensage({'route':'status','id':int(perfil['id'])})
-            status_perfil = self.cliente.get_msg_server()
+            status_perfil = self.cliente.person_status_service.get_person_status(perfil['id'])
 
-            self.cliente.input_mensage({'route':'friend_exist','id_user':self.user.get_id(),'id_perfil':perfil['id']})
-            already_colaborando = self.cliente.get_msg_server()
+            already_colaborando = perfil['id'] in [friend['id'] for friend in self.cliente.person_service.get_friends_person(self.user.get_id())]
 
             if self.search_user:
                 self.rl.remove_widget(self.search_user)
@@ -287,10 +275,8 @@ class TelaFeed(Screen):
             self.perfil_user.insertWidget(colaborando)
 
             # Aplicar a lógica para obter os colaboradores e colaborandos do BD
-            self.cliente.input_mensage({"route":"friendship",'id':perfil['id']})
-            friendship = self.cliente.get_msg_server()
-            colab = friendship['colaborando']
-            colabs = friendship['colaboradores']
+            colab = self.cliente.person_service.get_len_colaborando(perfil['id'])
+            colabs = self.cliente.person_service.get_len_colaborandores(perfil['id'])
             self.colaboradoresSize = Label(text=f"{colabs}",color='black',pos_hint={'center_x':0.44,'center_y':0.82},size_hint=(.01,.01))
             self.perfil_user.insertWidget(self.colaboradoresSize)
 
@@ -320,12 +306,10 @@ class TelaFeed(Screen):
             projetos = caixaRolagem(600,250,{"center_x":0.5,"center_y":0.46},spacing=0.2)
             self.perfil_user.insertWidget(projetos)
 
-            self.cliente.input_mensage({"route":"posts","id":perfil['id']})
-            my_posts = self.cliente.get_msg_server()
+            my_posts = self.cliente.post_service.get_posts(perfil['id'])
             for i,my_post in enumerate(my_posts):
                 path = create_image_perfil(f"temp/post_{perfil['name']}_{i}.png",my_post['image'])
-                self.cliente.input_mensage({"route":"comments_post","id_post":my_post['id']})
-                comentarios = len(self.cliente.get_msg_server())
+                comentarios = len(self.cliente.post_service.get_comments(my_post['id']))
                 project = Projeto(0.7,0.7,{"center_x":0.5,"center_y":0.8},path,my_post['curtir'],comentarios)
                 project.show()
                 projetos.add(project)
@@ -389,13 +373,10 @@ class TelaFeed(Screen):
         projetos = caixaRolagem(600,250,{"center_x":0.5,"center_y":0.46},spacing=0.2)
         self.perfil_user.insertWidget(projetos)
 
-
-        self.cliente.input_mensage({"route":"posts","id":self.user.get_id()})
-        my_posts = self.cliente.get_msg_server()
+        my_posts = self.cliente.post_service.get_posts(self.user.get_id())
         for i,my_post in enumerate(my_posts):
             path = create_image_perfil(f"temp/post_{self.user.get_nome()}_{i}.png",my_post['image'])
-            self.cliente.input_mensage({"route":"comments_post","id_post":my_post['id']})
-            comentarios = len(self.cliente.get_msg_server())
+            comentarios = len(self.cliente.post_service.get_comments(my_post['id']))
             project = Projeto(0.7,0.7,{"center_x":0.5,"center_y":0.8},path,my_post['curtir'],comentarios)
             project.show()
             projetos.add(project)
@@ -587,11 +568,6 @@ class TelaFeed(Screen):
                 alerta.start("Erro",erros[i])
                 self.rl.add_widget(alerta)
         new_data = {
-            "old":
-            {
-                "email":self.user.get_email(),
-                "senha":self.user.get_senha()
-            },
             "person":
             {
             "name":self.nome.get_text(),
@@ -608,11 +584,11 @@ class TelaFeed(Screen):
                 "course": self.curso.get_text(),
                 "web_site": self.website.get_text(),
                 "linkedin": self.linkedin.get_text()
-            },
-            "route":"alterar dados usuário"
+            }
         }
-        self.cliente.input_mensage(new_data)
-        resposta = self.cliente.get_msg_server()
+        person = self.cliente.person_service.refresh_perfil(self.user.get_id(),new_data['person'])
+        status = self.cliente.person_status_service.refresh_status(self.user.get_id(),new_data['status'])
+        resposta = person and status
         if resposta == True:
             alerta = Alerta()
             alerta.start("Sucesso","Alterações efetuadas com sucesso!")
@@ -710,14 +686,14 @@ class TelaFeed(Screen):
                 self.rl.add_widget(alerta)
                 imagem = None
 
-            self.cliente.input_mensage({"route":"post",
-                                        "info_post":{"text":text_post.text,
-                                                        "image":serialize(imagem).decode('latin1'),
-                                                        "curtir": 0,
-                                                        "date": datetime.datetime.now(),
-                                                        "author_id": self.user.get_id()}})
             
-            postado = self.cliente.get_msg_server()
+            data_post = {"text":text_post.text,
+                        "image":serialize(imagem).decode('latin1'),
+                        "curtir": 0,
+                        "date": datetime.datetime.now(),
+                        "author_id": self.user.get_id()}
+            
+            postado = self.cliente.post_service.create_post(data_post)
             if postado:
                 alerta = Alerta()
                 alerta.start("Sucesso","Post criado com sucesso !")
@@ -729,8 +705,7 @@ class TelaFeed(Screen):
 
     def post_curtido(self,id_post,text_curtidas:Label):
         text_curtidas.text = str(int(text_curtidas.text) + 1)
-        self.cliente.input_mensage({"route":"curtir","id":id_post})
-        self.cliente.get_msg_server()
+        self.cliente.post_service.curtir_post(id_post)
 
     def comentar_post(self,post:Post,id_post,text_comentar): # Tem que receber as informações do post (quem enviou o post e os comentarios existentes)
         post.clearWidgets()
@@ -740,12 +715,11 @@ class TelaFeed(Screen):
         post.insertWidget(comentario_post)
         btnVoltar = ImageButton(post.go_to_freeze_state,"Imagens/Voltar.png","circulo",pos_hint={'center_x':0.15,'center_y':0.82},size_hint=(0.05,0.05))
         post.insertWidget(btnVoltar)
-        self.cliente.input_mensage({"route":"comments_post","id_post":id_post})
-        comentarios = self.cliente.get_msg_server()
+        
+        comentarios = self.cliente.post_service.get_comments(id_post)
         for comentario in comentarios:
             texto = comentario['text']
-            self.cliente.input_mensage({"route":"img_perfil","id":comentario['author_id']})
-            foto = self.cliente.get_msg_server()
+            foto = self.cliente.person_service.get_person(comentario['author_id'])['photo'] # Ainda n ta funcionando (acho que o erro está no author_id)
             path_perfil = create_image_perfil(f"temp/post_perfil_comentario{comentario['author_id']}.png",foto)
             foto_perfil = BoxImage('circulo',path_perfil,size_hint=(.05,.05),pos_hint={'center_x':0.22,'center_y':0.82})
             comentLabel = Label(text=f'{texto}',color='black',pos_hint={'center_x':0.5,'center_y':0.82},size_hint=(.01,.01))
@@ -754,14 +728,7 @@ class TelaFeed(Screen):
     def enviar_comentario_post(self,post:Post,comentario:Text,id_post,text_comentar:Text):# Tem que receber as informações do post para poder enviar o comentario, assim como quem fez o comentario
         if len(comentario.get_text()) > 0:
             text_comentar.text = str(int(text_comentar.text)+1)
-            data = {
-                "text":comentario.get_text(),
-                "post_id":id_post,
-                "person_id":self.user.get_id(),
-                "route":"comment_post"
-            }
-            self.cliente.input_mensage(data)
-            resposta = self.cliente.get_msg_server()
+            resposta = self.cliente.comment_service.insert_comment(id_post,self.user.get_id(),comentario.get_text())
             if resposta:
                 foto_perfil = BoxImage('circulo',self.user.get_path_image(),size_hint=(.05,.05),pos_hint={'center_x':0.22,'center_y':0.82})
                 comentLabel = Label(text=f'{comentario.get_text()}',color='black',pos_hint={'center_x':0.5,'center_y':0.82},size_hint=(.01,.01))

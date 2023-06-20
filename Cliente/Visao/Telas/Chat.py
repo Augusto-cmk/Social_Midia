@@ -60,8 +60,8 @@ class TelaChat(Screen):
         btns_search = caixaRolagem(300,200,{"center_x":0.35,"center_y":0.45},spacing=0.91)
         self.caixaChat.insertWidget(btns_search)
 
-        self.cliente.input_mensage({"route":"friends","id":self.user.get_id()})
-        self.friends = self.cliente.get_msg_server()
+        
+        self.friends = self.cliente.person_service.get_friends_person(self.user.get_id())
         nomes = [person['name'] for person in self.friends]
         busca = TextToSearch((1,1,1,1),(0,0,0,1),15,(0,0,0,1),nomes,btns_search,self.action_name_search,pos_hint={"center_x":0.22,'center_y':0.2},size_hint=(.3,.05))
         busca.set_defeault_text("Digite o nome do amigo")
@@ -93,11 +93,8 @@ class TelaChat(Screen):
     
     def atualizar_chat(self,contato):
         self.chat.clearWidgets()
-        self.cliente.input_mensage({'route':'recive_msg','author':contato['id'],'destine':self.user.get_id()})
-        mensagens_recived = self.cliente.get_msg_server()
-
-        self.cliente.input_mensage({'route':'recive_msg','author':self.user.get_id(),'destine':contato['id']})
-        mensagens_sended = self.cliente.get_msg_server()
+        mensagens_recived = self.cliente.message_service.get_messages(contato['id'],self.user.get_id())
+        mensagens_sended = self.cliente.message_service.get_messages(self.user.get_id(),contato['id'])
 
         self.mensagens = sorted([*mensagens_recived,*mensagens_sended],key=lambda x: x['date'])
         for mensagem in self.mensagens:
@@ -118,11 +115,8 @@ class TelaChat(Screen):
         self.caixaChat.insertWidget(self.contato_img)
         self.caixaChat.insertWidget(self.nome_contato)
 
-        self.cliente.input_mensage({'route':'recive_msg','author':contato['id'],'destine':self.user.get_id()})
-        mensagens_recived = self.cliente.get_msg_server()
-
-        self.cliente.input_mensage({'route':'recive_msg','author':self.user.get_id(),'destine':contato['id']})
-        mensagens_sended = self.cliente.get_msg_server()
+        mensagens_recived = self.cliente.message_service.get_messages(contato['id'],self.user.get_id())
+        mensagens_sended = self.cliente.message_service.get_messages(self.user.get_id(),contato['id'])
 
         self.mensagens = sorted([*mensagens_recived,*mensagens_sended],key=lambda x: x['date'])
         for mensagem in self.mensagens:
@@ -136,8 +130,7 @@ class TelaChat(Screen):
 
     def enviarMSG(self):
         texto = self.mensagem.get_text()
-        self.cliente.input_mensage({'route':"send_msg",'id_envio':self.user.get_id(),'id_recebe':self.contato['id'],'text':texto})
-        sucesso = self.cliente.get_msg_server()
+        sucesso = self.cliente.message_service.send_message(self.user.get_id(),self.contato['id'],texto)
         if not sucesso:
             alerta = Alerta()
             alerta.start("Erro","A mensagem não pôde ser enviada, favor tentar novamente!")

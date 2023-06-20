@@ -9,7 +9,7 @@ class PostService(PostRepository):
 
     @Pyro5.api.expose
     def create_post(self, data_post: dict) -> int:
-        self._create_post(data_post)
+        return self._create_post(data_post)
 
     @Pyro5.api.expose
     def get_posts(self, id_autor) -> list:

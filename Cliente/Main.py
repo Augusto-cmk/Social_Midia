@@ -21,8 +21,7 @@ class GerenciadorTelas(ScreenManager):
         self.telas = {'login':TelaLogin,'cadastro':TelaCadastro,'chat':TelaChat,'feed':TelaFeed}
         self.cliente = Client()
         self.cliente.connect_to_server()
-        print(self.cliente.person_service.get_person(1))
-        # self.add_widget(TelaLogin(self))
+        self.add_widget(TelaLogin(self))
 
     def go_to(self,nomeTela):
         return self.telas[nomeTela]
@@ -39,6 +38,6 @@ class BrainCase(App):
         return self.gerenciador
 
     def on_request_close(self, *args):
-        os.kill(os.getpid(),signal.SIGKILL)
+        os.kill(os.getpid(),signal.SIGINT)
 
 BrainCase().run()
