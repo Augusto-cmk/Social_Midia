@@ -257,12 +257,13 @@ class TelaCadastro(Screen):
                     "course": self.curso.get_text(),
                     "web_site": self.website.get_text(),
                     "linkedin": self.linkedin.get_text()
-                },
-                "route":"cadastro"
+                }
             }
-            self.cliente.input_mensage(cadastro)
-            resposta = self.cliente.get_msg_server()
-            if resposta == True:
+            person = self.cliente.person_service.register_person(cadastro['person'])
+            if person:
+                id = self.cliente.person_service.id_person(cadastro['person']['email'],cadastro['person']['password'])
+                status = self.cliente.person_status_service.create_status_person(id,cadastro['status'])
+            if person and status == True:
                 self.clear_widgets()
                 alerta = Alerta()
                 alerta.start("Sucesso","Cadastro efetuado com sucesso!")

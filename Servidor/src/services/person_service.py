@@ -13,7 +13,7 @@ class PersonService(PersonRepository):
     def register_person(self, data_person):
         self._data_person = ValidationSchema.validation(data_person,
                                                         self._validation_schema)
-        self.insert_person(data_person)
+        return self.insert_person(data_person)
 
     @Pyro5.api.expose
     def refresh_perfil(self, id_person,data_person: dict):

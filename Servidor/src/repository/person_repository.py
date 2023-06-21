@@ -22,8 +22,9 @@ class PersonRepository:
                  data_person['state'], data_person['city'], data_person['birthday'])
             )
             connection.commit()
+            return True
         except Exception:
-            pass
+            return False
 
     def refresh_profile(self, id_person, data_person: dict) -> bool:
         try:
@@ -75,8 +76,8 @@ class PersonRepository:
                 "email": result[3],
                 "password": result[4],
                 "state": result[5],
-                "city": result[6],
-                "birthday": result[7]
+                "city": result[7],
+                "birthday": result[6]
             }
             return person
         return None

@@ -38,6 +38,9 @@ class BrainCase(App):
         return self.gerenciador
 
     def on_request_close(self, *args):
+        arquivos = os.listdir("temp")
+        for arquivo in arquivos:
+            os.remove(f"temp/{arquivo}")
         os.kill(os.getpid(),signal.SIGINT)
 
 BrainCase().run()

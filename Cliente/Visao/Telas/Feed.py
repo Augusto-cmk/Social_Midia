@@ -719,7 +719,7 @@ class TelaFeed(Screen):
         comentarios = self.cliente.post_service.get_comments(id_post)
         for comentario in comentarios:
             texto = comentario['text']
-            foto = self.cliente.person_service.get_person(comentario['author_id'])['photo'] # Ainda n ta funcionando (acho que o erro está no author_id)
+            foto = self.cliente.person_service.get_person(comentario['author_id'])['photo']
             path_perfil = create_image_perfil(f"temp/post_perfil_comentario{comentario['author_id']}.png",foto)
             foto_perfil = BoxImage('circulo',path_perfil,size_hint=(.05,.05),pos_hint={'center_x':0.22,'center_y':0.82})
             comentLabel = Label(text=f'{texto}',color='black',pos_hint={'center_x':0.5,'center_y':0.82},size_hint=(.01,.01))

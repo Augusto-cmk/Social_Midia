@@ -61,8 +61,7 @@ class TelaLogin(Screen):
         id_person = self.cliente.person_service.id_person(self.email.get_text(),self.senha.get_text())
         if id_person:
             person = self.cliente.person_service.get_person(id_person)
-            status = self.cliente.person_status_service.get_person_status(id_person) # Ainda não funciona direito
-            print(status)
+            status = self.cliente.person_status_service.get_person_status(id_person)
             colaborando = self.cliente.person_service.get_len_colaborando(id_person)
             colaboradores = self.cliente.person_service.get_len_colaborandores(id_person)
             user = User()

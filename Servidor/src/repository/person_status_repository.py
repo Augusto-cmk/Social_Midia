@@ -7,7 +7,6 @@ class PersonStatusRepository:
     def __init__(self):
         self.__connection = Connection().get_connection()
 
-    @staticmethod
     def _insert_person_status(self, data_person_status: dict, person_id: int) -> bool:
         try:
             cursor = self.__connection.cursor()
