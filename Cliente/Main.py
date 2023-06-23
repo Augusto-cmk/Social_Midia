@@ -41,6 +41,6 @@ class BrainCase(App):
         arquivos = os.listdir("temp")
         for arquivo in arquivos:
             os.remove(f"temp/{arquivo}")
-        os.kill(os.getpid(),signal.SIGINT)
+        os.kill(os.getpid(),signal.SIGKILL)
 
 BrainCase().run()

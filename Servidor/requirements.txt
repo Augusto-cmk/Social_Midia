@@ -4,3 +4,4 @@ SQLAlchemy~=2.0.13
 marshmallow~=3.19.0
 unidecode
 opencv-python
+Pyro5

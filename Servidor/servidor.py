@@ -5,13 +5,16 @@ from src.services.comment_service import CommentService
 from src.services.message_service import MessageService
 from src.services.friend_service import FriendService
 from src.services.person_status_service import PersonStatusService
-
-
+from threading import Thread
+import os
+import time
+import platform
 class Server:
     def __init__(self):
-        Pyro5.config.SERVERTYPE = "multiplex"
-        self.daemon = Pyro5.api.Daemon()
-
+    	Pyro5.config.SERVERTYPE = "multiplex"
+    	self.daemon = Pyro5.api.Daemon()
+        
+   
     def register_services(self):
         person_service = PersonService()
         post_service = PostService()
@@ -40,9 +43,21 @@ class Server:
         print("Servidor pronto para aceitar conexões.")
         self.daemon.requestLoop()
 
+def name_server():
+   if platform.system() == "Linux":
+        os.system("venv/bin/python3 -m Pyro5.nameserver --host=localhost --port=9999")
+   else:
+   	os.system("python -m Pyro5.nameserver --host=localhost --port=9999")
 
-# Exemplo de uso
-if __name__ == "__main__":
+def server():
     server = Server()
     server.register_services()
     server.start()
+
+if __name__ == "__main__":
+    nameserver = Thread(target=name_server)
+    serv = Thread(target=server)
+    nameserver.start()
+    time.sleep(1)
+    serv.start()
+    
