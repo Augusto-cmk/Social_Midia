@@ -89,8 +89,7 @@ class TelaLogin(Screen):
 
     def esqueci_senha(self):
         email = self.email.get_text()
-        self.cliente.input_mensage({"route":"password","email":email})
-        senha = self.cliente.get_msg_server()
+        senha = self.cliente.person_service.get_password_person(email)
         if senha:
             send = envioEmail(email,"Recuperação de senha",senha,"senha")
             if send:
