@@ -32,9 +32,9 @@ class MessageRepository:
             for result in results:
                 message = {
                     "text": result[1],
-                    "author_id": result[2],
-                    "destine_id": result[3],
-                    "date": result[4]
+                    "author_id": result[3],
+                    "destine_id": result[4],
+                    "date": result[2]
                 }
                 messages.append(message)
             return messages
