@@ -9,7 +9,6 @@ from Visao.Recursos.Popup import Alerta
 from Controle.Envio_email import envioEmail
 from Comunication.cliente import Client
 from Modelo.user import User
-import time
 
 
 class TelaLogin(Screen):

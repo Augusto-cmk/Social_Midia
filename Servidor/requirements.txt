@@ -5,3 +5,6 @@ marshmallow~=3.19.0
 unidecode
 opencv-python
 Pyro5
+googletrans
+flask
+requests
