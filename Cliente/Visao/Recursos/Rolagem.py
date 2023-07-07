@@ -73,6 +73,9 @@ class caixaRolagem(RelativeLayout):
         self.layout.add_widget(widget)
         self.i+=1
     
+    def del_widget(self,widget):
+        self.layout.remove_widget(widget)
+
     def clear(self):
         self.layout.clear_widgets()
         self.i = 0

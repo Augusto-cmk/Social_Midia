@@ -15,9 +15,8 @@ class GerenciadorTelas(ScreenManager):
         caminho_pasta = 'temp'
         if not os.path.exists(caminho_pasta):
             os.mkdir(caminho_pasta)
-        arquivos = os.listdir("temp")
-        for arquivo in arquivos:
-            os.remove(f"temp/{arquivo}")
+        
+        self.clear_temp()
         self.telas = {'login':TelaLogin,'cadastro':TelaCadastro,'chat':TelaChat,'feed':TelaFeed}
         self.cliente = Client()
         self.cliente.connect_to_server()
@@ -28,6 +27,11 @@ class GerenciadorTelas(ScreenManager):
 
     def get_client(self):
         return self.cliente
+    
+    def clear_temp(self):
+        arquivos = os.listdir("temp")
+        for arquivo in arquivos:
+            os.remove(f"temp/{arquivo}")
 
 
 class BrainCase(App):

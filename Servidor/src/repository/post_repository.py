@@ -88,3 +88,14 @@ class PostRepository:
             } for row in result
         ]
         return comments_list
+
+    def remove_post(self,id_post):
+        cursor = self.__connection.cursor()
+        try:
+            cursor.execute(
+                "DELETE FROM post WHERE id = ?", (id_post,)
+            )
+            self.__connection.commit()
+            return True
+        except Exception:
+            return False

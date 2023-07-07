@@ -24,7 +24,6 @@ class TelaFeed(Screen):
         self.cliente:Client = self.screenManager.get_client()
         self.user = user
         self.rl = RelativeLayout()
-
         fundo = BoxImage('retangulo','Imagens/Fundo2.jpg',size_hint=(1,1),pos_hint={'center_x':0.5,'center_y':0.5})
         self.rl.add_widget(fundo)
 
@@ -54,6 +53,9 @@ class TelaFeed(Screen):
         self.atualizar_btn = ImageButton(self.atualizar_feed,"Imagens/atualizar_btn.png","circulo",size_hint=(0.1,0.1),pos_hint={"center_x":0.5,"center_y":0.93})
         self.rl.add_widget(self.atualizar_btn)
 
+        self.conselho = Label(text='',color='black',size_hint=(0.1,0.1),pos_hint={"center_x":0.5,"center_y":0.87})
+        self.rl.add_widget(self.conselho)
+
         self.postagem = None
         self.search_user = None
         self.perfil_user = None
@@ -70,7 +72,9 @@ class TelaFeed(Screen):
 
     def atualizar_feed(self):
         self.feed.clear()
+        self.screenManager.clear_temp()
         amigos = self.cliente.person_service.get_friends_person(self.user.get_id())
+        self.conselho.text = self.cliente.api_service.get_advice()
         for amigo in amigos:
             posts = self.cliente.post_service.get_posts(amigo['id'])
             i = 0
@@ -79,14 +83,14 @@ class TelaFeed(Screen):
                 path = {}
                 path['path'] = create_image_perfil(f"temp/post_{amigo['name']}_{i}_{j}.png",post['image'])
                 comentarios = len(self.cliente.post_service.get_comments(post['id']))
-                self.inserir_post_friends(post['id'],post['curtir'],comentarios,post['text'],path,amigo['name'],path_perfil)
+                self.inserir_post_friends(False,post['id'],post['curtir'],comentarios,post['text'],path,amigo['name'],path_perfil)
         
         my_posts = self.cliente.post_service.get_posts(self.user.get_id())
         for i,my_post in enumerate(my_posts):
             path = {}
             path['path'] = create_image_perfil(f"temp/post_{self.user.get_nome()}_{i}.png",my_post['image'])
             comentarios = len(self.cliente.post_service.get_comments(my_post['id']))
-            self.inserir_post_friends(my_post['id'],my_post['curtir'],comentarios,my_post['text'],path,self.user.get_nome(),self.user.get_path_image())
+            self.inserir_post_friends(True,my_post['id'],my_post['curtir'],comentarios,my_post['text'],path,self.user.get_nome(),self.user.get_path_image())
 
     def buscar_usuario(self): # Cria um bloco para buscar um novo usuário (Enquanto digita, vão aparecendo os botões de sujestão)
         self.rl.remove_widget(self.feed)
@@ -318,6 +322,7 @@ class TelaFeed(Screen):
     
     def perfil(self): # Criar um bloco para visualizar o perfil
         self.rl.remove_widget(self.feed)
+        self.screenManager.clear_temp()
         if self.search_user:
             self.rl.remove_widget(self.search_user)
             self.search_user = None
@@ -622,7 +627,7 @@ class TelaFeed(Screen):
         self.dir_img = Choose_file().get_dir()
         self.carregar_img.set_new_img(self.dir_img)
 
-    def inserir_post_friends(self,id_post,curtidas,comentarios,text_post:Text,path_image_post:dict, nome:str, path_imagem_perfil:str):# Método chamado para inserir um post no feed do usuário
+    def inserir_post_friends(self,is_author,id_post,curtidas,comentarios,text_post:Text,path_image_post:dict, nome:str, path_imagem_perfil:str):# Método chamado para inserir um post no feed do usuário
         do = True
         if self.postagem:
             try:
@@ -638,7 +643,11 @@ class TelaFeed(Screen):
             # inserir informações do post
             foto_perfil = BoxImage('circulo',path_imagem_perfil,size_hint=(.1,.1),pos_hint={'center_x':0.22,'center_y':0.82})
             post.insertWidget(foto_perfil)
-
+            
+            if is_author:
+                delet_btn = ImageButton(self.delet_post,"Imagens/bloquear.png","circulo",argsAction=[id_post,post],pos_hint={'center_x':0.8,'center_y':0.82},size_hint=(.07,.07))
+                post.insertWidget(delet_btn)
+            
             arroba = Label(text=f'@{nome}',color='black',pos_hint={'center_x':0.4,'center_y':0.82},size_hint=(.01,.01))
             post.insertWidget(arroba)
 
@@ -667,6 +676,18 @@ class TelaFeed(Screen):
             post.freeze_state()
 
             self.feed.add(post)
+
+    def delet_post(self,id,post):
+        sucesso = self.cliente.post_service.delet_post(id)
+        if sucesso:
+            self.feed.del_widget(post)
+            alerta = Alerta()
+            alerta.start("Sucesso","Post removido com sucesso!")
+            self.rl.add_widget(alerta)
+        else:
+            alerta = Alerta()
+            alerta.start("Erro","Não foi possível remover o post!")
+            self.rl.add_widget(alerta)
 
     def inserir_post(self,text_post:Text,path_image_post:dict):
         do = True

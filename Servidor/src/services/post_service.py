@@ -26,3 +26,8 @@ class PostService(PostRepository):
     @Pyro5.api.expose
     def get_comments(self, post_id):
         return self.get_ordered_comments(post_id)
+
+    @Pyro5.api.expose
+    def delet_post(self,id_post):
+        return self.remove_post(id_post)
+    

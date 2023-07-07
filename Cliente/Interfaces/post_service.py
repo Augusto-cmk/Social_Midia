@@ -10,3 +10,6 @@ class PostService:
 
     def get_comments(self, post_id):
         pass
+
+    def delet_post(self,id_post):
+        pass

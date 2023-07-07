@@ -5,10 +5,12 @@ from src.services.comment_service import CommentService
 from src.services.message_service import MessageService
 from src.services.friend_service import FriendService
 from src.services.person_status_service import PersonStatusService
+from src.services.api_service import API
 from threading import Thread
 import os
 import time
 import platform
+from Conselho import startAPI
 
 
 class Server:
@@ -23,6 +25,7 @@ class Server:
         message_service = MessageService()
         friend_service = FriendService()
         person_status_service = PersonStatusService()
+        api = API()
 
         person_service_uri = self.daemon.register(person_service)
         post_service_uri = self.daemon.register(post_service)
@@ -30,6 +33,7 @@ class Server:
         message_service_uri = self.daemon.register(message_service)
         friend_service_uri = self.daemon.register(friend_service)
         person_status_service_uri = self.daemon.register(person_status_service)
+        api_uri = self.daemon.register(api)
 
         ns = Pyro5.api.locate_ns(host="localhost", port=9999)
 
@@ -39,6 +43,7 @@ class Server:
         ns.register("message_service", message_service_uri)
         ns.register("friend_service", friend_service_uri)
         ns.register("person_status_service", person_status_service_uri)
+        ns.register("api",api_uri)
 
     def start(self):
         print("Servidor pronto para aceitar conexões.")
@@ -52,6 +57,7 @@ def name_server():
         os.system("python -m Pyro5.nameserver --host=localhost --port=9999")
 
 
+
 def server():
     server = Server()
     server.register_services()
@@ -59,8 +65,11 @@ def server():
 
 
 if __name__ == "__main__":
+    api = Thread(target=startAPI)
     nameserver = Thread(target=name_server)
     serv = Thread(target=server)
+    api.start()
+    time.sleep(1)
     nameserver.start()
     time.sleep(1)
     serv.start()
